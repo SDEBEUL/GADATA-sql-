@@ -1,0 +1,8 @@
+﻿CREATE TABLE [dbo].[rt_sys_event] (
+    [id]            INT      IDENTITY (1, 1) NOT NULL,
+    [controller_id] INT      NULL,
+    [_timestamp]    DATETIME NULL,
+    [sys_state]     INT      NULL,
+    CONSTRAINT [PK_rt_sys_event] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+

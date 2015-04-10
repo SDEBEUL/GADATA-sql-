@@ -1,0 +1,8 @@
+﻿CREATE TABLE [dbo].[TEST] (
+    [ID]     INT    IDENTITY (1, 1) NOT NULL,
+    [BIGint] BIGINT NOT NULL,
+    [HIGH]   INT    NULL,
+    [LOW]    INT    NULL,
+    CONSTRAINT [PK_TEST] PRIMARY KEY CLUSTERED ([ID] ASC)
+);
+
