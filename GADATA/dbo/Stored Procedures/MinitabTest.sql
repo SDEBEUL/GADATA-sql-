@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].MinitabTest
-   @Robot as varchar(16) = '55100R01'
+   @Robot as varchar(16) = '55100R01' --test 
    ,@Tool_id as varchar(16) = '1'
 AS
 BEGIN
