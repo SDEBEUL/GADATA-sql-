@@ -582,5 +582,6 @@
     </Build>
     <Build Include="Security\ABB.sql" />
     <Build Include="Security\RobotGA.sql" />
+    <Build Include="DebugQuery.sql" />
   </ItemGroup>
 </Project>

@@ -297,7 +297,8 @@ WHERE
  ISNULL(c_logtekst.error_number, SysBreakDwnTime.error_number) is not null
 ORDER BY   _timestamp DESC 
 
+/* --sdebeul table was lost somewhere? why ? killed this 'option' 15w16d1
 insert into GADATA.dbo.L_updatelog (BreakdownCount,_timestamp)
 Values (@@ROWCOUNT,getdate())
-
+*/
 END
