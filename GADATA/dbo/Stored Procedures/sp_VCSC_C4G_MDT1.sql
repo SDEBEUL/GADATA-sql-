@@ -1,9 +1,10 @@
-﻿CREATE PROCEDURE [dbo].[sp_VCSC_C4G_MDT1]
+﻿CREATE PROCEDURE [dbo].[sp_VCSC_C4G_MDT2]
 
  @StartDate AS datetime = null 
 ,@EndDate As datetime = null
 ,@robot As varchar = '%%'
-,@ndays as int = 100
+,@ndays as int = 100 -- number of days history that will be calculated upon rebuild action.
+,@Rebuild as bit = 1 -- setting this bit to 1 wil drop all related tables and do a full rebuild. !DANGEROUS!
 
 AS
 BEGIN
@@ -16,12 +17,28 @@ SET @Timespan = 0
 --set first day of the week to monday (german std)
 ---------------------------------------------------------------------------------------
 SET DATEFIRST 1
+---------------------------------------------------------------------------------------
 
-SET @StartDate = getdate()- @ndays 
-SET @EndDate = getdate()
+---------------------------------------------------------------------------------------
+--Set start and en point for the calculation 
+---------------------------------------------------------------------------------------
+--full rebuild mode
+if (@Rebuild = 1)
+begin
+	SET @StartDate = getdate()- @ndays 
+	SET @EndDate = getdate()
+end
+--update mode 
+if (@Rebuild = 0)
+begin
+  SET @StartDate = getdate()
+  SET @EndDate = getdate()
+end
 
 --set start date to closest shift begin point
-SET @StartDate =  gadata.dbo.[fn_volvoCurrentShiftBegin](@StartDate,CAST(@StartDate AS time)) 
+SET @StartDate =  gadata.dbo.[fn_volvoCurrentShiftBegin](@StartDate,CAST(@StartDate AS time))
+--set End date to closest shift begin point
+SET @EndDate =  gadata.dbo.[fn_volvoCurrentShiftBegin](@EndDate,CAST(@EndDate AS time))
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 --Make a temp table that generates all the posible week day shifts from the end and startdate 
@@ -148,7 +165,7 @@ GADATA.dbo.fn_volvoday(EndOfBreakdown,CAST(EndOfBreakdown AS time)) AS 'day',
 GADATA.dbo.fn_volvoshift1(EndOfBreakdown,CAST(EndOfBreakdown AS time)) AS 'Shift',
 c_logclass1.appl,
 c_logclass1.Subgroup,
-DowntimeS = DATEDIFF(second,StartOfBreakdown,EndOfBreakdown)
+DowntimeM = DATEDIFF(MINUTE,StartOfBreakdown,EndOfBreakdown)
 INTO #Temp_L_breakdownGroups
 FROM L_breakdown
 
@@ -187,8 +204,8 @@ SELECT
 #Temp_L_WeekDayShift_RobotObjectSubgroup.subgroup,
 #Temp_L_WeekDayShift_RobotObjectSubgroup.appl,
 #Temp_L_WeekDayShift_RobotObjectSubgroup.controllerID,
-ISNULL(#Temp_L_breakdownGroups.downtimeS,0) as'downtimeS',
-#Temp_L_breakdownGroups.downtimeS as 'exists'
+ISNULL(#Temp_L_breakdownGroups.DowntimeM,0) as'downtimeM',
+#Temp_L_breakdownGroups.DowntimeM as 'exists'
 INTO #Temp_L_breakdownTest
 FROM #Temp_L_WeekDayShift_RobotObjectSubgroup
 LEFT JOIN #Temp_L_breakdownGroups on
