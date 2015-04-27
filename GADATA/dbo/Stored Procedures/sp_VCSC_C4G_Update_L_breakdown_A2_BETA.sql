@@ -4,7 +4,7 @@
    @EndDate as DATETIME = null,
    @RobotFilterWild as varchar(10) = '%',
    @RobotFilterMaskStart as varchar(10) = '%',
-   @RobotFilterMaskEnd as varchar(10) = '99999R99%',
+   @RobotFilterMaskEnd as varchar(10) = '99999r99%',
    @OrderbyRobot as bit = null,
    @CalcBreakDowntags as bit = 0
 AS
@@ -28,7 +28,7 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				rt_sys_event.controller_id,
 				rt_sys_event._timestamp,
 				rt_sys_event.sys_state,
-				robotState = dbo.fn_robstate(rt_sys_event.sys_state) --calculates a robot state. A running robot has 2 a non running one 0 
+				robotState = dbo.fn_robstate_beta(rt_sys_event.sys_state) --calculates a robot state. A running robot has 2 a non running one 0 
 			FROM  GADATA.dbo.rt_sys_event  AS rt_sys_event
 			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
 	
@@ -271,15 +271,12 @@ SELECT
 --INTO L_breakdown --this is to create the table 
 FROM #SysBreakDwnTime AS SysBreakDwnTime
 WHERE 
-SysBreakDwnTime.controller_id = 59
+SysBreakDwnTime.controller_id = 609
 AND
 
 --only add to table if a cause was detected 
 SysBreakDwnTime.error_number is not null
 ORDER BY   _timestamp DESC 
 
-/*
-insert into GADATA.dbo.L_updatelog (BreakdownCount,_timestamp)
-Values (@@ROWCOUNT,getdate())
-*/
+
 END

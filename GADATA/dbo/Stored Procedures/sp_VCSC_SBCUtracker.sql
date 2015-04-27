@@ -5,7 +5,7 @@
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
---set first day of the week to monday (german std)
+--set first day of the week to monday (german std) -- test 
 ---------------------------------------------------------------------------------------
 SET DATEFIRST 1
 ---------------------

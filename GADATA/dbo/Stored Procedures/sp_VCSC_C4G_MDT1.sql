@@ -1,10 +1,9 @@
-﻿CREATE PROCEDURE [dbo].[sp_VCSC_C4G_MDT2]
+﻿CREATE PROCEDURE [dbo].[sp_VCSC_C4G_MDT1]
 
  @StartDate AS datetime = null 
 ,@EndDate As datetime = null
 ,@robot As varchar = '%%'
-,@ndays as int = 100 -- number of days history that will be calculated upon rebuild action.
-,@Rebuild as bit = 1 -- setting this bit to 1 wil drop all related tables and do a full rebuild. !DANGEROUS!
+,@ndays as int = 100
 
 AS
 BEGIN
@@ -17,28 +16,12 @@ SET @Timespan = 0
 --set first day of the week to monday (german std)
 ---------------------------------------------------------------------------------------
 SET DATEFIRST 1
----------------------------------------------------------------------------------------
 
----------------------------------------------------------------------------------------
---Set start and en point for the calculation 
----------------------------------------------------------------------------------------
---full rebuild mode
-if (@Rebuild = 1)
-begin
-	SET @StartDate = getdate()- @ndays 
-	SET @EndDate = getdate()
-end
---update mode 
-if (@Rebuild = 0)
-begin
-  SET @StartDate = getdate()
-  SET @EndDate = getdate()
-end
+SET @StartDate = getdate()- @ndays 
+SET @EndDate = getdate()
 
 --set start date to closest shift begin point
-SET @StartDate =  gadata.dbo.[fn_volvoCurrentShiftBegin](@StartDate,CAST(@StartDate AS time))
---set End date to closest shift begin point
-SET @EndDate =  gadata.dbo.[fn_volvoCurrentShiftBegin](@EndDate,CAST(@EndDate AS time))
+SET @StartDate =  gadata.dbo.[fn_volvoCurrentShiftBegin](@StartDate,CAST(@StartDate AS time)) 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 --Make a temp table that generates all the posible week day shifts from the end and startdate 
