@@ -1,79 +1,60 @@
 ﻿CREATE PROCEDURE [ABB].[sp_Decode_AE]
-   @StartDate as DATETIME = null,
-   @EndDate as DATETIME = null,
-   @RobotFilterWild as varchar(10) = '%'
+
 AS
 --USE GADATA
 ---------------------------------------------------------------------------------------
 --set first day of the week to monday (german std)
 ---------------------------------------------------------------------------------------
 SET DATEFIRST 1
+---------------------------------------------------------------------------------------
 BEGIN
-
---IRC5 Live table splitting
-if (OBJECT_ID('tempdb..#ABB_IRC5_AE_datasplit') is not null) drop table #ABB_IRC5_AE_datasplit
+---------------------------------------------------------------------------------------
+--Live table splitting
+---------------------------------------------------------------------------------------
+if (OBJECT_ID('tempdb..#ABB_AE_datasplit') is not null) drop table #ABB_AE_datasplit
 SELECT
 id,    
-_timestamp,
-_sqlTimestamp,    
+_timestamp,   
 _message,
 'IRC5' as 'Type',
 CONVERT(XML,'<Product><Attribute>' + REPLACE([ABB].[fnStripLowAscii](_message),'"', '</Attribute><Attribute>') + '</Attribute></Product>') AS Message_Attr 
-INTO #ABB_IRC5_AE_datasplit
-FROM rt_ABB_irc5_ae
+INTO #ABB_AE_datasplit
+FROM gadata.dbo.rt_message
 WHERE len(_message) <> 0 --drops empty records
-AND
-_sqlTimestamp BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+---------------------------------------------------------------------------------------
 
---S4 Live Table splitting
-if (OBJECT_ID('tempdb..#ABB_S4_AE_datasplit') is not null) drop table #ABB_S4_AE_datasplit
-SELECT
-id,    
-_timestamp,
-_sqlTimestamp,    
-_message,
-'S4C' as 'Type',
-CONVERT(XML,'<Product><Attribute>' + REPLACE([ABB].[fnStripLowAscii](_message),'"', '</Attribute><Attribute>') + '</Attribute></Product>') AS Message_Attr 
-INTO #ABB_S4_AE_datasplit
-FROM rt_ABB_s4_ae
-WHERE len(_message) <> 0 --drops empty records
-AND
-_sqlTimestamp BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+---------------------------------------------------------------------------------------
+--push read data to 'readable table'
+---------------------------------------------------------------------------------------
+--!!!!only use to rebluid table--
+--if (OBJECT_ID('Gadata.abb.rt_alarm') is not null) drop table Gadata.abb.rt_alarm
+--SET IDENTITY_INSERT Gadata.abb.rt_alarm ON;
+--!!!!only use to rebluid table--
+INSERT into GADATA.abb.rt_alarm
+SELECT 
+--null, -- #ABB_AE_datasplit.id,        
+#ABB_AE_datasplit._timestamp,
+#ABB_AE_datasplit.Type,
+#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[2]','varchar(25)') AS 'Controller',
+#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[6]','varchar(25)') AS 'Category',
+#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[4]','varchar(500)') AS 'Message',
+#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[12]','varchar(500)') AS 'Cause',
+#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[16]','varchar(500)') AS 'Remedy',
+CONVERT(bigint,REPLACE(REPLACE(REPLACE(#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[5]','varchar(25)'),'(',''),')',''),' ','')) AS 'WnFiletime',
+REPLACE(#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[7]','varchar(25)'),' ((','')  AS 'severity', 
+REPLACE(REPLACE(#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[9]','varchar(25)'),'1 3 ',''),') (','') AS 'number'
+--!!!!only use to rebluid table--
+--INTO Gadata.abb.rt_alarm
+--!!!!only use to rebluid table--
+FROM #ABB_AE_datasplit
+---------------------------------------------------------------------------------------
 
---combine the 2 tables and select the collums we will keep
+---------------------------------------------------------------------------------------
+--clear read data from livestream table
+---------------------------------------------------------------------------------------
+DELETE FROM gadata.dbo.rt_message where gadata.dbo.rt_message.id <= (select max(#ABB_AE_datasplit.id) from #ABB_AE_datasplit)
+---------------------------------------------------------------------------------------
 
-SELECT         
---#ABB_IRC5_AE_datasplit._timestamp,
-#ABB_IRC5_AE_datasplit._sqlTimestamp, 
-#ABB_IRC5_AE_datasplit.Type,
---#ABB_IRC5_AE_datasplit._message,
-#ABB_IRC5_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[2]','varchar(25)') AS 'Controller',
-#ABB_IRC5_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[6]','varchar(25)') AS 'Category',
-#ABB_IRC5_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[4]','varchar(500)') AS 'Message',
-#ABB_IRC5_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[12]','varchar(500)') AS 'Cause',
-#ABB_IRC5_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[16]','varchar(500)') AS 'Remedy',
-REPLACE(REPLACE(#ABB_IRC5_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[5]','varchar(25)'),'(',''),')','') AS 'WnFiletime',
-REPLACE(#ABB_IRC5_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[7]','varchar(25)'),' ((','')  AS 'severity', 
-REPLACE(REPLACE(#ABB_IRC5_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[9]','varchar(25)'),'1 3 ',''),') (','') AS 'number'
-FROM #ABB_IRC5_AE_datasplit
-WHERE #ABB_IRC5_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[2]','varchar(25)') LIKE @RobotFilterWild
 
-UNION
-SELECT
---#ABB_S4_AE_datasplit._timestamp,
-#ABB_S4_AE_datasplit._sqlTimestamp, 
-#ABB_S4_AE_datasplit.Type,
---#ABB_S4_AE_datasplit._message,
-#ABB_S4_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[2]','varchar(25)') AS 'Controller',
-#ABB_S4_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[6]','varchar(25)') AS 'Category',
-LTRIM(SUBSTRING(#ABB_S4_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[4]','varchar(500)'),7,500)) AS 'Message',
-#ABB_S4_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[12]','varchar(500)') AS 'Cause',
-#ABB_S4_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[16]','varchar(500)') AS 'Remedy',
-REPLACE(REPLACE(#ABB_S4_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[5]','varchar(25)'),'(',''),')','') AS 'WnFiletime',
-REPLACE(#ABB_S4_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[7]','varchar(25)'),' ())','') AS 'severity',
-LTRIM(SUBSTRING(#ABB_S4_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[4]','varchar(500)'),1,6)) AS 'number'
-FROM #ABB_S4_AE_datasplit
-WHERE #ABB_S4_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[2]','varchar(25)') LIKE @RobotFilterWild
 
-ORDER BY _sqlTimestamp desc
 END

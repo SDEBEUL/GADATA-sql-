@@ -2,6 +2,7 @@
     [id]             INT      IDENTITY (1, 1) NOT NULL,
     [controller_id]  INT      NULL,
     [_timestamp]     DATETIME NULL,
+    [wi_timestamp]   BIGINT   NULL,
     [error_is_alarm] BIT      NULL,
     [error_id]       INT      NULL,
     [cause_id]       INT      NULL,
@@ -13,4 +14,6 @@
     CONSTRAINT [FK_h_alarm_L_error] FOREIGN KEY ([error_id]) REFERENCES [ABB].[L_error] ([id]),
     CONSTRAINT [FK_h_alarm_L_Remedy] FOREIGN KEY ([remedy_id]) REFERENCES [ABB].[L_Remedy] ([id])
 );
+
+
 
