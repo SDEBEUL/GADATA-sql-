@@ -1,5 +1,6 @@
 ﻿CREATE TABLE [ABB].[rt_alarm] (
-    [id]         INT            IDENTITY (1, 1) NOT NULL,
+    [key]        INT            IDENTITY (1, 1) NOT NULL,
+    [id]         INT            NULL,
     [_timestamp] DATETIME       NULL,
     [Type]       VARCHAR (4)    NOT NULL,
     [Controller] VARCHAR (25)   NULL,
@@ -11,6 +12,8 @@
     [severity]   VARCHAR (8000) NULL,
     [number]     VARCHAR (8000) NULL
 );
+
+
 
 
 

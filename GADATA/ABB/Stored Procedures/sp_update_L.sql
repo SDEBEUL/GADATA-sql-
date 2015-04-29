@@ -12,11 +12,12 @@ BEGIN
 ---------------------------------------------------------------------------------------------------------------------
 --In this part we will compare the error text data from rt_alarm with the L_<logtext> tables.
 --This is the first part in normalizing the db. (store each text / error type once
+Print '--Running ABB.sp_update_L'
 ---------------------------------------------------------------------------------------------------------------------
 --****************************************************************************************************************--
 
 ---------------------------------------------------------------------------------------
---Update L_remedy with all NEW Unique text
+Print'--Update L_remedy with all NEW Unique text'
 ---------------------------------------------------------------------------------------
 INSERT INTO GADATA.abb.L_Remedy
 SELECT distinct 
@@ -40,7 +41,7 @@ where (L_Cause.id IS NULL)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
---Update C_Category with all NEW Unique text
+Print'--Update C_Category with all NEW Unique text'
 ---------------------------------------------------------------------------------------
 INSERT INTO GADATA.abb.C_Category
 SELECT distinct 
@@ -52,12 +53,12 @@ where (C_Category.id IS NULL)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
---Update C_Controller with all NEW controllers
+Print'--Update C_Controller with all NEW controllers'
 ---------------------------------------------------------------------------------------
 INSERT INTO GADATA.abb.c_controller
+(controller_name)
 SELECT distinct 
 rt_alarm.Controller
-,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL-- 14 empty field to match table def. (need to find cleaner solution)
 From GADATA.abb.rt_alarm
 Left join GADATA.abb.c_controller on
 (rt_alarm.controller = c_controller.controller_name)
@@ -65,7 +66,7 @@ where (c_controller.id IS NULL)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
---Update L_error with all NEW Unique text (Watch => constraint to category_id)
+Print'--Update L_error with all NEW Unique text (Watch => constraint to category_id)'
 ---------------------------------------------------------------------------------------
 INSERT INTO GADATA.abb.L_error
 SELECT distinct 
@@ -97,7 +98,7 @@ where (L_error.id IS NULL)
 --****************************************************************************************************************--
 
 ---------------------------------------------------------------------------------------
---step the normalize the rt_alarm dataset. gets the normalized id. and puts it in a temp table
+Print'--step to normalize the rt_alarm dataset. gets the normalized id. and put it in a temp table'
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#ABB_AE_normalized') is not null) drop table #ABB_AE_normalized
 SELECT 
@@ -131,7 +132,7 @@ join GADATA.abb.L_Remedy on (L_Remedy.Remedy_text = rt_alarm.Remedy)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
---Update h_alarm with all NEW Unique alarms (Watch => constraints on wi_timestamp / controller_id / error_id)
+Print'--Update h_alarm with all NEW Unique alarms (Watch => constraints on wi_timestamp / controller_id / error_id)'
 ---------------------------------------------------------------------------------------
 INSERT INTO GADATA.ABB.h_alarm
 SELECT 
@@ -157,11 +158,10 @@ where (h_alarm.id IS NULL)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
---delete in rt_alarm is exist in h_alarm (Watch => constraints on wi_timestamp / controller_id / error_id)
+Print'--delete in rt_alarm is exist in h_alarm (Watch => constraints on wi_timestamp / controller_id / error_id)'
 ---------------------------------------------------------------------------------------
 DELETE FROM gadata.abb.rt_alarm where gadata.abb.rt_alarm.id <= (select max(id) from #ABB_AE_normalized)
 ---------------------------------------------------------------------------------------
-
 
 --****************************************************************************************************************--
 
