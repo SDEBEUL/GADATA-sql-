@@ -28,7 +28,7 @@ SELECT
               H._timestamp AS 'timestamp',
               error.error_number AS 'Logcode',
               error.error_severity AS 'Severity',
-              error.error_text + '   | Cause: ' + isnull(cause.cause_text,' NA') AS 'Logtekst',
+              'ERR:  ' + Cast( error.error_text as varchar(10)) + '   | Cause: ' + CAST(isnull(cause.cause_text,' NA') as varchar(10)) AS 'Logtekst',
               H.wi_timestamp AS 'wi_timestamp', -- 'Downtime', --voorlopig windows time meegegeven 
 			  DATEPART(YEAR, H._timestamp) AS 'Year',
 			  DATEPART(WEEK,H._timestamp) AS 'Week',
