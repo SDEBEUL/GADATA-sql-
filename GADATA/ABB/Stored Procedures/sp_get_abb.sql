@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [abb].[sp_get_abb]
+﻿CREATE PROCEDURE [ABB].[sp_get_abb]
 
    @StartDate as DATETIME = null,
    @EndDate as DATETIME = null,
@@ -28,7 +28,7 @@ SELECT
               H._timestamp AS 'timestamp',
               error.error_number AS 'Logcode',
               error.error_severity AS 'Severity',
-              error.error_text + '   | Cause: ' + cause.cause_text AS 'Logtekst',
+              error.error_text + '   | Cause: ' + isnull(cause.cause_text,' NA') AS 'Logtekst',
               H.wi_timestamp AS 'wi_timestamp', -- 'Downtime', --voorlopig windows time meegegeven 
 			  DATEPART(YEAR, H._timestamp) AS 'Year',
 			  DATEPART(WEEK,H._timestamp) AS 'Week',
