@@ -22,7 +22,7 @@ print '--[ABB].[sp_get_abb]--'
 print '--*****************************************************************************--'
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
-SELECT top 1000
+SELECT top 10
               NULL AS 'Location',
 			  c.controller_name AS 'Robotname',
               'ABB' AS 'Type',
@@ -34,7 +34,8 @@ SELECT top 1000
               H.wi_timestamp AS 'wi_timestamp', -- 'Downtime', --voorlopig windows time meegegeven 
 			  CONVERT(bigint,abb.[SplitString](H.wi_timestamp,' ',2)) as 'hi',
 			  CONVERT(int,abb.[SplitString](H.wi_timestamp,' ',1)) as 'low',
-			 -- abb.CombineToBigint(CONVERT(bigint,abb.[SplitString](H.wi_timestamp,' ',2)),CONVERT(bigint,abb.[SplitString](H.wi_timestamp,' ',1))) as 'big',
+			  abb.CombineToBigint1(CONVERT(numeric(10),abb.[SplitString](H.wi_timestamp,' ',2)),CONVERT(numeric(10),abb.[SplitString](H.wi_timestamp,' ',1))) as 'big',
+			  abb.BigIntTimeToDateTime1(abb.CombineToBigint1(CONVERT(numeric(10),abb.[SplitString](H.wi_timestamp,' ',2)),CONVERT(numeric(10),abb.[SplitString](H.wi_timestamp,' ',1)))) as 'FUCKINGSHIT',
 			  DATEPART(YEAR, H._timestamp) AS 'Year',
 			  DATEPART(WEEK,H._timestamp) AS 'Week',
 			  GADATA.dbo.fn_volvoday(H._timestamp,CAST(H._timestamp AS time)) AS 'day',  --need to remake this function 
