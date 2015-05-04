@@ -8,8 +8,10 @@
     [Message]    VARCHAR (500)  NULL,
     [Cause]      VARCHAR (500)  NULL,
     [Remedy]     VARCHAR (500)  NULL,
-    [WnFiletime] BIGINT         NULL,
+    [WnFiletime] VARCHAR (50)   NULL,
     [severity]   VARCHAR (8000) NULL,
     [number]     VARCHAR (8000) NULL
 );
+
+
 

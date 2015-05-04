@@ -1,4 +1,4 @@
-﻿CREATE TABLE [ABB].[rt_alarm] (
+﻿CREATE TABLE [ABB].[rt_alarm_IRC5] (
     [key]        INT            IDENTITY (1, 1) NOT NULL,
     [id]         INT            NULL,
     [_timestamp] DATETIME       NULL,
@@ -8,12 +8,8 @@
     [Message]    VARCHAR (500)  NULL,
     [Cause]      VARCHAR (500)  NULL,
     [Remedy]     VARCHAR (500)  NULL,
-    [WnFiletime] BIGINT         NULL,
+    [WnFiletime] VARCHAR (30)   NULL,
     [severity]   VARCHAR (8000) NULL,
     [number]     VARCHAR (8000) NULL
 );
-
-
-
-
 

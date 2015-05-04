@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [ABB].[sp_Decode_AE]
+﻿CREATE PROCEDURE [ABB].[sp_Decode_AE_IRC5]
 
 AS
 --USE GADATA
@@ -10,7 +10,7 @@ SET DATEFIRST 1
 BEGIN
 ---------------------------------------------------------------------------------------
 print '--*****************************************************************************--'
-Print '--Running ABB.sp_Decode_AE'
+Print '--Running ABB.sp_Decode_AE_IRC5'
 print '--*****************************************************************************--'
 Print'--Live table splitting'
 ---------------------------------------------------------------------------------------
@@ -31,9 +31,9 @@ Print'--push read data to readable table'
 ---------------------------------------------------------------------------------------
 --!!!!only use to rebluid table--
 /*
-if (OBJECT_ID('Gadata.abb.rt_alarm') is not null) 
+if (OBJECT_ID('Gadata.abb.rt_alarm_IRC5') is not null) 
 drop table abb.rt_alarm
-CREATE TABLE [ABB].[rt_alarm](
+CREATE TABLE [ABB].[rt_alarm_IRC5](
 	[key] [int] IDENTITY(1,1) NOT NULL,
 	[id] [int]  NULL,
 	[_timestamp] [datetime] NULL,
@@ -43,7 +43,7 @@ CREATE TABLE [ABB].[rt_alarm](
 	[Message] [varchar](500) NULL,
 	[Cause] [varchar](500) NULL,
 	[Remedy] [varchar](500) NULL,
-	[WnFiletime] [bigint] NULL,
+	[WnFiletime] [varchar](30) NULL,
 	[severity] [varchar](8000) NULL,
 	[number] [varchar](8000) NULL
 ) ON [PRIMARY]
@@ -51,7 +51,7 @@ CREATE TABLE [ABB].[rt_alarm](
 --SET IDENTITY_INSERT Gadata.abb.rt_alarm ON;
 --!!!!only use to rebluid table--
 
-INSERT into GADATA.abb.rt_alarm
+INSERT into GADATA.abb.rt_alarm_IRC5
 (id,_timestamp,Type,Controller,Category,Message,Cause,Remedy,WnFiletime,severity,number)
 SELECT 
 #ABB_AE_datasplit.id,        
@@ -62,7 +62,7 @@ SELECT
 #ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[4]','varchar(500)') AS 'Message',
 #ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[12]','varchar(500)') AS 'Cause',
 #ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[16]','varchar(500)') AS 'Remedy',
-CONVERT(bigint,REPLACE(REPLACE(REPLACE(#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[5]','varchar(25)'),'(',''),')',''),' ','')) AS 'WnFiletime',
+REPLACE(REPLACE(#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[5]','varchar(25)'),'(',''),')','') AS 'WnFiletime',
 REPLACE(#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[7]','varchar(25)'),' ((','')  AS 'severity', 
 REPLACE(REPLACE(#ABB_AE_datasplit.Message_Attr.value('/Product[1]/Attribute[9]','varchar(25)'),'1 3 ',''),') (','') AS 'number'
 FROM #ABB_AE_datasplit

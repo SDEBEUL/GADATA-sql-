@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [ABB].[sp_update_L]
+﻿CREATE PROCEDURE [ABB].[sp_update_L_IRC5]
 
 AS
 --USE GADATA
@@ -13,7 +13,7 @@ BEGIN
 --In this part we will compare the error text data from rt_alarm with the L_<logtext> tables.
 --This is the first part in normalizing the db. (store each text / error type once
 print '--*****************************************************************************--'
-Print '--Running ABB.sp_update_L'
+Print '--Running ABB.sp_update_L_IRC5'
 print '--*****************************************************************************--'
 ---------------------------------------------------------------------------------------------------------------------
 --****************************************************************************************************************--
@@ -24,9 +24,9 @@ Print'--Update L_remedy with all NEW Unique text'
 INSERT INTO GADATA.abb.L_Remedy
 SELECT distinct 
 Remedy
-From GADATA.abb.rt_alarm
+From GADATA.abb.rt_alarm_IRC5
 Left join GADATA.abb.L_Remedy on
-(rt_alarm.Remedy = L_Remedy.Remedy_text)
+(rt_alarm_IRC5.Remedy = L_Remedy.Remedy_text)
 where (L_Remedy.id IS NULL)
 ---------------------------------------------------------------------------------------
 
@@ -36,9 +36,9 @@ where (L_Remedy.id IS NULL)
 INSERT INTO GADATA.abb.L_Cause
 SELECT distinct 
 Cause
-From GADATA.abb.rt_alarm
+From GADATA.abb.rt_alarm_IRC5
 Left join GADATA.abb.L_Cause on
-(rt_alarm.Cause = L_Cause.Cause_text)
+(rt_alarm_IRC5.Cause = L_Cause.Cause_text)
 where (L_Cause.id IS NULL)
 ---------------------------------------------------------------------------------------
 
@@ -47,10 +47,10 @@ Print'--Update C_Category with all NEW Unique text'
 ---------------------------------------------------------------------------------------
 INSERT INTO GADATA.abb.C_Category
 SELECT distinct 
-rt_alarm.Category
-From GADATA.abb.rt_alarm
+rt_alarm_IRC5.Category
+From GADATA.abb.rt_alarm_IRC5
 Left join GADATA.abb.C_Category on
-(rt_alarm.category = C_Category.Category)
+(rt_alarm_IRC5.category = C_Category.Category)
 where (C_Category.id IS NULL)
 ---------------------------------------------------------------------------------------
 
@@ -60,10 +60,10 @@ Print'--Update C_Controller with all NEW controllers'
 INSERT INTO GADATA.abb.c_controller
 (controller_name)
 SELECT distinct 
-rt_alarm.Controller
-From GADATA.abb.rt_alarm
+rt_alarm_IRC5.Controller
+From GADATA.abb.rt_alarm_IRC5
 Left join GADATA.abb.c_controller on
-(rt_alarm.controller = c_controller.controller_name)
+(rt_alarm_IRC5.controller = c_controller.controller_name)
 where (c_controller.id IS NULL)
 ---------------------------------------------------------------------------------------
 
@@ -78,11 +78,11 @@ SELECT distinct
 ,null
 ,null
 ,c_category.id
-From GADATA.abb.rt_alarm
+From GADATA.abb.rt_alarm_IRC5
 Left join GADATA.abb.L_error on
-(rt_alarm.[Message] = L_error.error_text)
+(rt_alarm_IRC5.[Message] = L_error.error_text)
 LEFT join GADATA.abb.c_category on 
-(GADATA.abb.rt_alarm.Category = GADATA.abb.c_category.Category)
+(GADATA.abb.rt_alarm_IRC5.Category = GADATA.abb.c_category.Category)
 where (L_error.id IS NULL)
 ---------------------------------------------------------------------------------------
 
@@ -104,33 +104,33 @@ Print'--step to normalize the rt_alarm dataset. gets the normalized id. and put 
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#ABB_AE_normalized') is not null) drop table #ABB_AE_normalized
 SELECT 
- rt_alarm.id
+ rt_alarm_IRC5.id
 ,c_controller.id as 'controller_id'
-,rt_alarm._timestamp
-,rt_alarm.WnFiletime
+,rt_alarm_IRC5._timestamp
+,rt_alarm_IRC5.WnFiletime
 ,null as 'error_is_alarm'
 ,L_error.id as 'error_id'
 ,L_cause.id as 'cause_id'
 ,L_remedy.id  as 'remedy_id'
 ,null as 'restart_id'
 INTO #ABB_AE_normalized
-FROM GADATA.ABB.rt_alarm
+FROM GADATA.ABB.rt_alarm_IRC5
 --join controller_id
-join gadata.abb.c_controller on (c_controller.controller_name = rt_alarm.controller)
+join gadata.abb.c_controller on (c_controller.controller_name = rt_alarm_IRC5.controller)
 
 --join error_id
 join gadata.abb.L_error on 
 (
-(L_error.[error_number] = rt_alarm.number)
+(L_error.[error_number] = rt_alarm_IRC5.number)
 AND
-(L_error.[error_severity] = rt_alarm.severity)
+(L_error.[error_severity] = rt_alarm_IRC5.severity)
 AND
-(L_error.error_text = rt_alarm.[message])
+(L_error.error_text = rt_alarm_IRC5.[message])
 )
 --join cause_id
-join GADATA.abb.L_Cause on (l_cause.cause_text = rt_alarm.cause)
+join GADATA.abb.L_Cause on (l_cause.cause_text = rt_alarm_IRC5.cause)
 --join remedy_id
-join GADATA.abb.L_Remedy on (L_Remedy.Remedy_text = rt_alarm.Remedy)
+join GADATA.abb.L_Remedy on (L_Remedy.Remedy_text = rt_alarm_IRC5.Remedy)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -140,7 +140,8 @@ INSERT INTO GADATA.ABB.h_alarm
 SELECT 
  #ABB_AE_normalized.controller_id
 ,#ABB_AE_normalized._timestamp
-,#ABB_AE_normalized.WnFileTime --confict met big int 
+,#ABB_AE_normalized.WnFileTime
+,null as 'wd_timestamp'
 ,#ABB_AE_normalized.error_is_alarm
 ,#ABB_AE_normalized.error_id
 ,#ABB_AE_normalized.cause_id
@@ -162,7 +163,7 @@ where (h_alarm.id IS NULL)
 ---------------------------------------------------------------------------------------
 Print'--delete in rt_alarm is exist in h_alarm (Watch => constraints on wi_timestamp / controller_id / error_id)'
 ---------------------------------------------------------------------------------------
-DELETE FROM gadata.abb.rt_alarm where gadata.abb.rt_alarm.id <= (select max(id) from #ABB_AE_normalized)
+DELETE FROM gadata.abb.rt_alarm_IRC5 where gadata.abb.rt_alarm_IRC5.id <= (select max(id) from #ABB_AE_normalized)
 ---------------------------------------------------------------------------------------
 
 --****************************************************************************************************************--

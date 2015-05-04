@@ -31,7 +31,7 @@ Print'--push read data to readable table'
 --!!!!only use to rebluid table--
 /*
 if (OBJECT_ID('Gadata.abb.rt_alarm_S4') is not null) 
-drop table abb.rt_alarm
+drop table abb.[rt_alarm_S4]
 CREATE TABLE [ABB].[rt_alarm_S4](
 	[key] [int] IDENTITY(1,1) NOT NULL,
 	[id] [int]  NULL,
@@ -42,7 +42,7 @@ CREATE TABLE [ABB].[rt_alarm_S4](
 	[Message] [varchar](500) NULL,
 	[Cause] [varchar](500) NULL,
 	[Remedy] [varchar](500) NULL,
-	[WnFiletime] [bigint] NULL,
+	[WnFiletime] [varchar](50) NULL,
 	[severity] [varchar](8000) NULL,
 	[number] [varchar](8000) NULL
 ) ON [PRIMARY]
@@ -60,7 +60,7 @@ s.Message_Attr.value('/Product[1]/Attribute[6]','varchar(25)') AS 'Category',
 LTRIM(SUBSTRING(s.Message_Attr.value('/Product[1]/Attribute[4]','varchar(500)'),7,500)) AS 'Message', 
 s.Message_Attr.value('/Product[1]/Attribute[12]','varchar(500)') AS 'Cause', 
 s.Message_Attr.value('/Product[1]/Attribute[16]','varchar(500)') AS 'Remedy', 
-CONVERT(bigint,REPLACE(REPLACE(REPLACE(s.Message_Attr.value('/Product[1]/Attribute[5]','varchar(25)'),'(',''),')',''),' ','')) AS 'WnFiletime', 
+REPLACE(REPLACE(s.Message_Attr.value('/Product[1]/Attribute[5]','varchar(25)'),'(',''),')','') AS 'WnFiletime', 
 REPLACE(s.Message_Attr.value('/Product[1]/Attribute[7]','varchar(25)'),' ())','') AS 'severity', 
 LTRIM(SUBSTRING(s.Message_Attr.value('/Product[1]/Attribute[4]','varchar(500)'),1,6)) AS 'number' 
 FROM #ABB_AE_S4_datasplit AS S  
