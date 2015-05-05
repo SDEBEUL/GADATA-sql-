@@ -1,9 +1,10 @@
-﻿CREATE FUNCTION [ABB].[CombineToBigint] (@HiINT int, @lowINT int)
-RETURNS bigint AS 
+﻿--converted to work with numeric20 as a 64 bit unsinged int and numeric 10 as the 32 bit int
+CREATE FUNCTION [ABB].[CombineToBigint] (@HiINT numeric(10), @lowINT numeric(10))
+RETURNS numeric(20) AS 
 BEGIN     
-DECLARE @output AS bigint     
+DECLARE @output AS numeric(20)     
 BEGIN      
-SET @output =  ((convert(bigint,@HiINT)*(power(convert(bigint,2),convert(bigint,(32))))-1) +@lowINT)  
+SET @output =  (convert( numeric(20),@HiINT)*(power(convert(numeric(20),2),convert( numeric(20),(32)))) + convert(numeric(20),@lowINT))  
   
 END 
 RETURN @output

@@ -1,4 +1,4 @@
-﻿CREATE FUNCTION [ABB].[BigIntTimeToDateTime] (@biFileTime bigint)
+﻿CREATE FUNCTION [ABB].[BigIntTimeToDateTime] (@biFileTime bigint) --millisecond resolution 
 RETURNS datetime AS 
 BEGIN     
 DECLARE @output AS datetime  
@@ -13,6 +13,7 @@ IF @biFileTime IS NULL
 ELSE   
 
 BEGIN      
+--0.
 -- remove difference between 1900 and 1601, then divide by 10,000 to get milliseconds        
 SET @ms = (@biFileTime - 94354848000000000)/10000         
 -- check that result is positive else return 1st Jan 1900 as the datetime        
