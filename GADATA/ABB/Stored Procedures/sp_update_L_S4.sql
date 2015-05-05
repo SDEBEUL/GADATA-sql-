@@ -141,7 +141,7 @@ SELECT
  #ABB_AE_normalized.controller_id
 ,#ABB_AE_normalized._timestamp
 ,#ABB_AE_normalized.WnFileTime 
-,null as 'wd_timestamp'
+,abb.BigIntTimeToDateTime(abb.CombineToBigint(CONVERT(numeric(10),abb.[SplitString](#ABB_AE_normalized.WnFileTime,' ',1)),CONVERT(numeric(10),abb.[SplitString](#ABB_AE_normalized.WnFileTime,' ',2)))) as 'wd_timestamp'
 ,#ABB_AE_normalized.error_is_alarm
 ,#ABB_AE_normalized.error_id
 ,#ABB_AE_normalized.cause_id
