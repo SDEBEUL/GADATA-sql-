@@ -3,7 +3,7 @@
   <Version>10</Version>
   <SourceModelProvider>
     <ConnectionBasedModelProvider>
-      <ConnectionString>Data Source=SQLA001.gen.volvocars.net;Initial Catalog=GADATA;User ID=GADATA;Pooling=False;MultipleActiveResultSets=False;Application Name="Microsoft SQL Server Data Tools, Schema Compare"</ConnectionString>
+      <ConnectionString>Data Source=SQLA001.gen.volvocars.net;Initial Catalog=GADATA;User ID=GADATA;Pooling=False;MultipleActiveResultSets=False;Application Name="Microsoft SQL Server Data Tools, SQL Server Object Explorer"</ConnectionString>
     </ConnectionBasedModelProvider>
   </SourceModelProvider>
   <TargetModelProvider>
