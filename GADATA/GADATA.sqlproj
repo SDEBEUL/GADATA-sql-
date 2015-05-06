@@ -679,5 +679,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ExcelFront\SQLfront_C1.xlsm" />
+    <None Include="SqlSchemaCompare1.scmp" />
   </ItemGroup>
 </Project>

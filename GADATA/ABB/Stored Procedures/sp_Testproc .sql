@@ -16,5 +16,5 @@ exec abb.sp_update_L_S4
 exec abb.sp_UPDATE_abb_APPL_Subgroup
 
 --Display data from last 24h 
-exec abb.sp_get_abb
+--exec abb.sp_get_abb
 end

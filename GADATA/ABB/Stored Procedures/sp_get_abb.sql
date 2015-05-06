@@ -27,8 +27,8 @@ SELECT TOP 1000000
 			  c.controller_name AS 'Robotname',
               'ABB' AS 'Type',
 			  Category.Category AS 'Errortype',
-              H._timestamp AS 'timestamp_sql',
-			  H.wd_timestamp as 'timestamp_robot',
+              convert(char(19),H._timestamp,120) AS 'timestamp_sql', --watch out this is converted to play beter with excel but we hide this miliseconds with this 
+			  convert(char(19),H.wd_timestamp,120) AS 'timestamp_robot',
 			  error.error_number AS 'Logcode',
               error.error_severity AS 'Severity',
               'ERR:  ' + Cast( error.error_text as varchar(30)) + '   | Cause: ' + CAST(isnull(cause.cause_text,' NA') as varchar(50)) AS 'Logtekst',
