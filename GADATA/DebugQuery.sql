@@ -1,1 +1,0 @@
-exec GADATA.dbo.sp_VCSC_C4G_LiveView_a1

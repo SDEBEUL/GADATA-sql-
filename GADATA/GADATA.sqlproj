@@ -115,6 +115,7 @@
     <Folder Include="ABB\Stored Procedures\" />
     <Folder Include="dbo\Stored Procedures\" />
     <Folder Include="ABB\Tables\" />
+    <Folder Include="ExcelFront" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\AreaTable.sql">
@@ -559,8 +560,6 @@
     </Build>
     <Build Include="Security\ABB.sql" />
     <Build Include="Security\RobotGA.sql" />
-    <Build Include="David.sql" />
-    <Build Include="DebugQuery.sql" />
     <Build Include="dbo\Tables\TipDressHeatSteppersParameters.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -673,5 +672,12 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
+    <Build Include="dbo\Tables\abb_test1.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ExcelFront\SQLfront_C1.xlsm" />
   </ItemGroup>
 </Project>

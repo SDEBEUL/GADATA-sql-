@@ -47,7 +47,7 @@ LEFT JOIN gadata.abb.c_controller as C ON (c.id = H.controller_id)
 --join the alarm text
 LEFT JOIN GADATA.ABB.L_error as error on (error.id = H.error_id)
 --join the cause text 
-LEFT JOIN GADATA.ABB.L_cause as cause on (cause.id = H.error_id)
+LEFT JOIN GADATA.ABB.L_cause as cause on (cause.id = H.cause_id)
 --join the fault category
 LEFT JOIN GADATA.ABB.c_category as category on (category.id = error.category_id)
 --join the APPL
