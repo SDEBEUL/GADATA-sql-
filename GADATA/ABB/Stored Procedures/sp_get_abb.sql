@@ -65,5 +65,5 @@ AND
 AND  
 (c.controller_name LIKE @RobotFilterWild)
 
-ORDER BY timestamp_sql DESC
+ORDER BY H._timestamp DESC
 END

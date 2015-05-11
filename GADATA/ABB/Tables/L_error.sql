@@ -14,3 +14,13 @@
 
 
 
+
+
+
+GO
+CREATE TRIGGER [ABB].ABB_L_error_Apply_appl_subgroups ON gadata.abb.L_error AFTER INSERT 
+AS
+IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
+BEGIN
+ EXEC GADATA.abb.sp_UPDATE_abb_APPL_Subgroup
+END

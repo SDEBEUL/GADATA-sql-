@@ -13,3 +13,13 @@
     [number]     VARCHAR (8000) NULL
 );
 
+
+
+
+GO
+CREATE TRIGGER [ABB].ABB_IRC5_normalize_trigger ON gadata.abb.rt_alarm_IRC5 AFTER INSERT 
+AS
+IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
+BEGIN
+ EXEC GADATA.abb.sp_update_L_IRC5
+END

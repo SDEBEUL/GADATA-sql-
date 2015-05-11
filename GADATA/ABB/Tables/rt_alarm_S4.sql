@@ -15,3 +15,13 @@
 
 
 
+
+
+
+GO
+CREATE TRIGGER [ABB].ABB_S4_normalize_trigger ON gadata.abb.rt_alarm_s4 AFTER INSERT 
+AS
+IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
+BEGIN
+ EXEC GADATA.abb.sp_update_L_S4
+END

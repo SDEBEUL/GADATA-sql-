@@ -7,6 +7,8 @@
 );
 
 
+
+
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'timestamp of SQL server on insert. (is passed null and takes default )', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'rt_message_ABB_S4', @level2type = N'COLUMN', @level2name = N'sqltimestamp';
 
@@ -14,3 +16,11 @@ EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'timestamp o
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'timestamp from OPC server (pc time)', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'rt_message_ABB_S4', @level2type = N'COLUMN', @level2name = N'_timestamp';
 
+
+GO
+CREATE TRIGGER ABB_s4_message_trigger ON gadata.dbo.rt_message_abb_s4 AFTER INSERT 
+AS
+IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
+BEGIN
+ EXEC GADATA.abb.sp_Decode_AE_S4
+END
