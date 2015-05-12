@@ -1,10 +1,12 @@
-﻿CREATE TABLE [dbo].[rt_message] (
+CREATE TABLE [dbo].[rt_message] (
     [id]           INT            IDENTITY (1, 1) NOT NULL,
     [_timestamp]   DATETIME       NULL,
     [_message]     VARCHAR (2000) NULL,
     [SQLtimestamp] DATETIME       CONSTRAINT [DF_rt_message_SQLtimestamp] DEFAULT (getdate()) NULL,
     PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 

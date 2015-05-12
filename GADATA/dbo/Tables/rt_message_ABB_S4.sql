@@ -1,10 +1,12 @@
-﻿CREATE TABLE [dbo].[rt_message_ABB_S4] (
+CREATE TABLE [dbo].[rt_message_ABB_S4] (
     [id]           INT            IDENTITY (1, 1) NOT NULL,
     [_timestamp]   DATETIME       NULL,
     [_message]     VARCHAR (2000) NULL,
     [sqltimestamp] DATETIME       CONSTRAINT [DF_rt_message_ABB_S4_sqltimestamp] DEFAULT (getdate()) NULL,
     PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 
@@ -18,9 +20,9 @@ EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'timestamp f
 
 
 GO
-CREATE TRIGGER ABB_s4_message_trigger ON gadata.dbo.rt_message_abb_s4 AFTER INSERT 
+CREATE TRIGGER [dbo].[ABB_s4_message_trigger] ON [GADATA].[dbo].[rt_message_ABB_S4] AFTER INSERT 
 AS
-IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
-BEGIN
- EXEC GADATA.abb.sp_Decode_AE_S4
-END
+	IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
+		BEGIN
+		 EXEC GADATA.abb.sp_Decode_AE_S4
+		END

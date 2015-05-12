@@ -1,4 +1,4 @@
-﻿CREATE TABLE [ABB].[rt_alarm_S4] (
+CREATE TABLE [ABB].[rt_alarm_S4] (
     [key]        INT            IDENTITY (1, 1) NOT NULL,
     [id]         INT            NULL,
     [_timestamp] DATETIME       NULL,
@@ -18,10 +18,12 @@
 
 
 
+
+
 GO
-CREATE TRIGGER [ABB].ABB_S4_normalize_trigger ON gadata.abb.rt_alarm_s4 AFTER INSERT 
+CREATE TRIGGER [ABB].[ABB_S4_normalize_trigger] ON [GADATA].[ABB].[rt_alarm_S4] AFTER INSERT 
 AS
-IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
+IF ((SELECT TRIGGER_NESTLEVEL()) < 3)
 BEGIN
  EXEC GADATA.abb.sp_update_L_S4
 END

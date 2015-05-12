@@ -1,4 +1,4 @@
-﻿CREATE TABLE [ABB].[L_error] (
+CREATE TABLE [ABB].[L_error] (
     [id]             INT           IDENTITY (1, 1) NOT NULL,
     [error_number]   INT           NULL,
     [error_severity] INT           NULL,
@@ -17,10 +17,12 @@
 
 
 
+
+
 GO
-CREATE TRIGGER [ABB].ABB_L_error_Apply_appl_subgroups ON gadata.abb.L_error AFTER INSERT 
+CREATE TRIGGER [ABB].[ABB_L_error_Apply_appl_subgroups] ON [GADATA].[ABB].[L_error] AFTER INSERT 
 AS
-IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
+IF ((SELECT TRIGGER_NESTLEVEL()) < 4)
 BEGIN
  EXEC GADATA.abb.sp_UPDATE_abb_APPL_Subgroup
 END
