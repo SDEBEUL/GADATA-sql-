@@ -11,8 +11,20 @@
     [enable_bit]        INT           NULL,
     [variable_mask]     INT           NULL,
     [error_no_log_mask] INT           NULL,
+    [A_Fronius]         BIT           NULL,
+    [A_Arictiec]        BIT           NULL,
+    [A_Nutrunner]       BIT           NULL,
+    [A_Hand]            BIT           NULL,
+    [A_Laser]           BIT           NULL,
+    [A_Brazing]         BIT           NULL,
+    [A_Hemming]         BIT           NULL,
+    [A_Preceptron]      BIT           NULL,
+    [A_Visdelta]        BIT           NULL,
+    [A_Edixia]          BIT           NULL,
     CONSTRAINT [PK_c_controller] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 

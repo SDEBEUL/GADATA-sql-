@@ -23,15 +23,15 @@ print '--***********************************************************************
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 SELECT TOP 1000000
-              NULL AS 'Location',
+              c.location AS 'Location',
 			  c.controller_name AS 'Robotname',
-              'ABB' AS 'Type',
+              c.type AS 'Type',
 			  Category.Category AS 'Errortype',
               convert(char(19),H._timestamp,120) AS 'timestamp_sql', --watch out this is converted to play beter with excel but we hide this miliseconds with this 
 			  convert(char(19),H.wd_timestamp,120) AS 'timestamp_robot',
 			  error.error_number AS 'Logcode',
               error.error_severity AS 'Severity',
-              'ERR:  ' + Cast( error.error_text as varchar(30)) + '   | Cause: ' + CAST(isnull(cause.cause_text,' NA') as varchar(50)) AS 'Logtekst',
+              'ERR:  ' + Cast( error.error_text as varchar(60)) + '   | Cause: ' + CAST(isnull(cause.cause_text,' NA') as varchar(50)) AS 'Logtekst',
               NULL as 'Downtime', 
 			  DATEPART(YEAR, H._timestamp) AS 'Year',
 			  DATEPART(WEEK,H._timestamp) AS 'Week',
@@ -39,7 +39,8 @@ SELECT TOP 1000000
 			  GADATA.dbo.fn_volvoshift1(H._timestamp,CAST(H._timestamp AS time)) AS 'Shift',
 			  Appl.Appl AS 'Appl',
 			  Subgroup.Subgroup AS 'Subgroup',
-              CAST(H.id AS int) AS 'idx'
+              CAST(H.id AS int) AS 'idx',
+			  ROW_NUMBER() OVER (PARTITION BY h.controller_id ORDER BY h._timestamp DESC) AS rnDESC
 			  
 FROM GADATA.abb.h_alarm as H
 --join the controller name
@@ -64,6 +65,9 @@ AND
 (c.controller_name BETWEEN @RobotFilterMaskStart AND @RobotFilterMaskEnd )
 AND  
 (c.controller_name LIKE @RobotFilterWild)
+--location filter 
+AND
+(c.location LIKE @LocationFilterWild)
 
 ORDER BY H._timestamp DESC
 END

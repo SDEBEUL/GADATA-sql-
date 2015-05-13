@@ -30,7 +30,8 @@ AS
 		p4.Material AS 'plate4 Material',
 		p4.Coating AS 'plate4 Coating',
 		Timer.Name AS 'timer',
-		NPT.Name AS 'NPT'
+		NPT.Name AS 'NPT',
+		Spot.Zone AS 'Zone'
 	FROM GADATA.dbo.Spot AS Spot
 		JOIN GADATA.dbo.Timer AS Timer
 			ON Timer.ID = Spot.TimerID
@@ -78,4 +79,5 @@ AS
 		p4.Material, 
 		p4.Coating, 
 		Timer.Name,
+		Spot.Zone,
 		NPT.Name
