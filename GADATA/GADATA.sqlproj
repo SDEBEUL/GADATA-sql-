@@ -116,6 +116,7 @@
     <Folder Include="dbo\Stored Procedures\" />
     <Folder Include="ABB\Tables\" />
     <Folder Include="ExcelFront" />
+    <Folder Include="dbo\Views\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\AreaTable.sql">
@@ -705,6 +706,26 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="ABB\Stored Procedures\sp_F_Get_CauseRemedy.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="ABB\Tables\L_timeline.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="ABB\Tables\C_timeline.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="dbo\Views\View_1.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="dbo\Stored Procedures\sp_VCSC_trendsA1.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="ABB\Stored Procedures\sp_makeTimelinetable.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>

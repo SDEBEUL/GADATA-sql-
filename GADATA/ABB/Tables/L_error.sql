@@ -21,6 +21,8 @@ CREATE TABLE [ABB].[L_error] (
 
 
 
+
+
 GO
 CREATE TRIGGER [ABB].[ABB_L_error_Apply_appl_subgroups] ON [GADATA].[ABB].[L_error] AFTER INSERT 
 AS

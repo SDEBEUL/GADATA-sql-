@@ -2,6 +2,7 @@
 
    @StartDate as DATETIME = null,
    @EndDate as DATETIME = null,
+   @Daysback as int = 1,
    @RobotFilterWild as varchar(10) = '%',
    @RobotFilterMaskStart as varchar(10) = '%',
    @RobotFilterMaskEnd as varchar(10) = '99999R99%',
@@ -23,6 +24,8 @@
    @MinLogserv as int = 0
 AS
 BEGIN
+
+
 ---------------------------------------------------------------------------------------
 --set first day of the week to monday (german std)
 ---------------------------------------------------------------------------------------
@@ -47,7 +50,7 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				rt_sys_event.sys_state,
 				robotState = dbo.fn_robstate(rt_sys_event.sys_state) --calculates a robot state a running robot has 2 a non running one 0 
 			FROM  GADATA.dbo.rt_sys_event  AS rt_sys_event
-			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
 			AND @GetC4GEvents = 1
 	
 			--data from L_operation (to catch robots goning offline)
@@ -59,7 +62,7 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				sys_state = 262144, 
 				robotState = 0
 			FROM GADATA.dbo.l_operation AS l_operation
-			WHERE (l_operation._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) AND (l_operation.code = 4) --connection lost 
+			WHERE (l_operation._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())) AND (l_operation.code = 4) --connection lost 
 			AND @GetC4GEvents = 1
 	) AS x 
 	
@@ -113,7 +116,34 @@ if (OBJECT_ID('tempdb..#SysEventTime') is not null)  DROP TABLE #SysEventTime
 		   SELECT * FROM #SysEventLive
        ) as x
 
-
+---------------------------------------------------------------------------------------
+--Select robot id's into table that are in an active breakdown 
+---------------------------------------------------------------------------------------
+if (OBJECT_ID('tempdb..#BadRobots') is not null)  DROP TABLE #BadRobots
+SELECT 
+#SysEventTime.controller_id
+, 'C4G|' as 'robstate' 
+into #BadRobots FROM #SysEventTime
+WHERE 
+--robot that are down now
+(
+#SysEventTime.rnDESC = 1 
+AND 
+#SysEventTime.robotState = 0
+AND 
+#SysEventTime.controller_id NOT IN(4,5)
+)
+--robot that are in a running breakdown
+OR
+(
+#SysEventTime.rnDESC = 1 
+AND 
+#SysEventTime.robotState = 2
+AND
+#SysEventTime.TimeinState < '1900-01-01 00:03:00.00'
+AND 
+#SysEventTime.controller_id NOT IN(4,5)
+)
 	  
 ---------------------------------------------------------------------------------------
 
@@ -138,7 +168,7 @@ JOIN GADATA.dbo.rt_alarm on c_controller.id = rt_alarm.controller_id
 
 WHERE 
 --reference pool
-(rt_alarm._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE()))
+(rt_alarm._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE()))
 --error must be a realtime alarm.
 AND
 (rt_alarm.error_is_alarm = 1)
@@ -171,7 +201,7 @@ FROM GADATA.dbo.rt_value
 WHERE 
 (rt_value.variable_id = 1) --$GEN_OVER
 AND 
-(GADATA.dbo.rt_value._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) 
+(GADATA.dbo.rt_value._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())) 
 )
 --BREAK
 if (@GetC4GSpeedCheck = 1) 
@@ -229,12 +259,12 @@ AND
 SELECT  
               c_controller.location AS 'Location',
 			  c_controller.controller_name AS 'Robotname',
-              'C4G' AS 'Type',
+              ISNULL(#BadRobots.robstate,'C4G') AS 'Type',
 			  'EVENT' AS 'Errortype',
 			  convert(char(19),SysEventTime._timestamp,120) AS 'Timestamp',
               NULL AS 'Logcode',
-              NULL AS 'Severity',
-              'Time: ' + convert(Char(8),SysEventTime.timeinstate,108) + '  Code: ' + CAST(SyseventTime.Sys_state AS varchar) + ' SS: ' + dbo.fn_robstate(SysEventTime.Sys_state) + '  SysState: ' + (dbo.fn_decodeSysstate(SysEventTime.Sys_state)) + ''  AS 'Logtekst', --+ '  Code: ' + (CAST(SyseventTime.Sys_state) AS String) 
+              CAST(dbo.fn_robstate(SysEventTime.Sys_state) AS varchar(2)) AS 'Severity',
+              'Time: ' + convert(Char(8),SysEventTime.timeinstate,108) + '  Code: ' + CAST(SyseventTime.Sys_state AS varchar) +   '  SysState: ' + (dbo.fn_decodeSysstate(SysEventTime.Sys_state)) AS 'Logtekst', --+ '  Code: ' + (CAST(SyseventTime.Sys_state) AS String) 
               NULL AS 'Downtime',
               DATEPART(YEAR, SysEventTime._timestamp) AS 'Year',
 			  DATEPART(WEEK,SysEventTime._timestamp) AS 'Week',
@@ -247,13 +277,16 @@ SELECT
 			  --debug collums
               --SysEventTime.sys_state,
               --CAST(SysEventTime.rnDESC AS int) AS 'rnDESC',
-              CAST(SysEventTime.id AS int) AS 'idx'
+              CAST(SysEventTime.rndesc AS int) AS 'idx'
               --NULL AS 'SSidx'
 			  
 
 FROM    #SysEventTime AS SysEventTime 
 --join the controller name
 JOIN    c_controller ON (SysEventTime.controller_id = c_controller.id) 
+--join bad robot list
+LEFT JOIN #BadRobots ON (SysEventTime.controller_id = #BadRobots.controller_id) 
+
 --robot name filter 
 WHERE 
 (c_controller.controller_name BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd)
@@ -272,11 +305,10 @@ AND
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION
-
 SELECT  
               c_controller.location AS 'Location',
 			  c_controller.controller_name AS 'Robotname',
-              'C4G' AS 'Type',
+              ISNULL(#BadRobots.robstate,'C4G') AS 'Type',
 			  'COLLISION' AS 'Errortype',
 			  convert(char(19),rt_value._timestamp,120) AS 'Timestamp',
               NULL AS 'Logcode',
@@ -293,14 +325,16 @@ SELECT
 		
 FROM    rt_value  
 --join the controller name
-JOIN    c_controller ON (rt_value.controller_id = c_controller.id) 
+JOIN    c_controller ON (rt_value.controller_id = c_controller.id)
+--join bad robot list
+LEFT JOIN #BadRobots ON (rt_value.controller_id = #BadRobots.controller_id) 
 --robot name filter 
 WHERE
 --only get the collision specific data 
 (rt_value.variable_id = 11)
 AND
 --datetime filter
-(rt_value._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) 
+(rt_value._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())) 
 AND 
 (c_controller.controller_name BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd)
 AND  
@@ -323,7 +357,7 @@ UNION
 SELECT  
               c_controller.location AS 'Location',
 			  c_controller.controller_name AS 'Robotname',
-              'C4G' AS 'Type',
+              ISNULL(#BadRobots.robstate,'C4G') AS 'Type',
 			  'BREAKDOWN',
               convert(char(19),L_breakdown.EndOfBreakdown,120) AS 'Timestamp',
               L_breakdown.error_number AS 'Logcode',
@@ -347,18 +381,20 @@ SELECT
             
 FROM GADATA.dbo.L_breakdown
 --join the controller name
-JOIN    c_controller ON (L_breakdown.controller_id = c_controller.id) 
+JOIN    c_controller ON (L_breakdown.controller_id = c_controller.id)
+--join bad robot list
+LEFT JOIN #BadRobots ON (L_breakdown.controller_id = #BadRobots.controller_id) 
 --try and get an error classification
 LEFT JOIN GADATA.dbo.c_logclass1 as c_logclass1 ON 
 (
 (L_breakdown.error_number BETWEEN c_logclass1.error_codeStart AND c_logclass1.error_codeEnd)
 OR
-(L_breakdown.error_text LIKE c_logclass1.error_tekst)
+(L_breakdown.error_text LIKE RTRIM(c_logclass1.error_tekst))
 )
 
 WHERE 
 --Datetime filter
- L_breakdown.StartOfBreakdown  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+ L_breakdown.StartOfBreakdown  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
 AND
 --robot name filter 
 ((c_controller.controller_name BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd))
@@ -386,7 +422,7 @@ UNION
 SELECT  
               c_controller.location AS 'Location',
 			  c_controller.controller_name AS 'Robotname',
-              'C4G' AS 'Type',
+               ISNULL(#BadRobots.robstate,'C4G') AS 'Type',
 			  'BEGIN',
               convert(char(19),L_breakdown.StartOfBreakdown,120) AS 'Timestamp',
               L_breakdown.error_number AS 'Logcode',
@@ -410,17 +446,19 @@ SELECT
 FROM GADATA.dbo.L_breakdown
 --join the controller name
 JOIN    c_controller ON (L_breakdown.controller_id = c_controller.id) 
+--join bad robot list
+LEFT JOIN #BadRobots ON (L_breakdown.controller_id = #BadRobots.controller_id) 
 --try and get an error classification
 LEFT JOIN GADATA.dbo.c_logclass1 as c_logclass1 ON 
 (
 (L_breakdown.error_number BETWEEN c_logclass1.error_codeStart AND c_logclass1.error_codeEnd)
 OR
-(L_breakdown.error_text LIKE c_logclass1.error_tekst)
+(L_breakdown.error_text LIKE RTRIM(c_logclass1.error_tekst))
 )
 
 WHERE 
 --Datetime filter
- L_breakdown.StartOfBreakdown  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+ L_breakdown.StartOfBreakdown  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
 AND
 --robot name filter 
 ((c_controller.controller_name BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd))
@@ -498,7 +536,7 @@ UNION
 SELECT 
               c_controller.location AS 'Location',
 			  c_controller.controller_name AS 'Robotname',
-              'C4G' AS 'Type',
+               ISNULL(#BadRobots.robstate,'C4G') AS 'Type',
 			  'ERROR' AS 'Errortype',
               convert(char(19),(rt_alarm._timestamp + '1900-01-01 00:00:05.00'),120) AS 'timestamp',--  because the err event is always a little bit quicker than the Sys event
               ISNULL(c_logtekst.error_number, rt_alarm.error_number) AS 'Logcode',
@@ -521,6 +559,8 @@ SELECT
 FROM    GADATA.dbo.rt_alarm rt_alarm
 --join the controller name
 JOIN    c_controller ON (rt_alarm.controller_id = c_controller.id)
+--join bad robot list
+LEFT JOIN #BadRobots ON (rt_alarm.controller_id = #BadRobots.controller_id) 
 --join logtekst table
 LEFT JOIN c_logtekst ON (c_logtekst.id = rt_alarm.error_id)
 
@@ -529,12 +569,12 @@ LEFT JOIN GADATA.dbo.c_logclass1 as c_logclass1 ON
 (
 (isnull(c_logtekst.error_number, rt_alarm.error_number) BETWEEN c_logclass1.error_codeStart AND c_logclass1.error_codeEnd)
 OR
-(isnull(c_logtekst.error_text, rt_alarm.error_text) LIKE c_logclass1.error_tekst)
+(isnull(c_logtekst.error_text, rt_alarm.error_text) LIKE RTRIM(c_logclass1.error_tekst))
 ) 
 
 WHERE 
 --datetime filter
-rt_alarm._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+rt_alarm._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
 AND
 --robot name filter 
  (c_controller.controller_name BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd )
@@ -567,7 +607,7 @@ UNION
 SELECT 
               c_controller.location AS 'Location',
 			  c_controller.controller_name AS 'Robotname',
-              'C4G' AS 'Type',
+               ISNULL(#BadRobots.robstate,'C4G') AS 'Type',
 			  'ACTION' AS 'Errortype',
               --convert(char(19),rt_alarm.error_timestamp,120) AS 'timestamp',
 			  convert(char(19),((rt_alarm.error_timestamp - '1900-01-01 01:00:00.00') + #C4GActionLogtimediff.timeoffset),120) AS 'timestamp', -- timeoffset houd geen rekening met daylight saving time daarom -1 h 
@@ -591,6 +631,8 @@ SELECT
 FROM    GADATA.dbo.rt_alarm rt_alarm
 --join the controller name
 JOIN    c_controller ON (rt_alarm.controller_id = c_controller.id) 
+--join bad robot list
+LEFT JOIN #BadRobots ON (rt_alarm.controller_id = #BadRobots.controller_id) 
 --join logtekst table
 LEFT JOIN c_logtekst ON (c_logtekst.id = rt_alarm.error_id)
 
@@ -602,7 +644,7 @@ LEFT JOIN GADATA.dbo.c_logclass1 as c_logclass1 ON
 (
 (isnull(c_logtekst.error_number, rt_alarm.error_number) BETWEEN c_logclass1.error_codeStart AND c_logclass1.error_codeEnd)
 OR
-(isnull(c_logtekst.error_text, rt_alarm.error_text) LIKE c_logclass1.error_tekst)
+(isnull(c_logtekst.error_text, rt_alarm.error_text) LIKE RTRIM(c_logclass1.error_tekst))
 ) 
 
 WHERE
@@ -610,7 +652,7 @@ WHERE
 rt_alarm.error_is_alarm = 0
 AND 
 --datetime filter
-rt_alarm.error_timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+rt_alarm.error_timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
 AND
 --robot name filter 
 (c_controller.controller_name BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd )
@@ -663,7 +705,7 @@ LEFT JOIN GADATA.dbo.c_logclass1 as c_logclass1 ON
 (
 (rt_alarm.error_number BETWEEN c_logclass1.error_codeStart AND c_logclass1.error_codeEnd)
 OR
-(RobotLogText.LogText LIKE c_logclass1.error_tekst)
+(isnull(RobotGA.rt_alarm.error_text,RobotLogText.LogText) LIKE RTRIM(c_logclass1.error_tekst))
 ) 
 
 
@@ -673,7 +715,7 @@ Robotga.robot.Type = 1
 
 AND 
 --date time filter
-rt_alarm.error_timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+rt_alarm.error_timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
 AND
 --robot name filter 
 (Robot.RobotName BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd )
@@ -732,7 +774,7 @@ JOIN    GADATA.RobotGA.Robot ON (L_robotpositions.controller_id = Robot.id)
 
 WHERE
 --date time filter
-L_robotpositions._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+L_robotpositions._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
 AND
 --robot name filter 
 (Robot.RobotName BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd )
@@ -744,6 +786,36 @@ AND
 --enable bit
 AND
 @GetModification = 1
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--timeline
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT 
+              NULL AS 'Location',
+			  'Timeline' AS 'Robotname',
+              'Timeline' AS 'Type',
+			  'Timeline' AS 'Errortype',
+              L_timeline.starttime AS 'timestamp',
+              NULL AS 'Logcode',
+              NULL AS 'Severity',
+              'Begin of shift' AS 'Logtekst',
+              NULL AS 'Downtime',
+			  L_timeline.Vyear AS 'Year',
+			  L_timeline.Vweek AS 'Week',
+			  L_timeline.Vday AS 'day',
+			  L_timeline.shift AS 'Shift',
+			  'Timeline' AS 'Object',
+			  'Timeline' AS 'Subgroup',
+              NULL AS 'idx'
+			  
+FROM    GADATA.abb.L_timeline
+
+WHERE
+--date time filter
+L_timeline.starttime  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
 
 
 ---------------------------------------------------------------------------------------
