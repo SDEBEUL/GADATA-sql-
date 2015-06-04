@@ -31,7 +31,7 @@ where (L_Remedy.id IS NULL)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
---Update L_Cause with all NEW Unique text
+Print 'Update L_Cause with all NEW Unique text'
 ---------------------------------------------------------------------------------------
 INSERT INTO GADATA.abb.L_Cause
 SELECT distinct 

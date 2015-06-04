@@ -9,6 +9,9 @@
     [TheoZ]     INT           NULL,
     [Comment]   VARCHAR (255) NULL,
     [KitNr]     VARCHAR (10)  NULL,
-    [Ombouw]    VARCHAR (50)  NULL
+    [Ombouw]    VARCHAR (50)  NULL,
+    CONSTRAINT [PK_c_weldguns] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 

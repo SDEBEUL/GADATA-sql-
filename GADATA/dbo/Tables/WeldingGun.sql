@@ -4,6 +4,10 @@
     [ElectrodeNbr] TINYINT    NULL,
     [VariantID]    INT        NULL,
     [TimerID]      INT        NULL,
-    CONSTRAINT [PK_WeldingGun] PRIMARY KEY CLUSTERED ([ID] ASC)
+    CONSTRAINT [PK_WeldingGun] PRIMARY KEY CLUSTERED ([ID] ASC),
+    CONSTRAINT [FK_WeldingGun_Timer] FOREIGN KEY ([TimerID]) REFERENCES [dbo].[Timer] ([ID]),
+    CONSTRAINT [FK_WeldingGun_WeldingGunVariant] FOREIGN KEY ([VariantID]) REFERENCES [dbo].[WeldingGunVariant] ([ID])
 );
+
+
 

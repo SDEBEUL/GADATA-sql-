@@ -4,7 +4,7 @@
    @EndDate as DATETIME = null,
    @RobotFilterWild as varchar(10) = '%',
    @RobotFilterMaskStart as varchar(10) = '%',
-   @RobotFilterMaskEnd as varchar(10) = '99999R99%',
+   @RobotFilterMaskEnd as varchar(10) = '88999R99%',
    @LocationFilterWild as varchar(20) = '%',
 
    @OrderbyRobot as bit = null,
@@ -19,8 +19,9 @@
    @GetC3GError as bit = 1,
    @GetModification as bit = 0,
 
-   @ExcludeGateStops as bit = 0,
-   @MinLogserv as int = 10
+   @ExcludeGateStops as bit = 1,
+   @MinLogserv as int = 10,
+   @minDowntime as int = 4
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
@@ -294,15 +295,6 @@ if (OBJECT_ID('tempdb..#SysBreakDwnTime') is not null) drop table #SysBreakDwnTi
               )
        )
 ---------------------------------------------------------------------------------------
-
-
-
-
-
---
-
-
-	  
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -384,6 +376,7 @@ AND
 AND
 (#C4GSpeedchecktemp.value IN ( 100, null))
 )
+
 WHERE 
 --robots that are not 100% now
 (
@@ -486,25 +479,22 @@ END
 --------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 --C4G Qry Breakdowns (einde van storings met storings tijd)
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 
-SELECT  
+SELECT   
               c_controller.location AS 'Location',
-			  c_controller.controller_name AS 'Robotname',
+			  c_controller.controller_name AS 'Robot',
               'C4G' AS 'Type',
 			  'BREAKDOWN' As 'Errortype',
               convert(char(19),L_breakdown.EndOfBreakdown,120) AS 'Timestamp',
               L_breakdown.error_number AS 'Logcode',
               NULL AS 'Severity',
-              ISNULL(L_breakdown.error_text,'-----------Breakdown Tag-----------') AS 'Logtekst',
-			  DOWNTIME = DATEDIFF(MINUTE,L_breakdown.StartOfBreakdown,L_breakdown.EndOfBreakdown),
+              ISNULL(L_breakdown.error_text,'-----------Breakdown Tag-----------') AS 'Logtekst1',
+			  DT = DATEDIFF(MINUTE,L_breakdown.StartOfBreakdown,L_breakdown.EndOfBreakdown),
               DATEPART(YEAR, L_breakdown.StartOfBreakdown) AS 'Year',
 			  DATEPART(WEEK,L_breakdown.StartOfBreakdown) AS 'Week',
 			  GADATA.dbo.fn_volvoday(L_breakdown.StartOfBreakdown,CAST(L_breakdown.StartOfBreakdown AS time)) AS 'day',
@@ -548,7 +538,8 @@ AND
 AND
 --enable bit
 (@GetC4GDowntimes = 1)
-
+--filter small breakdowns 
+AND DATEDIFF(MINUTE,L_breakdown.StartOfBreakdown,L_breakdown.EndOfBreakdown) > @minDowntime 
 ---------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------
@@ -559,7 +550,7 @@ AND
 UNION
 SELECT  
               c_controller.location AS 'Location',
-			  c_controller.controller_name AS 'Robotname',
+			  c_controller.controller_name AS 'Robot',
               'C4G' AS 'Type',
 			  'SLOWSPEED',
 			     CASE 
@@ -569,19 +560,19 @@ SELECT
 				    ELSE convert(char(19),#C4GSpeedcheck.TimestampNOK,120) 
                  END AS 'Timestamp',
 			  '99003' AS 'Logcode',
-              '10' AS 'Severity',
+              '20' AS 'Severity',
               'CurrentSpeed: ' + #C4GSpeedcheck.ActiveSpeed + ' Slowspeed: '  + ISNULL(#C4GSpeedcheck.OldSpeedValue,'##') +  ' Since:  ' + convert(char(19),ISNULL(#C4GSpeedcheck.TimestampOK,#C4GSpeedcheck.TimestampNOK),120) + ' Hours: ' + CAST(#C4GSpeedcheck.hours as varchar(4)) AS 'Logtekst',
-			  NULL as 'DOWNTIME',
+			  NULL as 'DT',
               DATEPART(YEAR, ISNULL(#C4GSpeedcheck.TimestampOK,getdate())) AS 'Year',
 			  DATEPART(WEEK,ISNULL(#C4GSpeedcheck.TimestampOK,getdate())) AS 'Week',
 			  GADATA.dbo.fn_volvoday(ISNULL(#C4GSpeedcheck.TimestampOK,getdate()),CAST(ISNULL(#C4GSpeedcheck.TimestampOK,getdate()) AS time)) AS 'day',
 			  GADATA.dbo.fn_volvoshift1(ISNULL(#C4GSpeedcheck.TimestampOK,getdate()),CAST(ISNULL(#C4GSpeedcheck.TimestampOK,getdate()) AS time)) AS 'Shift',
-			  NULL AS 'Object',
-			  NULL AS 'Subgroup',
+			  'speed' AS 'Object',
+			  'speed' AS 'Subgroup',
 			  --debug collums
               --SysBreakDwn.sys_state,
               --CAST(SysBreakDwn.rnDESC AS int) AS 'rnDESC',
-              NULL AS 'idx'
+              1 AS 'idx'
               --CAST(SysBreakDwn.SysBreakDwnIndx AS int) AS 'SSidx'
 			  
             
@@ -610,14 +601,14 @@ AND
 UNION
 SELECT 
               c_controller.location AS 'Location',
-			  c_controller.controller_name AS 'Robotname',
+			  c_controller.controller_name AS 'Robot',
               'C4G' AS 'Type',
 			  'ERROR' AS 'Errortype',
               convert(char(19),(rt_alarm._timestamp + '1900-01-01 00:00:05.00'),120) AS 'timestamp',--  because the err event is always a little bit quicker than the Sys event
               ISNULL(c_logtekst.error_number, rt_alarm.error_number) AS 'Logcode',
 			  ISNULL(c_logtekst.error_severity, rt_alarm.error_severity) AS 'Severity',
 			  ISNULL(c_logtekst.error_text,rt_alarm.error_text) AS 'Logtekst',
-			  NULL AS 'Downtime',
+			  NULL AS 'DT',
 			  DATEPART(YEAR, rt_alarm._timestamp) AS 'Year',
 			  DATEPART(WEEK,rt_alarm._timestamp) AS 'Week',
 			  GADATA.dbo.fn_volvoday(rt_alarm._timestamp,CAST(rt_alarm._timestamp AS time)) AS 'day',
@@ -663,6 +654,9 @@ AND
 OR 
 @ExcludeGateStops =0
 )
+--exclude certin logcodes 
+AND 
+not rt_alarm.error_number in (24505)
  --minimum log serverity
  AND
  (rt_alarm.error_severity  > (@MinLogserv-1))
@@ -679,14 +673,14 @@ OR
 UNION
 SELECT 
               Robot.location AS 'Location',
-			  Robot.RobotName AS 'Robotname',
+			  Robot.RobotName AS 'Robot',
               'C3G' AS 'Type',
 			  'ERROR' AS 'Errortype',
               rt_alarm.error_timestamp AS 'timestamp',
               rt_alarm.error_number AS 'Logcode',
               rt_alarm.error_severity AS 'Severity',
               isnull(rt_alarm.error_text,RobotLogText.LogText) AS 'Logtekst',
-              NULL AS 'Downtime',
+              NULL AS 'DT',
 			  DATEPART(YEAR, rt_alarm.error_timestamp) AS 'Year',
 			  DATEPART(WEEK,rt_alarm.error_timestamp) AS 'Week',
 			  --DATEPART(WEEKDAY,RobotLog.DateTime) AS 'Day',
@@ -746,72 +740,26 @@ AND
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
---Robot modification detected (data comes from c3g service center)
+--c4g down right now 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
-UNION
-SELECT 
-              Robot.location AS 'Location',
-			  Robot.RobotName AS 'Robotname',
-              'C3G' AS 'Type',
-			  'MOD' AS 'Errortype',
-              L_robotpositions.file_timestamp AS 'timestamp',
-              '99002' AS 'Logcode',
-              NULL AS 'Severity',
-              'Program: ' + L_robotpositions.Owner + ' Position: ' + L_robotpositions.Pos + ' Has been modified' AS 'Logtekst',
-              NULL AS 'Downtime',
-			  DATEPART(YEAR, L_robotpositions.file_timestamp) AS 'Year',
-			  DATEPART(WEEK,L_robotpositions.file_timestamp) AS 'Week',
-			  --DATEPART(WEEKDAY,RobotLog.DateTime) AS 'Day',
-			  GADATA.dbo.fn_volvoday(L_robotpositions.file_timestamp,CAST(L_robotpositions.file_timestamp AS time)) AS 'day',
-			  GADATA.dbo.fn_volvoshift1(L_robotpositions.file_timestamp,CAST(L_robotpositions.file_timestamp AS time)) AS 'Shift',
-			  NULL AS 'Object',
-			  NULL AS 'Subgroup',
-              --debug collums
-              --NULL, --SysEventTime.sys_state,
-              --NULL AS 'rnDESC',
-              NULL AS 'idx'
-              --NULL AS 'SSidx'
-			  
-FROM    GADATA.RobotGA.L_robotpositions
-
---join the controller name
-JOIN    GADATA.RobotGA.Robot ON (L_robotpositions.controller_id = Robot.id)
-
-WHERE
---date time filter
-L_robotpositions._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
-AND
---robot name filter 
-(Robot.RobotName BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd )
-AND  
-(Robot.RobotName LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(Robot.location,'') LIKE @LocationFilterWild ) 
---enable bit
-AND
-@GetModification = 1
-
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------
 UNION
 SELECT  
               c_controller.location AS 'Location',
-			  c_controller.controller_name AS 'Robotname',
+			  c_controller.controller_name AS 'Robot',
               'C4G' AS 'Type',
 			  'BEZIG',
               convert(char(19),#SysBreakDwnTime.oktimestamp,120) AS 'Timestamp',
               #SysBreakDwnTime.error_number AS 'Logcode',
               20 AS 'Severity',
-              'State: ' + CAST(GADATA.dbo.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|  Err: '  + #SysBreakDwnTime.error_text AS 'Logtekst',
-			  downtime,
+              ISNULL('State: ' + CAST(GADATA.dbo.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|  Err: '  + #SysBreakDwnTime.error_text,'State: ' + CAST(GADATA.dbo.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar)) AS 'Logtekst',
+			  downtime as 'DT',
               DATEPART(YEAR, #SysBreakDwnTime.oktimestamp) AS 'Year',
 			  DATEPART(WEEK,#SysBreakDwnTime.oktimestamp) AS 'Week',
 			  GADATA.dbo.fn_volvoday(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'day',
 			 -- DATEPART(WEEKDAY,L_breakdown.StartOfBreakdown)AS 'day',
 			  GADATA.dbo.fn_volvoshift1(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'Shift',
-			  null AS 'Object',
+			  c_logclass1.APPL AS 'Object',
 			  c_logclass1.subgroup AS 'Subgroup',
 			  
 			  --debug collums
@@ -833,14 +781,14 @@ OR
 )
 
 WHERE 
-SysBreakDwnIndx = 1 and OKtimestamp > (getdate()-'1900-01-01 00:0:5.00') AND error_text is not null-- AND downtime > 5 
+SysBreakDwnIndx = 1 and OKtimestamp > (getdate()-'1900-01-01 00:0:5.00') AND (error_text is not null OR sys_state = 262144) -- AND downtime > 5 
 
 ---------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 UNION
 SELECT DISTINCT  
               NULL AS 'Location',
-			  L_operation.Vcsc_name AS 'Robotname',
+			  L_operation.Vcsc_name AS 'Robot',
               'C4G' AS 'Type',
 			  'BEZIG',
               convert(char(19),(getdate()+'1900-01-02 00:0:0.00'),120) AS 'Timestamp',
@@ -850,7 +798,7 @@ SELECT DISTINCT
 			  WHEN #L_operationActRobState.vcsc_name LIKE '%%' THEN 'Serivce center OK'
 			  ELSE  '!!!! NO DATA FOR 60 minutes might be down !!!!  NOK'
 			  END AS 'Logtekst',
-			  NULL AS 'downtime',
+			  NULL AS 'DT',
               NULL AS 'Year',
 			  NULL AS 'Week',
 			  NULL AS 'day',
@@ -870,7 +818,6 @@ WHERE #L_operationActRobState.vcsc_name is null
 
 ORDER BY   Timestamp DESC --robotname,
 --*/
-
 
 
 END

@@ -25,6 +25,8 @@ SELECT
       ,[ToolA]
       ,[ToolE]
       ,[ToolR]
+	  ,[Longcheck]
+	  ,[TcpUpdate]
 	  ,ROW_NUMBER() OVER (PARTITION BY [rt_toollog].controller_id, [rt_toollog].tool_id ORDER BY tool_timestamp DESC) AS rnDESC
 	  ,ROW_NUMBER() OVER (PARTITION BY [rt_toollog].controller_id, [rt_toollog].tool_id ORDER BY tool_timestamp ASC) AS rnASC
   INTO #toollogtemp
@@ -51,6 +53,8 @@ SELECT
 	  ,'$toolMeasX' = ROUND((#toollogtemp.[ToolX] - Ltoollogtemp.[ToolX]),2)
       ,'$toolMeasY' = ROUND((#toollogtemp.[ToolY] - Ltoollogtemp.[ToolY]),2)
       ,'$toolMeasZ' = ROUND((#toollogtemp.[ToolZ] - Ltoollogtemp.[ToolZ]),2)
+	  ,#toollogtemp.Longcheck as 'LC'
+	  ,#toollogtemp.TcpUpdate as 'U'
 	  --,#toollogtemp.rnDESC
 	  
 

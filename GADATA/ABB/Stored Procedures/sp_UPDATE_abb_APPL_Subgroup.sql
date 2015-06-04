@@ -1,6 +1,7 @@
 ﻿CREATE PROCEDURE [ABB].[sp_UPDATE_abb_APPL_Subgroup]
    @Update as bit = 0 -- 0 = only update records that currently have NULL (new records) | 1 = recalc ALL records
    ,@show as bit = 0 --if 1 the result will be displayed. (debuging)
+   ,@FilterText as varchar(50) = '%%' --to filter error text (debugging)
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
@@ -62,6 +63,7 @@ FROM GADATA.ABB.L_error as L
 JOIN abb.c_Appl as Appl on (Appl.id = L.Appl_id)
 JOIN abb.c_subgroup as Subgroup on (Subgroup.id = L.Subgroup_id)
 JOIN abb.c_category as Category on (Category.id = L.category_id)
+where L.error_text LIKE @FilterText
 END
 ---------------------------------------------------------------------------------------
 

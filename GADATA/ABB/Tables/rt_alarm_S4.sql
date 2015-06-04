@@ -24,6 +24,8 @@ CREATE TABLE [ABB].[rt_alarm_S4] (
 
 
 
+
+
 GO
 CREATE TRIGGER [ABB].[ABB_S4_normalize_trigger] ON [GADATA].[ABB].[rt_alarm_S4] AFTER INSERT 
 AS
