@@ -3,6 +3,9 @@
     [controller_id] INT      NULL,
     [_timestamp]    DATETIME NULL,
     [sys_state]     INT      NULL,
-    CONSTRAINT [PK_rt_sys_event] PRIMARY KEY CLUSTERED ([id] ASC)
+    CONSTRAINT [PK_rt_sys_event] PRIMARY KEY CLUSTERED ([id] ASC),
+    CONSTRAINT [FK_rt_sys_event_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [dbo].[c_controller] ([id])
 );
+
+
 

@@ -4,6 +4,9 @@
     [_timestamp]    DATETIME       NULL,
     [value]         VARCHAR (2048) NULL,
     [variable_id]   INT            NULL,
-    CONSTRAINT [PK_rt_value] PRIMARY KEY CLUSTERED ([id] ASC)
+    CONSTRAINT [PK_rt_value] PRIMARY KEY CLUSTERED ([id] ASC),
+    CONSTRAINT [FK_rt_value_c_variable] FOREIGN KEY ([variable_id]) REFERENCES [dbo].[c_variable] ([id])
 );
+
+
 

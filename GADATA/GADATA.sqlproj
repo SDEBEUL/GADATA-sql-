@@ -121,6 +121,7 @@
     <Folder Include="C4G\Tables\" />
     <Folder Include="Volvo\" />
     <Folder Include="Volvo\Views\" />
+    <Folder Include="C4G\Stored Procedures\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\AreaTable.sql">
@@ -737,10 +738,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="C4G\Tables\c_category.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="C4G\Tables\c_LogClassRules.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -776,6 +773,14 @@
     <Build Include="Security\Volvo.sql" />
     <Build Include="Security\C4G.sql" />
     <Build Include="Security\C3G.sql" />
+    <Build Include="C4G\Stored Procedures\sp_update_L.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="C4G\Stored Procedures\sp_UPDATE_abb_APPL_Subgroup.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
   </ItemGroup>
   <ItemGroup>
     <None Include="ExcelFront\SQLfront_C1.xlsm" />

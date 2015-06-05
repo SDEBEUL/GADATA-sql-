@@ -7,6 +7,9 @@
     [file_attributes] INT           NULL,
     [file_size]       INT           NULL,
     [status]          INT           NULL,
-    CONSTRAINT [PK_rt_file] PRIMARY KEY CLUSTERED ([id] ASC)
+    CONSTRAINT [PK_rt_file] PRIMARY KEY CLUSTERED ([id] ASC),
+    CONSTRAINT [FK_rt_file_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [dbo].[c_controller] ([id])
 );
+
+
 

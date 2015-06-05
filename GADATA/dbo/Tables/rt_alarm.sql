@@ -9,6 +9,9 @@
     [error_text]      VARCHAR (256) NULL,
     [error_is_alarm]  BIT           NULL,
     [error_id]        INT           NULL,
-    CONSTRAINT [PK_rt_alarm] PRIMARY KEY CLUSTERED ([id] ASC)
+    CONSTRAINT [PK_rt_alarm] PRIMARY KEY CLUSTERED ([id] ASC),
+    CONSTRAINT [FK_rt_alarm_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [dbo].[c_controller] ([id])
 );
+
+
 
