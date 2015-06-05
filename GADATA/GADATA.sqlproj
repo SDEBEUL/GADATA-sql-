@@ -122,6 +122,7 @@
     <Folder Include="Volvo\" />
     <Folder Include="Volvo\Views\" />
     <Folder Include="C4G\Stored Procedures\" />
+    <Folder Include="C4G\Views\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\AreaTable.sql">
@@ -778,6 +779,18 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="C4G\Stored Procedures\sp_UPDATE_abb_APPL_Subgroup.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="C4G\Views\Error.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="C4G\Views\ACTION.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="C4G\Stored Procedures\sp_get_C4G.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>

@@ -31,7 +31,6 @@ From GADATA.dbo.rt_alarm as R
 --this join is temporary... just to get the 'historical data'  
 left join GADATA.dbo.c_logtekst  on R.error_id = c_logtekst.id
 
-
 Left join GADATA.C4G.L_error as L on
 (R.[error_number] = L.[error_number])
 AND
@@ -47,16 +46,13 @@ OR
 where (L.id IS NULL)
 ---------------------------------------------------------------------------------------
 
-/*
+
 --****************************************************************************************************************--
 
 --****************************************************************************************************************--
 ---------------------------------------------------------------------------------------------------------------------
 --In this part we will compare the rt_alarm with h_alarm.
 --we must check for duplicate errors between rt_alarm and h_alarm.
---(everytime we reconnect OPC will send us the complete dataset for that controller.
---we must keep in mind that the _timestamp value of rt_alarm is the COMPUTER timestamp when the message was received.
---so we can only use the rt_alarm.WnfileTime collum as 'id' we will also check this against severity and number just to be safe.
 --alarm text and remedy we will not crosscompare to save time 
 ---------------------------------------------------------------------------------------------------------------------
 --****************************************************************************************************************--
@@ -64,64 +60,39 @@ where (L.id IS NULL)
 ---------------------------------------------------------------------------------------
 Print'--step to normalize the rt_alarm dataset. gets the normalized id. and put it in a temp table'
 ---------------------------------------------------------------------------------------
-if (OBJECT_ID('tempdb..#ABB_AE_normalized') is not null) drop table #ABB_AE_normalized
+INSERT INTO GADATA.C4G.h_alarm
 SELECT 
- rt_alarm_IRC5.id
-,c_controller.id as 'controller_id'
-,rt_alarm_IRC5._timestamp
-,rt_alarm_IRC5.WnFiletime
-,null as 'error_is_alarm'
+ R.controller_id
+,R._timestamp
+,R.error_timestamp as 'c_timestamp'
+,R.error_is_alarm as 'error_is_alarm'
 ,L_error.id as 'error_id'
-,L_cause.id as 'cause_id'
-,L_remedy.id  as 'remedy_id'
-,null as 'restart_id'
-INTO #ABB_AE_normalized
-FROM GADATA.ABB.rt_alarm_IRC5
---join controller_id
-join gadata.abb.c_controller on (c_controller.controller_name = rt_alarm_IRC5.controller)
+,NULL as 'is_realtime'
+FROM GADATA.dbo.rt_alarm as R 
+
+--this join is temporary... just to get the 'historical data'  
+left join GADATA.dbo.c_logtekst  on R.error_id = c_logtekst.id
 
 --join error_id
-join gadata.abb.L_error on 
+join gadata.C4G.L_error on 
 (
-(L_error.[error_number] = rt_alarm_IRC5.number)
+(L_error.[error_number] = R.[error_number])
 AND
-(L_error.[error_severity] = rt_alarm_IRC5.severity)
+(L_error.[error_severity] = R.[error_severity])
 AND
-(L_error.error_text = rt_alarm_IRC5.[message])
+(L_error.error_text = ISNULL(R.error_text,c_logtekst.error_text)) --voorlopig
 )
---join cause_id
-join GADATA.abb.L_Cause on (l_cause.cause_text = rt_alarm_IRC5.cause)
---join remedy_id
-join GADATA.abb.L_Remedy on (L_Remedy.Remedy_text = rt_alarm_IRC5.Remedy)
----------------------------------------------------------------------------------------
+
+--this will filter out unique results
+LEFT join GADATA.C4G.h_alarm AS H on 
+(
+(R.controller_id  = H.controller_id)
+AND
+(R.error_id  = H.error_id)
+)
+where (H.id IS NULL)
 
 ---------------------------------------------------------------------------------------
-Print'--Update h_alarm with all NEW Unique alarms (Watch => constraints on wi_timestamp / controller_id / error_id)'
----------------------------------------------------------------------------------------
-INSERT INTO GADATA.ABB.h_alarm
-SELECT 
- #ABB_AE_normalized.controller_id
-,#ABB_AE_normalized._timestamp
-,#ABB_AE_normalized.WnFileTime
-,abb.BigIntTimeToDateTime(abb.CombineToBigint(CONVERT(numeric(10),abb.[SplitString](#ABB_AE_normalized.WnFileTime,' ',1)),CONVERT(numeric(10),abb.[SplitString](#ABB_AE_normalized.WnFileTime,' ',2)))) as 'wd_timestamp'
-,#ABB_AE_normalized.error_is_alarm
-,#ABB_AE_normalized.error_id
-,#ABB_AE_normalized.cause_id
-,#ABB_AE_normalized.remedy_id
-,#ABB_AE_normalized.restart_id
-FROM #ABB_AE_normalized
---this will filter out unique results
-LEFT join GADATA.abb.h_alarm on 
-(
-(#ABB_AE_normalized.WnFiletime  = GADATA.abb.h_alarm.wi_timestamp)
-AND
-(#ABB_AE_normalized.controller_id  = GADATA.abb.h_alarm.controller_id)
-AND
-(#ABB_AE_normalized.error_id  = GADATA.abb.h_alarm.error_id)
-)
-where (h_alarm.id IS NULL)
----------------------------------------------------------------------------------------
-*/
 ---------------------------------------------------------------------------------------
 --Print'--delete in rt_alarm is exist in h_alarm (Watch => constraints on wi_timestamp / controller_id / error_id)'
 ---------------------------------------------------------------------------------------

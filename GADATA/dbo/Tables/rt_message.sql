@@ -21,6 +21,8 @@ CREATE TABLE [dbo].[rt_message] (
 
 
 
+
+
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'time stamp from OPC server (pc time)', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'rt_message', @level2type = N'COLUMN', @level2name = N'_timestamp';
 
