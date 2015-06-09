@@ -137,7 +137,7 @@ SELECT
 			  'Timeline' AS 'Subgroup',
               NULL AS 'idx'
 			  
-FROM    GADATA.abb.L_timeline
+FROM    GADATA.VOLVO.L_timeline
 WHERE
 --date time filter
 L_timeline.starttime  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())

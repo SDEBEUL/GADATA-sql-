@@ -15,6 +15,8 @@ CREATE TABLE [C4G].[L_error] (
 
 
 
+
+
 GO
 CREATE TRIGGER [C4G].[C4G_L_error_Apply_appl_subgroups] ON [GADATA].[C4G].[L_error] AFTER INSERT 
 AS

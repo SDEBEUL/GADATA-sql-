@@ -596,6 +596,7 @@ SET @rowcountmen = @@rowcount
 DECLARE @RequestString as varchar(255)
 SET @RequestString =
    CONCAT(
+   '[sp_VCSC_C4G_B4beta]',
    ' @StartDate = " '						, @StartDate
      ,' "  ,@EndDate = " '					, @EndDate
      ,' "  ,@RobotFilterWild = " '			, @RobotFilterWild

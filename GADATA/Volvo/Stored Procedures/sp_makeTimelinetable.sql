@@ -1,4 +1,5 @@
-﻿CREATE PROCEDURE ABB.sp_makeTimelinetable
+﻿
+CREATE PROCEDURE VOLVO.[sp_makeTimelinetable]
 
 
 AS
@@ -62,8 +63,8 @@ Begin
  set @Timespan = @Timespan +1
 
 --drop the temp object in a themp db 
-if (OBJECT_ID('GADATA.ABB.L_timeline') is not null) drop table GADATA.ABB.L_timeline
- SELECT * INTO GADATA.ABB.L_timeline FROM @Temp_L_WeekDayShift
+if (OBJECT_ID('GADATA.VOLVO.L_timeline') is not null) drop table GADATA.VOLVO.L_timeline
+ SELECT * INTO GADATA.VOLVO.L_timeline FROM @Temp_L_WeekDayShift
 End
 
 --SELECT *FROM @Temp_L_WeekDayShift

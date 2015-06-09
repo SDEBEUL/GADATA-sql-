@@ -1,4 +1,4 @@
-﻿CREATE TABLE [ABB].[L_timeline] (
+﻿CREATE TABLE [Volvo].[L_timeline] (
     [starttime]    DATETIME NULL,
     [endtime]      DATETIME NULL,
     [shiftlength]  DATETIME NULL,
