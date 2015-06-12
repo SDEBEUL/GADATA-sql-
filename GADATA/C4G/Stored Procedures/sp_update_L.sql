@@ -24,12 +24,10 @@ INSERT INTO GADATA.C4G.L_error
 SELECT  distinct  
  R.[error_number]
 ,R.[error_severity]
-,ISNULL(R.error_text,c_logtekst.error_text) as 'error_text'
+,R.error_text as 'error_text'
 ,NULL as 'Appl_id'
 ,NULL as 'Subgroup_id'
 From GADATA.dbo.rt_alarm as R 
---this join is temporary... just to get the 'historical data'  
-left join GADATA.dbo.c_logtekst  on R.error_id = c_logtekst.id
 
 Left join GADATA.C4G.L_error as L on
 (R.[error_number] = L.[error_number])
@@ -38,10 +36,6 @@ AND
 AND
 (
 (R.error_text = L.error_text)
-
---temporary
-OR
-(c_logtekst.error_text = L.error_text)
 )
 where (L.id IS NULL)
 
@@ -71,9 +65,6 @@ SELECT
 ,NULL as 'is_realtime'
 FROM GADATA.dbo.rt_alarm as R 
 
---this join is temporary... just to get the 'historical data'  
-left join GADATA.dbo.c_logtekst  on R.error_id = c_logtekst.id
-
 --join error_id
 join gadata.C4G.L_error on 
 (
@@ -81,7 +72,7 @@ join gadata.C4G.L_error on
 AND
 (L_error.[error_severity] = R.[error_severity])
 AND
-(L_error.error_text = ISNULL(R.error_text,c_logtekst.error_text)) --voorlopig
+(L_error.error_text = R.error_text) 
 )
 
 --this will filter out unique results

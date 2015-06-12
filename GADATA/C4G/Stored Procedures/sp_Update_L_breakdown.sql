@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[sp_VCSC_C4G_Update_L_breakdown_A1]
+﻿CREATE PROCEDURE [C4G].[sp_Update_L_breakdown]
 
    @StartDate as DATETIME = null,
    @EndDate as DATETIME = null,
@@ -6,13 +6,15 @@
    @RobotFilterMaskStart as varchar(10) = '%',
    @RobotFilterMaskEnd as varchar(10) = '99999R99%',
    @OrderbyRobot as bit = null,
-   @CalcBreakDowntags as bit = 0
+   @CalcBreakDowntags as bit = 0,
+   @controller_id as int = 13
 AS
 BEGIN
----------------------------------------------------------------------------------------
-print 'Running: [dbo].[sp_VCSC_C4G_Update_L_breakdown_A1]'
----------------------------------------------------------------------------------------
 
+
+---------------------------------------------------------------------------------------
+print 'Running: [C4G].[sp_Update_L_breakdown]'
+---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
 --set first day of the week to monday (german std)
@@ -20,7 +22,7 @@ print 'Running: [dbo].[sp_VCSC_C4G_Update_L_breakdown_A1]'
 SET DATEFIRST 1
 
 ---------------------------------------------------------------------------------------
---to index sys event table based on time and robotid 
+print'to index sys event table based on time and robotid'
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 	SELECT *,
@@ -43,17 +45,21 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				l_operation.id,
 				l_operation.controller_id,
 				l_operation._timestamp,
-				sys_state = 262144, 
-				robotState = 0
+				sys_state = 262144, --set unused bit in sysstate to signal "connection lost"
+				robotState = 0 ---simulate robot Down
 			FROM GADATA.dbo.l_operation AS l_operation
 			WHERE (l_operation._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) AND (l_operation.code = 4) --connection lost 
 	) AS x 
-	
 ---------------------------------------------------------------------------------------
---to calculate time in state for each event. (passed events)
+
 ---------------------------------------------------------------------------------------
-if (OBJECT_ID('tempdb..#SysEventPast') is not null) drop table #SysEventPast
-       SELECT 
+print'UNION between passed events and current event. Joining events to get TIS "time in state"'
+---------------------------------------------------------------------------------------
+if (OBJECT_ID('tempdb..#SysEventTime') is not null) drop table #SysEventTime
+       (
+      SELECT * into #SysEventTime from (
+       --passed events
+	   SELECT 
          #SysEventIdx.id,
          #SysEventIdx.controller_id,
          #SysEventIdx._timestamp,
@@ -61,22 +67,16 @@ if (OBJECT_ID('tempdb..#SysEventPast') is not null) drop table #SysEventPast
          #SysEventIdx.rnDESC,
          TimeInState = SyseventOffs._timestamp - #SysEventIdx._timestamp,  
          #SysEventIdx.robotState
-       INTO #SysEventPast
        FROM #SysEventIdx
-       
-    JOIN    #SysEventIdx AS SyseventOffs 
-    ON (#SysEventIdx.rnDESC = SyseventOffs.rnDESC + 1)  
+		JOIN    #SysEventIdx AS SyseventOffs 
+		ON (#SysEventIdx.rnDESC = SyseventOffs.rnDESC + 1)  
               AND 
               (#SysEventIdx.controller_id = SyseventOffs.controller_id) 
               AND 
               (#SysEventIdx.rnDESC <> 1)
-
----------------------------------------------------------------------------------------
---SysEventIdx with rownumbers 1 to calc TimeInState (active event)
----------------------------------------------------------------------------------------
-if (OBJECT_ID('tempdb..#SysEventLive') is not null) drop table #SysEventLive
-       (
-       SELECT 
+		--current event
+		UNION 
+		SELECT 
          #SysEventIdx.id,
          #SysEventIdx.controller_id,
          #SysEventIdx._timestamp,
@@ -84,27 +84,42 @@ if (OBJECT_ID('tempdb..#SysEventLive') is not null) drop table #SysEventLive
          #SysEventIdx.rnDESC,
          TimeInState = (GETDATE()-#SysEventIdx._timestamp),
          #SysEventIdx.robotState
-       INTO #SysEventLive
        FROM #SysEventIdx
-   WHERE (#SysEventIdx.rnDESC = 1)
-       )
----------------------------------------------------------------------------------------
---SysEventPast UNION with the SysEventLive table. (ongoing and past events)
----------------------------------------------------------------------------------------
-if (OBJECT_ID('tempdb..#SysEventTime') is not null) drop table #SysEventTime
-       (
-       select * into #SysEventTime from (
-		   SELECT * FROM #SysEventPast
-		   UNION 
-		   SELECT * FROM #SysEventLive
+		WHERE (#SysEventIdx.rnDESC = 1)
        ) as x
        )
 ---------------------------------------------------------------------------------------
+--SELECT TOP 10 *,ifno = GADATA.dbo.fn_decodeSysstate(sys_state) FROM #SysEventTime where controller_id =  @controller_id order by _timestamp desc 
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+print'Pull dataset van H_alarm/L_error. (to speed up performance)'
+---------------------------------------------------------------------------------------
+if (OBJECT_ID('tempdb..#C4Gerror') is not null) drop table #C4Gerror
+       (
+	   SELECT 
+	    H.id
+	   ,H._timestamp
+	   ,H.controller_id
+	   ,H.error_id
+	   --,L.[error_number]
+	   ,L.[error_severity]
+	   --,L.error_text
+	   --,L.Appl_id
+	   --,L.Subgroup_id
+       into #C4Gerror
+       FROM GADATA.C4G.h_alarm as H
+	   LEFT JOIN GADATA.c4G.L_error as L on L.id = H.error_id
+	   WHERE H._timestamp BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+	   )
+---------------------------------------------------------------------------------------
+--SELECT TOP 10 * FROM #C4Gerror where controller_id =  @controller_id order by _timestamp desc 
+---------------------------------------------------------------------------------------
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------
---Calculation of Start and stop events. (breakdown tags)
+print'Calculation of Start and stop events. (breakdown tags)'
 --------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -163,15 +178,14 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
          #StartStopEvents.sys_state,
          #StartStopEvents.rnDESC,
          #StartStopEvents.TimeInState, 
-         #StartStopEvents.robotState,
+		 #StartStopEvents.robotState,
          #StartStopEvents.CombinedRobstate,
          #StartStopEvents.StartStopIndx,
          ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.controller_id ORDER BY #StartStopEvents.id DESC) AS SysBreakDwnIndx,
-		 rt_alarm.error_text,
-		 rt_alarm.error_number,
-		 --ISNULL(rt_alarm.error_text,'No valid error match') as error_text,
-		 --ISNULL(rt_alarm.error_number,'90004') as error_number,
-		 rt_alarm.error_id
+		-- #C4Gerror.error_text,
+		-- #C4Gerror.error_number,
+		-- #C4Gerror.error_severity,
+		 #C4Gerror.error_id
        INTO #SysBreakDwn
        FROM #StartStopEvents
     JOIN  #StartStopEvents AS LStartStopEvents 
@@ -198,15 +212,15 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
               )
 
 --zwaar gefoefel om via timestamp te proberen catchen welke error in rt_alarm het systeem down heeft getrokken	
-	LEFT JOIN GADATA.dbo.rt_alarm as rt_alarm 
+	LEFT JOIN #C4Gerror 
 	   ON (
-		(#StartStopEvents.controller_id = rt_alarm.controller_id) 
+		(#StartStopEvents.controller_id = #C4Gerror.controller_id) 
 		AND
-		((rt_alarm._timestamp - '1900-01-01 00:00:01.00')  < #StartStopEvents._timestamp)
+		((#C4Gerror._timestamp - '1900-01-01 00:00:01.00')  < #StartStopEvents._timestamp)
 	    AND 
-		(rt_alarm._timestamp > (#StartStopEvents._timestamp - '1900-01-01 00:00:05.00')) --rt_alarm is normaal altijd net iets sneller dan Rt_sysevent. --was 1.90
+		(#C4Gerror._timestamp > (#StartStopEvents._timestamp - '1900-01-01 00:00:05.00')) --rt_alarm is normaal altijd net iets sneller dan Rt_sysevent. --was 1.90
 	    AND
-		(rt_alarm.error_severity <> 2) --filter 
+		(#C4Gerror.[error_severity] <> 2) --filter 
 		AND
         (#StartStopEvents.CombinedRobstate = 1) 
 	    )
@@ -214,26 +228,27 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 ---------------------------------------------------------------------------------------
 
 
---Filter the false positve breakdowns + nog eens een nieuwe inx de breakdown index om later de stroings tijd makkelijk te kunnen bepalen.
+Print'Filter the false positve breakdowns' -- + nog eens een nieuwe inx de breakdown index om later de stroings tijd makkelijk te kunnen bepalen.
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#SysBreakDwnTime') is not null) drop table #SysBreakDwnTime
        (
        SELECT 
-         #SysBreakDwn.id,
+         #SysBreakDwn.id as 'Trig_id',
          #SysBreakDwn.controller_id,
          #SysBreakDwn._timestamp,
-         ISNULL(LSysBreakDwn.sys_state,#SysBreakDwn.sys_state) AS 'sys_state', --pass the Lstate (this will be the state that triggerd the breakdown
-         #SysBreakDwn.rnDESC,
-         #SysBreakDwn.TimeInState, 
-         #SysBreakDwn.robotState,
-         #SysBreakDwn.CombinedRobstate,
-         #SysBreakDwn.StartStopIndx,
-         #SysBreakDwn.SysBreakDwnIndx,
+         ISNULL(LSysBreakDwn.sys_state,#SysBreakDwn.sys_state) AS 'Trig_state', --(state that triggerd the breakdown)
+         --#SysBreakDwn.TimeInState, 
+		 LSysBreakDwn.TimeInState as 'Rt',
+		 --#SysBreakDwn.robotState,
+         --#SysBreakDwn.CombinedRobstate,
+         --#SysBreakDwn.StartStopIndx,
+         --#SysBreakDwn.SysBreakDwnIndx,
 		 LSysBreakDwn._timestamp AS 'OKtimestamp',
-         DOWNTIME = DATEDIFF(MINUTE,LSysBreakDwn._timestamp,#SysBreakDwn._timestamp),
-		 LSysBreakDwn.error_text,
-		 LsysBreakDwn.error_id,
-		 LSysBreakDwn.error_number
+         --DOWNTIME = DATEDIFF(MINUTE,LSysBreakDwn._timestamp,#SysBreakDwn._timestamp),
+		 --LSysBreakDwn.error_text,
+		 --LsysBreakDwn.error_severity,
+		 --LSysBreakDwn.error_number,
+		 LsysBreakDwn.error_id
        INTO #SysBreakDwnTime
        FROM #SysBreakDwn
 	LEFT JOIN  #SysBreakDwn AS LSysBreakDwn 
@@ -244,73 +259,47 @@ if (OBJECT_ID('tempdb..#SysBreakDwnTime') is not null) drop table #SysBreakDwnTi
               (#SysBreakDwn.SysBreakDwnIndx = LSysBreakDwn.SysBreakDwnIndx - 1)
               AND
               (#SysBreakDwn.CombinedRobstate = 3) 
-             -- AND
-             -- (LSysBreakDwn.CombinedRobstate = 1)
               )
        )
 ---------------------------------------------------------------------------------------
---build a temp table with robots that are down right now 
-/*
-if (OBJECT_ID('tempdb..#LiveList') is not null) drop table #LiveList
-SELECT 
-c_controller.controller_name
-,#SysBreakDwnTime._timestamp
-,downtimes = datediff(second,#SysBreakDwnTime._timestamp,GETDATE())
---INTO #LiveList 
-FROM #SysBreakDwnTime 
-join c_controller on c_controller.id = #SysBreakDwnTime.controller_id
-where  
-(#SysBreakDwnTime.SysBreakDwnIndx = 1) 
-AND 
-(#SysBreakDwnTime.OKtimestamp is null) 
-AND 
-((#SysBreakDwnTime.rnDESC <> 1) OR ((#SysBreakDwnTime.rndesc = 1) AND (#SysBreakDwnTime.TimeInState < '1900-01-01 00:00:03.00')))
-ORDER BY #SysBreakDwnTime._timestamp DESC 
-*/
+--SELECT TOP 10 * FROM #SysBreakDwnTime where controller_id =  @controller_id order by _timestamp desc 
+---------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------------------------
---Output qry 
+Print'Output qry' 
 --------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
---this makes sure only unique records can be added to the table.
---needs to be run when the table gets created.
-/*
-CREATE UNIQUE NONCLUSTERED INDEX [IndexTableUniqueRows] ON gadata.dbo.L_breakdown
+INSERT into GADATA.C4G.h_breakdown 
+SELECT    
+              BD.controller_id,
+              BD._timestamp AS 'EndOfBreakdown',
+			  BD.OKtimestamp AS 'StartOfBreakdown',
+			  BD.Trig_state,
+			  BD.Trig_id,
+			  BD.Rt,
+			  --BD.error_text,
+              --BD.error_number,
+			  --BD.error_serverty,
+			  BD.error_id,
+			  Null
+
+FROM #SysBreakDwnTime AS BD
+--join the history to filter new records
+LEFT JOIN GADATA.C4G.h_breakdown as H on
 (
-    idx ASC
-
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = ON, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-*/
-
-INSERT into L_breakdown --this ADDs data to the table 
-SELECT  
-              SysBreakDwnTime.controller_id,
-              SysBreakDwnTime._timestamp AS 'EndOfBreakdown',
-			  SysBreakDwnTime.OKtimestamp AS 'StartOfBreakdown',
-              ISNULL(c_logtekst.error_number, SysBreakDwnTime.error_number),
-              ISNULL(c_logtekst.error_text, SysBreakDwnTime.error_text),
-              CAST(SysBreakDwnTime.id AS int) AS 'idx'
-			  
---INTO gadata.dbo.L_breakdown --this is to create the table 
-FROM #SysBreakDwnTime AS SysBreakDwnTime
--- join logtekst replacement system
-LEFT JOIN c_logtekst on (c_logtekst.id = SysBreakDwnTime.error_id)
-
+H.controller_id = bd.controller_id
+AND
+H.Trig_id = bd.Trig_id
+)
 WHERE 
 --only add to table if a cause was detected 
- ISNULL(c_logtekst.error_number, SysBreakDwnTime.error_number) is not null
-ORDER BY   _timestamp DESC 
+BD.error_id is not null
+--only ad new records
+AND
+(H.id IS NULL)
 
-/* --sdebeul table was lost somewhere? why ? killed this 'option' 15w16d1
-insert into GADATA.dbo.L_updatelog (BreakdownCount,_timestamp)
-Values (@@ROWCOUNT,getdate())
-*/
-
---added this to be autorigger by job (cause my table trigger ain't working)
-exec [C4G].[sp_update_L]
-exec [C4G].sp_Update_L_breakdown
-exec [C4G].sp_ReClass_L_breakdown
-
+--ORDER BY   _timestamp DESC 
 
 END

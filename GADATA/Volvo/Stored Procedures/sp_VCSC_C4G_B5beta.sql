@@ -101,7 +101,7 @@ AND
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION
-SELECT * FROM GADATA.C4G.BreakdownNEW as B
+SELECT * FROM GADATA.C4G.Breakdown as B
 WHERE 
 --Datetime filter
  B.[Timestamp]  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())

@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[rt_alarm] (
+CREATE TABLE [dbo].[rt_alarm] (
     [id]              INT           IDENTITY (1, 1) NOT NULL,
     [controller_id]   INT           NULL,
     [_timestamp]      DATETIME      NULL,
@@ -17,6 +17,10 @@
 
 
 
+
+
+
+GO
 
 GO
 
