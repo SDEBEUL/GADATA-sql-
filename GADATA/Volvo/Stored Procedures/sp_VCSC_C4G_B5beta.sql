@@ -1,4 +1,5 @@
-﻿CREATE PROCEDURE [dbo].[sp_VCSC_C4G_B5beta]
+﻿
+CREATE PROCEDURE [Volvo].[sp_VCSC_C4G_B5beta]
 
    @StartDate as DATETIME = null,
    @EndDate as DATETIME = null,
@@ -8,17 +9,18 @@
    @RobotFilterMaskEnd as varchar(10) = '99999R99%',
    @LocationFilterWild as varchar(20) = '%',
 
-   @OrderbyRobot as bit = null,
-  
    @GetC4GAction as bit = 1,
    @GetC4Gerror as bit = 1,
-   @GetC4GEvents as bit = 0,
+   @GetC4GEvents as bit = 0, --removed in this version
    @GetC4GDowntimes as bit = 1,
    @GetC4GDownTBegin as bit = 1,
    @GetC4GCollisions as bit = 0,
-   @GetC4GSpeedCheck as bit = 0,
+   @GetC4GSpeedCheck as bit = 0, --removed in this version
    @GetC3GError as bit = 1,
-   @GetModification as bit = 0,
+   @GetModification as bit = 0, --removed in this version 
+   @RespT as bit = 1,
+   @RelvT as bit =1,
+   @Timeline as bit = 1,
 
    @ExcludeGateStops as bit = 0,
    @MinLogserv as int = 0
@@ -32,11 +34,7 @@ BEGIN
 SET DATEFIRST 1
 ---------------------------------------------------------------------------------------
 
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---Qry collisions
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
+
 --template ! 
 /*
 SELECT        
@@ -57,7 +55,29 @@ SELECT
 , 'Template				AS 'Subgroup'
 , CAST(1 AS int)		AS 'idx'
 */
+
 ---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Timeline
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+SELECT * FROM GADATA.Volvo.Timeline AS T
+WHERE
+--datetime filter
+(T.[Timestamp]  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())) 
+AND 
+--Enable bit
+(@Timeline = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Qry collisions
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
 SELECT * FROM GADATA.C4G.CollisionInfo AS CI
 WHERE
 --datetime filter
@@ -81,7 +101,7 @@ AND
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION
-SELECT * FROM GADATA.C4G.Breakdown as B
+SELECT * FROM GADATA.C4G.BreakdownNEW as B
 WHERE 
 --Datetime filter
  B.[Timestamp]  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
@@ -125,6 +145,52 @@ AND
 AND
 --enable bit
 (@GetC4GDownTBegin = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G Qry RespTime (snelheid van de operator om te reageren)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.RespTime AS RespT
+WHERE 
+--Datetime filter
+ RespT.[Timestamp]  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
+AND
+--robot name filter 
+((RespT.Robotname BETWEEN @RobotFilterMaskStart AND @RobotFilterMaskEnd))
+AND
+(RespT.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(RespT.location,'') LIKE @LocationFilterWild )
+--enable bit
+And 
+@RespT = 1
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G Qry ResolveTime (snelheid om storing op te lossen)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.ResolveTime AS RelvT
+WHERE 
+--Datetime filter
+ RelvT.[Timestamp]  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
+AND
+--robot name filter 
+((RelvT.Robotname BETWEEN @RobotFilterMaskStart AND @RobotFilterMaskEnd))
+AND
+(RelvT.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(RelvT.location,'') LIKE @LocationFilterWild )
+--enable bit
+And 
+@RelvT = 1
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -217,7 +283,6 @@ AND
 
 ---------------------------------------------------------------------------------------
 ORDER BY [Timestamp] DESC --robotname,
-
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------

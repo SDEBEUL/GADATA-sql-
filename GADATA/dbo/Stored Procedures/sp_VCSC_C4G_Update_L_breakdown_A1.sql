@@ -10,6 +10,11 @@
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
+print 'Running: [dbo].[sp_VCSC_C4G_Update_L_breakdown_A1]'
+---------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------
 --set first day of the week to monday (german std)
 ---------------------------------------------------------------------------------------
 SET DATEFIRST 1
@@ -301,4 +306,9 @@ ORDER BY   _timestamp DESC
 insert into GADATA.dbo.L_updatelog (BreakdownCount,_timestamp)
 Values (@@ROWCOUNT,getdate())
 */
+
+--added this to be autorigger by job (cause my table trigger ain't working)
+exec [C4G].[sp_update_L]
+
+
 END

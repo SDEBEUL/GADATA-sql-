@@ -44,6 +44,7 @@ OR
 (c_logtekst.error_text = L.error_text)
 )
 where (L.id IS NULL)
+
 ---------------------------------------------------------------------------------------
 
 
@@ -84,19 +85,20 @@ AND
 )
 
 --this will filter out unique results
-LEFT join GADATA.C4G.h_alarm AS H on 
+LEFT join GADATA.C4G.h_alarm AS H on   --show also compare the logtekst here.... 
 (
 (R.controller_id  = H.controller_id)
 AND
-(R.error_id  = H.error_id)
+(R.error_timestamp = H.c_timestamp)
 )
 where (H.id IS NULL)
 
+
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
---Print'--delete in rt_alarm is exist in h_alarm (Watch => constraints on wi_timestamp / controller_id / error_id)'
+Print'--delete in rt_alarm if older than 1 day'
 ---------------------------------------------------------------------------------------
---DELETE FROM gadata.abb.rt_alarm_IRC5 where gadata.abb.rt_alarm_IRC5.id <= (select max(id) from #ABB_AE_normalized)
+DELETE FROM gadata.dbo.rt_alarm where GADATA.dbo.rt_alarm.error_timestamp < getdate()-1
 ---------------------------------------------------------------------------------------
 
 --****************************************************************************************************************--

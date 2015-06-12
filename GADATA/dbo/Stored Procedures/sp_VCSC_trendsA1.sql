@@ -20,45 +20,45 @@ SET DATEFIRST 1
 --C4G Qry Breakdowns (begin van een storing)
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
-SELECT  
-			  c_controller.controller_name AS 'Robotname',
-              'C4G' AS 'Type',
-			  'Storing',
-              convert(char(19),rt_alarm._timestamp,120) AS 'Timestamp',
-              rt_alarm.error_number AS 'Logcode',
-              NULL AS 'Severity',
-              ISNULL(rt_alarm.error_text,'-----------Breakdown Tag-----------') AS 'Logtekst',
-			  NULL as 'DOWNTIME',
-              DATEPART(YEAR, rt_alarm._timestamp) AS 'Year',
-			  DATEPART(WEEK,rt_alarm._timestamp) AS 'Week',
-			  GADATA.dbo.fn_volvoday(rt_alarm._timestamp,CAST(rt_alarm._timestamp AS time)) AS 'day',
-			  GADATA.dbo.fn_volvoshift1(rt_alarm._timestamp,CAST(rt_alarm._timestamp AS time)) AS 'Shift',
-			  c_logclass1.appl AS 'Object',
-			  c_logclass1.subgroup AS 'Subgroup',
-              rt_alarm.id
-			        
-FROM GADATA.dbo.rt_alarm
---join the controller name
-JOIN    c_controller ON (rt_alarm.controller_id = c_controller.id) 
+---------------------------------------------------------------------------------------
+--C4G Alarm information (error log)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+SELECT 
 
---try and get an error classification
-LEFT JOIN GADATA.dbo.c_logclass1 as c_logclass1 ON 
-(
-(rt_alarm.error_number BETWEEN c_logclass1.error_codeStart AND c_logclass1.error_codeEnd)
-OR
-(rt_alarm.error_text LIKE RTRIM(c_logclass1.error_tekst))
-)
+C4GE.Robotname AS 'Robotname'
+,C4GE.Type				AS 'Type'
+,C4GE.Errortype				AS 'Errortype'
+,C4ge.timestamp				AS 'timestamp'
+,C4ge.Logcode					AS 'Logcode'
+,C4GE.Severity					AS 'Severity'
+,C4GE.Logtekst		AS 'Logtekst'
+, NULL					AS 'Downtime'
+,C4GE.Year				AS 'Year'
+,C4GE.Week				AS 'Week'
+,C4GE.day				AS 'day'
+,C4GE.shift				AS 'Shift'
+,C4GE.Object			AS 'Object'
+,C4GE.Subgroup				AS 'Subgroup'
+, CAST(1 AS int)		AS 'idx'
+
+
+FROM GADATA.C4G.Error AS C4GE
 WHERE 
---Datetime filter
- rt_alarm._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
-AND
-(c_controller.controller_name LIKE @RobotFilterWild)
+--datetime filter
+(C4GE.[Timestamp]  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())) 
 AND 
-(c_logclass1.appl LIKE @ApplFilterWild)
+--Robot name filter  
+(C4GE.Robotname LIKE @RobotFilterWild)
+--exclude rack stuff
+ AND (ISNULL(C4GE.subgroup,'') NOT LIKE '%RackReset%')
+ AND 
+(C4GE.Object LIKE @ApplFilterWild)
 AND
-(c_logclass1.subgroup LIKE @ObjectFilterWild)
+(C4GE.subgroup LIKE @ObjectFilterWild)
 AND 
-(c_logclass1.appl NOT LIKE '%Safety%')
+(C4GE.Object NOT LIKE '%Safety%')
+
 
 ---------------------------------------------------------------------------------------
 

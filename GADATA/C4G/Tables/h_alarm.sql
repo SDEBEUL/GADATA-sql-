@@ -16,7 +16,24 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [IX_h_alarm]
     ON [C4G].[h_alarm]([id] ASC);
+
+
+GO
+CREATE NONCLUSTERED INDEX [idx_timestamp]
+    ON [C4G].[h_alarm]([_timestamp] ASC);
+
+
+GO
+CREATE NONCLUSTERED INDEX [idx_error_id]
+    ON [C4G].[h_alarm]([error_id] ASC);
+
+
+GO
+CREATE NONCLUSTERED INDEX [idx_controller_id]
+    ON [C4G].[h_alarm]([controller_id] ASC);
 

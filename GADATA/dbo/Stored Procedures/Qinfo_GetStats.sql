@@ -9,31 +9,28 @@ set @IsC4g = (select c_controller.id from c_controller where c_controller.contro
 
 --case of C4G robot
 IF @IsC4g is not null
+BEGIN
+
 SELECT
 'Count LastDay:' =
-(select Count(rt_alarm.error_number) from dbo.rt_alarm join dbo.c_controller on c_controller.id = rt_alarm.controller_id 
-  where (c_controller.controller_name = @Robot) AND (rt_alarm.error_number = @ErrCode) AND (rt_alarm._timestamp BETWEEN getdate()-1 AND getdate()))
+(SELECT count(Error.Logcode) FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-1 AND getdate()) AND Error.logcode = @Errcode)
 
 ,'Count LastWeek:' =
-(select Count(rt_alarm.error_number) from dbo.rt_alarm join dbo.c_controller on c_controller.id = rt_alarm.controller_id 
-  where (c_controller.controller_name = @Robot) AND (rt_alarm.error_number = @ErrCode) AND (rt_alarm._timestamp  BETWEEN getdate()-7 AND  getdate()))
+(SELECT count(Error.Logcode) FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-7 AND getdate()) AND Error.logcode = @Errcode)
 
 ,'Count LastMonth:' =
-(select Count(rt_alarm.error_number) from dbo.rt_alarm join dbo.c_controller on c_controller.id = rt_alarm.controller_id 
-  where (c_controller.controller_name = @Robot) AND (rt_alarm.error_number = @ErrCode) AND (rt_alarm._timestamp  BETWEEN getdate()-31 AND  getdate()))
+(SELECT count(Error.Logcode) FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-31 AND getdate()) AND Error.logcode = @Errcode)
 
 ,'Count ALL:' =
-(select Count(rt_alarm.error_number) from dbo.rt_alarm join dbo.c_controller on c_controller.id = rt_alarm.controller_id 
-  where (c_controller.controller_name = @Robot) AND (rt_alarm.error_number = @ErrCode))
+(SELECT count(Error.Logcode) FROM GADATA.C4G.Error WHERE Robotname = @Robot  AND Error.logcode = @Errcode)
 
 ,'First Time:' =
-(select top 1 isnull(rt_alarm._timestamp,rt_alarm.error_timestamp) from dbo.rt_alarm join dbo.c_controller on c_controller.id = rt_alarm.controller_id 
-  where (c_controller.controller_name = @Robot) AND (rt_alarm.error_number = @ErrCode) ORDER BY _timestamp ASC)
+(SELECT top 1 Error.[timestamp] FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND Error.logcode = @Errcode) order by Error.[timestamp] ASC)
 
-,'Last Time:' =
-(select top 1 isnull(rt_alarm._timestamp,rt_alarm.error_timestamp) from dbo.rt_alarm join dbo.c_controller on c_controller.id = rt_alarm.controller_id 
-  where (c_controller.controller_name = @Robot) AND (rt_alarm.error_number = @ErrCode)  ORDER BY _timestamp DESC)
+,'Last Time:' = 
+(SELECT top 1 Error.[timestamp] FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND Error.logcode = @Errcode) order by Error.[timestamp] DESC)
 
+END
 --case of C3G robot
 IF @IsC4g is null
 SELECT
