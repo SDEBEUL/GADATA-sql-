@@ -62,7 +62,24 @@ SELECT
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
-SELECT * FROM GADATA.Volvo.Timeline AS T
+SELECT 
+T.Location
+,T.Robotname
+,T.[Type]
+,T.Errortype
+,T.[Timestamp]
+,T.Logcode
+,T.Severity
+,T.Logtekst
+,T.DOWNTIME
+,T.[Year]
+,T.[Week]
+,T.[day]
+,T.ploeg as 'shift'
+,T.[Object]
+,T.Subgroup
+,T.id as 'idx'
+FROM GADATA.Volvo.Timeline AS T
 WHERE
 --datetime filter
 (T.[Timestamp]  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())) 
@@ -101,7 +118,7 @@ AND
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION
-SELECT * FROM GADATA.C4G.Breakdown as B
+SELECT * FROM GADATA.C4G.RsBreakdown as B
 WHERE 
 --Datetime filter
  B.[Timestamp]  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())

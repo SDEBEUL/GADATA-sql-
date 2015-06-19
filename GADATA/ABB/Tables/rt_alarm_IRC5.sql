@@ -34,6 +34,8 @@ CREATE TABLE [ABB].[rt_alarm_IRC5] (
 
 
 
+
+
 GO
 CREATE TRIGGER [ABB].[ABB_IRC5_normalize_trigger] ON [GADATA].[ABB].[rt_alarm_IRC5] AFTER INSERT 
 AS

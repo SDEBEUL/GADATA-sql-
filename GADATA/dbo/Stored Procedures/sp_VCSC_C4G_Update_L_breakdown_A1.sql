@@ -9,6 +9,13 @@
    @CalcBreakDowntags as bit = 0
 AS
 BEGIN
+
+--added this to be autorigger by job (cause my table trigger ain't working)
+exec [C4G].[sp_update_L]
+exec [C4G].sp_Update_L_breakdown
+exec [C4G].sp_ReClass_L_breakdown
+
+
 ---------------------------------------------------------------------------------------
 print 'Running: [dbo].[sp_VCSC_C4G_Update_L_breakdown_A1]'
 ---------------------------------------------------------------------------------------
@@ -307,10 +314,7 @@ insert into GADATA.dbo.L_updatelog (BreakdownCount,_timestamp)
 Values (@@ROWCOUNT,getdate())
 */
 
---added this to be autorigger by job (cause my table trigger ain't working)
-exec [C4G].[sp_update_L]
-exec [C4G].sp_Update_L_breakdown
-exec [C4G].sp_ReClass_L_breakdown
+
 
 
 END

@@ -1,0 +1,533 @@
+﻿
+CREATE PROCEDURE [Volvo].[sp_GADATAFront]
+--timeparameters
+   @StartDate as DATETIME = null,
+   @EndDate as DATETIME = null,
+--BooleanParms
+   @Timeline as bit = 1,
+   @ExcludeGateStops as bit = 0,
+--Filterparameters.
+   @RobotFilterWild as varchar(10) = '%',
+   @LocationFilterWild as varchar(20) = '%',
+   @ApplFilterWild as varchar(20) = '%', 
+   @SubgroupFilterWild as varchar(20) = '%', 
+--COMAU C4G booleans
+   @GetC4GAction as bit = 0,
+   @GetC4Gerror as bit = 1,
+   @GetC4GEvents as bit = 0,--TBT
+   @GetC4GDowntimes as bit = 1,
+   @GetC4GDownTBegin as bit = 0,
+   @GetC4GCollisions as bit = 0,
+   @GetC4GSpeedCheck as bit = 0, --TBT
+   @GetC4GSBCU as bit = 0, --TBT
+--Comau C3G Booleans   
+   @GetC3GError as bit = 1,
+   @GetC3GSBCU as bit = 0, 
+--ABB S4C Booleans
+   @GetS4Error as bit = 0,
+   @GetS4State as bit = 0,
+--ABB IRC5 Booleans 
+   @GetIRC5Error as bit = 0,
+   @GetIRC5State as bit = 0,
+--ARO weldTImer Boolean 
+   @GetTimerData as bit = 0,
+   @GetTimerError as bit = 0,
+
+--blocked pars 
+   @RespT as bit = 0, --tbt
+   @RelvT as bit =0, --tbt
+--optional pars
+   @MinLogserv as int = 0 --TBT
+AS
+BEGIN
+
+
+---------------------------------------------------------------------------------------
+--set first day of the week to monday (german std)
+---------------------------------------------------------------------------------------
+SET DATEFIRST 1
+---------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------
+--Set default values of start and end date
+---------------------------------------------------------------------------------------
+if ((@StartDate is null) OR (@StartDate = '1900-01-01 00:00:00:000'))
+BEGIN
+SET @StartDate = GETDATE()-1
+END
+
+if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))
+BEGIN
+SET @EndDate = GETDATE()
+END
+---------------------------------------------------------------------------------------
+
+
+--template ! 
+/*
+SELECT        
+  'P4_sibo_framing'		AS 'Location'
+, '99999R01'			AS 'Robotname'
+, 'C3G'					AS 'Type'
+, 'ERROR'				AS 'Errortype'
+, getdate()				AS 'timestamp'
+, 4600					AS 'Logcode'
+, 16					AS 'Severity'
+, 'bla bla bla bla'		AS 'Logtekst'
+, NULL					AS 'Downtime'
+, T.Vyear				AS 'Year'
+, T.Vweek				AS 'Week'
+, T.Vday				AS 'day'
+, T.shift				AS 'Shift'
+, 'Template'			AS 'Object'
+, 'Template				AS 'Subgroup'
+, CAST(1 AS int)		AS 'idx'
+*/
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Timeline
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+SELECT 
+T.Location
+,T.Robotname
+,T.[Type]
+,T.Errortype
+,T.[Timestamp]
+,T.Logcode
+,T.Severity
+,T.Logtekst
+,T.DOWNTIME
+,T.[Year]
+,T.[Week]
+,T.[day]
+,T.ploeg as 'shift'
+,T.[Object]
+,T.Subgroup
+,T.id as 'idx'
+FROM GADATA.Volvo.Timeline AS T
+WHERE
+--datetime filter
+(T.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Enable bit
+(@Timeline = 1)
+---------------------------------------------------------------------------------------
+
+--***********************************************************************************************************************--
+--COMAU C4G
+--***********************************************************************************************************************--
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Qry collisions
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.CollisionInfo AS CI
+WHERE
+--datetime filter
+(CI.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(CI.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(CI.location,'') LIKE @LocationFilterWild )
+AND
+--Enable bit
+(@GetC4GCollisions = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G Qry Breakdowns (einde van storings met storings tijd)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.RsBreakdown as B
+WHERE 
+--Datetime filter
+ (B.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND
+--robot name filter 
+(B.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(B.location,'') LIKE @LocationFilterWild )
+--Application / subgroup filter
+AND
+ISNULL(B.[Object],'') LIKE @ApplFilterWild AND ISNULL(B.Subgroup,'') LIKE @SubgroupFilterWild
+AND
+--Exclude Gatestops 
+((@ExcludeGateStops = 1 AND (ISNULL(B.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
+AND
+--enable bit
+(@GetC4GDowntimes = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G Qry Breakdowns (begin van een storing)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.BreakdownStart AS BS
+WHERE 
+--Datetime filter
+ (BS.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND
+(BS.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(BS.location,'') LIKE @LocationFilterWild )
+--Application / subgroup filter
+AND
+ISNULL(BS.[Object],'') LIKE @ApplFilterWild AND ISNULL(BS.Subgroup,'') LIKE @SubgroupFilterWild
+AND
+--Exclude Gatestops 
+((@ExcludeGateStops = 1 AND (ISNULL(BS.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
+AND
+--enable bit
+(@GetC4GDownTBegin = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G Qry RespTime (snelheid van de operator om te reageren)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.RespTime AS RespT
+WHERE 
+--Datetime filter
+ (RespT.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND
+--robot name filter 
+(RespT.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(RespT.location,'') LIKE @LocationFilterWild )
+--enable bit
+And 
+@RespT = 1
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G Qry ResolveTime (snelheid om storing op te lossen)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.ResolveTime AS RelvT
+WHERE 
+--Datetime filter
+ (RelvT.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND
+--robot name filter 
+(RelvT.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(RelvT.location,'') LIKE @LocationFilterWild )
+--enable bit
+And 
+@RelvT = 1
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G Alarm information (error log)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.Error AS C4GE
+WHERE 
+--datetime filter
+(C4GE.[Timestamp] BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(C4GE.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(C4GE.location,'') LIKE @LocationFilterWild )
+--Application / subgroup filter
+AND
+ISNULL(C4GE.[Object],'') LIKE @ApplFilterWild AND ISNULL(C4GE.Subgroup,'') LIKE @SubgroupFilterWild
+AND
+--Exclude Gatestops 
+(
+(@ExcludeGateStops = 1 AND (ISNULL(C4GE.subgroup,'') NOT LIKE '%Gate/Hold%')) 
+OR 
+@ExcludeGateStops =0
+)
+--minimum log serverity
+AND
+(C4GE.Severity  > (@MinLogserv-1))
+--Enable bit 
+AND
+(@GetC4Gerror = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G ACTION information (action log)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.[ACTION] AS C4GA
+WHERE
+--datetime filter
+(C4GA.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(C4GA.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(C4GA.location,'') LIKE @LocationFilterWild )
+--Application / subgroup filter
+AND
+ISNULL(C4GA.[Object],'') LIKE @ApplFilterWild AND ISNULL(C4GA.Subgroup,'') LIKE @SubgroupFilterWild
+AND 
+@GetC4GAction = 1
+---------------------------------------------------------------------------------------
+
+--***********************************************************************************************************************--
+--COMAU C3G
+--***********************************************************************************************************************--
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C3G Alarm information (error log)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C3G.Error AS C3GE
+
+WHERE
+--date time filter
+(C3GE.[timestamp] BETWEEN @StartDate AND @EndDate)
+AND
+--robot name filter  
+(C3GE.RobotName LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(C3GE.location,'') LIKE @LocationFilterWild ) 
+--Application / subgroup filter
+AND
+ISNULL(C3GE.[Object],'') LIKE @ApplFilterWild AND ISNULL(C3GE.Subgroup,'') LIKE @SubgroupFilterWild
+AND
+ --Exclude Gatestops 
+(
+(@ExcludeGateStops = 1 AND (ISNULL(C3GE.subgroup,'') NOT LIKE '%Gate/Hold%')) 
+OR 
+@ExcludeGateStops =0
+)
+--minimum log serverity
+AND
+(C3GE.Severity  > (@MinLogserv-1))
+--enable bit
+AND
+@GetC3GError = 1
+
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--SBCU data
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.RobotGA.SBCU AS C3GSBCU
+WHERE
+--datetime filter
+(C3GSBCU.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(C3GSBCU.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(C3GSBCU.location,'') LIKE @LocationFilterWild )
+AND 
+@GetC3GSBCU = 1
+---------------------------------------------------------------------------------------
+
+--***********************************************************************************************************************--
+--ABBS4
+--***********************************************************************************************************************--
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--ABB S4 error
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.ABB.S4error AS S4E
+WHERE
+--datetime filter
+(S4E.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(S4E.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(S4E.location,'') LIKE @LocationFilterWild )
+--Application / subgroup filter
+AND
+ISNULL(S4E.[Object],'') LIKE @ApplFilterWild AND ISNULL(S4E.Subgroup,'') LIKE @SubgroupFilterWild
+AND
+--Exclude Gatestops 
+((@ExcludeGateStops = 1 AND (ISNULL(S4E.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
+AND 
+@GetS4Error = 1
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--ABB S4 State
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.ABB.S4state AS S4S
+WHERE
+--datetime filter
+(S4S.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(S4S.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(S4S.location,'') LIKE @LocationFilterWild )
+AND 
+@GetS4State = 1
+---------------------------------------------------------------------------------------
+
+
+--***********************************************************************************************************************--
+--ABBIRC5
+--***********************************************************************************************************************--
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--ABB IRC5 error
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.ABB.IRC5error AS IRC5E
+WHERE
+--datetime filter
+(IRC5E.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(IRC5E.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(IRC5E.location,'') LIKE @LocationFilterWild )
+--Application / subgroup filter
+AND
+ISNULL(IRC5E.[Object],'') LIKE @ApplFilterWild AND ISNULL(IRC5E.Subgroup,'') LIKE @SubgroupFilterWild
+AND 
+--Exclude Gatestops 
+((@ExcludeGateStops = 1 AND (ISNULL(IRC5E.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
+AND
+@GetIRC5Error = 1
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--ABB S4 State
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.ABB.IRC5state AS IRC5S
+WHERE
+--datetime filter
+(IRC5S.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(IRC5S.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(IRC5S.location,'') LIKE @LocationFilterWild )
+AND 
+@GetIRC5State = 1
+---------------------------------------------------------------------------------------
+--***********************************************************************************************************************--
+--WeldTimer
+--***********************************************************************************************************************--
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Bosch weld timer errorlog 
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.Volvo.TimerError AS TE
+WHERE
+--datetime filter
+(TE.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(TE.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(TE.location,'') LIKE @LocationFilterWild )
+AND 
+@GetTimerError = 1
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Bosch weld timer Datechange log  
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.Volvo.TimerDataChange AS TDC
+WHERE
+--datetime filter
+(TDC.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(TDC.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(TDC.location,'') LIKE @LocationFilterWild )
+AND 
+@GetTimerData = 1
+---------------------------------------------------------------------------------------
+
+
+--***********************************************************************************************************************--
+ORDER BY [Timestamp] DESC 
+--***********************************************************************************************************************--
+
+--***********************************************************************************************************************--
+--Datalog
+--***********************************************************************************************************************--
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Activity log (logs the execution of the Query to a table)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+DECLARE @rowcountmen as int 
+SET @rowcountmen = @@rowcount
+DECLARE @RequestString as varchar(255)
+SET @RequestString =
+   CONCAT(
+   '[Volvo].[sp_VCSC_C4G_B5beta]',
+   ' @StartDate = " '						, @StartDate
+     ,' "  ,@EndDate = " '					, @EndDate
+     ,' "  ,@RobotFilterWild = " '			, @RobotFilterWild
+     ,' "  ,@LocationFilterWild = " '		, @LocationFilterWild 
+     ,' "  ,@GetC4GAction = " '				, @GetC4GAction   
+     ,' "  ,@GetC4Gerror = " '				, @GetC4Gerror 
+     ,' "  ,@GetC4GEvents = " '				, @GetC4GEvents 
+     ,' "  ,@GetC4GDowntimes = " '			, @GetC4GDowntimes  
+     ,' "  ,@GetC4GDownTBegin = " '			, @GetC4GDownTBegin  
+     ,' "  ,@GetC3GError = " '				, @GetC3GError 
+     ,' "  ,@ExcludeGateStops = " '			, @ExcludeGateStops  
+     ,' "  ,@MinLogserv = " '				, @MinLogserv ,' "'
+	)
+EXEC GADATA.dbo.sp_Activitylog @rowcount = @rowcountmen, @Request = @RequestString
+
+END

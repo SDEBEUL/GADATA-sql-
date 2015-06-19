@@ -21,6 +21,8 @@ CREATE TABLE [C4G].[L_error] (
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [idx_error_id]
     ON [C4G].[L_error]([id] ASC);

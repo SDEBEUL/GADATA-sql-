@@ -302,4 +302,17 @@ AND
 
 --ORDER BY   _timestamp DESC 
 
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Activity log (logs the execution of the Query to a table)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+DECLARE @rowcountmen as int 
+SET @rowcountmen = @@rowcount
+DECLARE @RequestString as varchar(255)
+SET @RequestString = 'Running: [C4G].[sp_Update_L_breakdown]'
+EXEC GADATA.C4G.sp_Activitylog @rowcount = @rowcountmen, @Request = @RequestString
+---------------------------------------------------------------------------------------
+
 END

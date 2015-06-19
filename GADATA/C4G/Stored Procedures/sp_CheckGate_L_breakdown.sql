@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [C4G].[sp_ReClass_L_breakdown]
+﻿CREATE PROCEDURE [C4G].[sp_CheckGate_L_breakdown]
 
    @StartDate as DATETIME = null,
    @EndDate as DATETIME = null,
@@ -10,7 +10,7 @@ BEGIN
 
 
 ---------------------------------------------------------------------------------------
-print 'Running: [C4G].[sp_ReClass_L_breakdown]'
+print 'Running: [C4G].[sp_CheckGate_L_breakdown]'
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ print 'Running: [C4G].[sp_ReClass_L_breakdown]'
 SET DATEFIRST 1
 
 ---------------------------------------------------------------------------------------
-print'Pull dataset van H_alarm/L_error. (to speed up performance)'
+print'Pull dataset van H_alarm/L_error. Get only Gatestops (to speed up performance)'
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#C4Gerror') is not null) drop table #C4Gerror
        (
@@ -27,30 +27,24 @@ if (OBJECT_ID('tempdb..#C4Gerror') is not null) drop table #C4Gerror
 	    H.id
 	   ,H._timestamp
 	   ,H.controller_id
-	   ,H.error_id
-	   ,L.[error_number]
-	   ,L.[error_severity]
-	   ,L.error_text
-	   ,L.Appl_id
-	   ,L.Subgroup_id
        into #C4Gerror
        FROM GADATA.C4G.h_alarm as H
 	   LEFT JOIN GADATA.c4G.L_error as L on L.id = H.error_id
 	   WHERE H._timestamp BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
-	    AND
-		(L.id <> 1173) --safety gate
 		AND
-		(L.id <> 9585) --saftey gate 2
-		AND 
-		(L.id <> 6319) --Hold from fieldbus
-	   )
+		(L.id IN(1173,9585))
+		)
+ --safety gate 1173
+ --saftey gate 2 9585
+ --Hold from fieldbus 6319
+	 
 ---------------------------------------------------------------------------------------
---SELECT TOP 10 * FROM #C4Gerror where controller_id =  @controller_id order by _timestamp desc 
+--SELECT TOP 10 * FROM #C4Gerror --where controller_id =  @controller_id order by _timestamp desc 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
-print'Call Reclass'
+print'Call CheckGate'
 ---------------------------------------------------------------------------------------
-if (OBJECT_ID('tempdb..#C4GRclass') is not null) drop table #C4GRclass
+if (OBJECT_ID('tempdb..#C4GCheckGate') is not null) drop table #C4GCheckGate
 (
 SELECT 
        Hb.id
@@ -61,32 +55,21 @@ SELECT
       ,Hb.[Trig_id]
       ,Hb.[Rt]
       ,Hb.[error_id]
-	  ,Err.error_id as 'Rclas_id'
-	  ,Err.error_text
-	  ,Err.error_severity
-	  ,ROW_NUMBER() OVER (PARTITION BY Hb.id ORDER BY Err.[error_severity] DESC) as 'Rn' 
-  INTO #C4GRclass
+	  ,NULL as 'Rclas_id'
+	  ,1 as 'NoGs'
+  INTO #C4GCheckGate
   FROM [GADATA].[C4G].[h_breakdown] AS Hb
-  LEFT JOIN #C4Gerror as Err on 
-  (Err.controller_id = Hb.controller_id)
+  LEFT JOIN #C4Gerror AS GS on 
+  (
+  (GS.controller_id = HB.controller_id)
   AND
-	(
-	(Err._timestamp BETWEEN HB.StartOfBreakdown AND (HB.EndOfBreakdown)) 
-	AND
-	(Err.[error_severity] > 2)
-	)
-  OR 
-	(
-	(Err._timestamp BETWEEN HB.StartOfBreakdown AND (HB.EndOfBreakdown + '1900-01-01 00:03:00')) --3 min bij omdat tips have been changed ...
-	AND
-	(Err.error_text LIKE '%tips have been changed%') 
-	)
-   where  
+  (GS._timestamp BETWEEN (HB.StartOfBreakdown - '1900-01-01 00:00:05:000') AND HB.EndOfBreakdown) --take 5 s of start to be sure we have the window
+  )
+   
+   where 
    Hb.EndOfBreakdown BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
    AND 
-   Hb.error_id IN(1173,9585,6319) --only reclas gatestops 
-   AND 
-   Err.error_id is not null --mag enkel door als er iets beter gevonden is.
+   GS.id is null
 ) 
 ---------------------------------------------------------------------------------------
 
@@ -99,12 +82,11 @@ print'Show alternative causes for a breakdown.'
 SELECT 
 C.controller_name
 ,* 
-FROM #C4GRclass
-LEFT JOIN GADATA.dbo.c_controller as C  ON C.id = #C4GRclass.controller_id 
+FROM #C4GCheckGate
+LEFT JOIN GADATA.dbo.c_controller as C  ON C.id = #C4GCheckGate.controller_id 
 WHERE 
 c.controller_name LIKE ('%' + @Robotname +'%')
---AND 
---#C4GRclass.Rn = 1 --enkel 'beste' reclas id mag door
+
 order by EndOfBreakdown desc  
 END
 ---------------------------------------------------------------------------------------
@@ -114,17 +96,12 @@ BEGIN
 ---------------------------------------------------------------------------------------
 print'Reclass Update'
 ---------------------------------------------------------------------------------------
-UPDATE HB
-SET HB.RC_error_id = RB.Rclas_id
---SELECT TOP 10 * 
-FROM GADATA.C4G.h_breakdown As HB
-LEFT JOIN #C4GRclass as RB on RB.id = HB.id
-WHERE 
-HB.EndOfBreakdown BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
-AND
-RB.Rn = 1 --enkel 'beste' relcas id word gebruikt
-AND
-HB.RC_error_id is null --enkel update doen als hij nog niet gebeurd is.
+INSERT INTO GADATA.C4G.[h_NoGateStop]
+SELECT 
+gs.id
+FROM #C4GCheckGate as gs
+LEFT JOIN GADATA.C4G.[h_NoGateStop] as H ON GS.id = H.Breakdown_id
+WHERE H.ID is null
 END
 ---------------------------------------------------------------------------------------
 
@@ -133,10 +110,12 @@ END
 --Activity log (logs the execution of the Query to a table)
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
+
 DECLARE @rowcountmen as int 
 SET @rowcountmen = @@rowcount
 DECLARE @RequestString as varchar(255)
-SET @RequestString = 'Running: [C4G].[sp_ReClass_L_breakdown]'
+SET @RequestString = 'Running: [C4G].[sp_CheckGate_L_breakdown]'
 EXEC GADATA.C4G.sp_Activitylog @rowcount = @rowcountmen, @Request = @RequestString
+
 ---------------------------------------------------------------------------------------
 END
