@@ -4,3 +4,10 @@
     CONSTRAINT [PK_TimerErrorText] PRIMARY KEY CLUSTERED ([ID] ASC)
 );
 
+
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_TimerErrorText]
+    ON [dbo].[TimerErrorText]([ID] ASC, [ErrorText] ASC);
+

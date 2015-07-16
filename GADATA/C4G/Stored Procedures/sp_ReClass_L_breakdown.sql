@@ -70,6 +70,7 @@ SELECT
   LEFT JOIN #C4Gerror as Err on 
   (Err.controller_id = Hb.controller_id)
   AND
+(
 	(
 	(Err._timestamp BETWEEN HB.StartOfBreakdown AND (HB.EndOfBreakdown)) 
 	AND
@@ -81,6 +82,7 @@ SELECT
 	AND
 	(Err.error_text LIKE '%tips have been changed%') 
 	)
+)
    where  
    Hb.EndOfBreakdown BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
    AND 

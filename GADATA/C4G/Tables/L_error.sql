@@ -23,9 +23,21 @@ CREATE TABLE [C4G].[L_error] (
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [idx_error_id]
     ON [C4G].[L_error]([id] ASC);
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_L_error_ID2]
+    ON [C4G].[L_error]([id] ASC, [Appl_id] ASC, [Subgroup_id] ASC, [error_number] ASC, [error_severity] ASC, [error_text] ASC);
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_L_error_ID]
+    ON [C4G].[L_error]([id] ASC, [error_number] ASC, [error_severity] ASC, [Appl_id] ASC, [Subgroup_id] ASC);
 
 
 GO

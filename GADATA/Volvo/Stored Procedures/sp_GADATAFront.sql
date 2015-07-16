@@ -14,7 +14,7 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
 --COMAU C4G booleans
    @GetC4GAction as bit = 0,
    @GetC4Gerror as bit = 1,
-   @GetC4GEvents as bit = 0,--TBT
+   @GetC4GEvents as bit = 0, --moet ik herbekijken. (heeft precalucaltie nodig)
    @GetC4GDowntimes as bit = 1,
    @GetC4GDownTBegin as bit = 0,
    @GetC4GCollisions as bit = 0,
@@ -23,23 +23,32 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
 --Comau C3G Booleans   
    @GetC3GError as bit = 1,
    @GetC3GSBCU as bit = 0, 
+   @GetC3GMod as bit = 0, 
 --ABB S4C Booleans
    @GetS4Error as bit = 0,
    @GetS4State as bit = 0,
+   @GetABBDowntimes as bit = 0,
 --ABB IRC5 Booleans 
    @GetIRC5Error as bit = 0,
    @GetIRC5State as bit = 0,
 --ARO weldTImer Boolean 
    @GetTimerData as bit = 0,
    @GetTimerError as bit = 0,
-
+   @GetTimerWear as bit =0, --tbt
 --blocked pars 
    @RespT as bit = 0, --tbt
    @RelvT as bit =0, --tbt
 --optional pars
-   @MinLogserv as int = 0 --TBT
+   @MinLogserv as int = 0 
 AS
 BEGIN
+---------------------------------------------------------------------------------------
+--Kindly responde to user if using unfinished stuff
+---------------------------------------------------------------------------------------
+IF ((@GetC4GSBCU = 1)  Or (@GetTimerWear =1 ) OR (@GetC4GSpeedCheck =1))
+BEGIN
+RAISERROR (15600,-1,-1, 'Im sorry ... Have not got this implemented (SDEBEUL)');
+END
 
 
 ---------------------------------------------------------------------------------------
@@ -61,6 +70,7 @@ if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))
 BEGIN
 SET @EndDate = GETDATE()
 END
+
 ---------------------------------------------------------------------------------------
 
 
@@ -104,7 +114,7 @@ T.Location
 ,T.[Year]
 ,T.[Week]
 ,T.[day]
-,T.ploeg as 'shift'
+,T.[Shift] as 'shift'
 ,T.[Object]
 ,T.Subgroup
 ,T.id as 'idx'
@@ -193,6 +203,26 @@ AND
 AND
 --enable bit
 (@GetC4GDownTBegin = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G Qry Systate 
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.sysstate AS SS
+WHERE 
+--Datetime filter
+ (SS.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND
+(SS.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(SS.location,'') LIKE @LocationFilterWild )
+AND
+--enable bit
+(@GetC4GEvents = 1)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -333,6 +363,27 @@ AND
 @GetC3GError = 1
 
 ---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C3G modifications
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C3G.mod AS C3GM
+WHERE
+--datetime filter
+(C3GM.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(C3GM.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(C3GM.location,'') LIKE @LocationFilterWild )
+
+AND 
+@GetC3gMOD = 1
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
@@ -403,6 +454,27 @@ AND
 @GetS4State = 1
 ---------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--ABB Qry Breakdowns (einde van storings met storings tijd)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.ABB.breakdown as B
+WHERE 
+--Datetime filter
+ (B.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND
+--robot name filter 
+(B.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(B.location,'') LIKE @LocationFilterWild )
+AND
+--enable bit
+(@GetABBDowntimes = 1)
+---------------------------------------------------------------------------------------
+
 
 --***********************************************************************************************************************--
 --ABBIRC5
@@ -460,6 +532,7 @@ AND
 --Bosch weld timer errorlog 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
+
 UNION
 SELECT * FROM GADATA.Volvo.TimerError AS TE
 WHERE
@@ -480,6 +553,7 @@ AND
 --Bosch weld timer Datechange log  
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
+
 UNION
 SELECT * FROM GADATA.Volvo.TimerDataChange AS TDC
 WHERE

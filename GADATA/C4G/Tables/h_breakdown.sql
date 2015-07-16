@@ -14,3 +14,10 @@
 
 
 
+
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_Resptime]
+    ON [C4G].[h_breakdown]([controller_id] ASC, [error_id] ASC, [EndOfBreakdown] ASC, [Rt] ASC, [Trig_state] ASC, [id] ASC);
+

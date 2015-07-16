@@ -4,3 +4,10 @@
     CONSTRAINT [PK_C_Appl] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
+
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_C_Appl]
+    ON [C4G].[c_Appl]([id] ASC, [APPL] ASC);
+

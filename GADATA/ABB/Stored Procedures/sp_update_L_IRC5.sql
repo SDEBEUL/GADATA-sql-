@@ -106,8 +106,9 @@ if (OBJECT_ID('tempdb..#ABB_AE_normalized') is not null) drop table #ABB_AE_norm
 SELECT 
  rt_alarm_IRC5.id
 ,c_controller.id as 'controller_id'
-,rt_alarm_IRC5._timestamp
-,rt_alarm_IRC5.WnFiletime
+,rt_alarm_IRC5._timestamp --timestamp van database op moment van insert
+,rt_alarm_IRC5.WnFiletime  --timestamp van controller op moment van fout. ALS 64 bit int windows file time
+,abb.BigIntTimeToDateTime(abb.CombineToBigint(CONVERT(numeric(10),abb.[SplitString](rt_alarm_IRC5.WnFileTime,' ',1)),CONVERT(numeric(10),abb.[SplitString](rt_alarm_IRC5.WnFileTime,' ',2)))) as 'wd_timestamp' --timestamp van controller omgezet in datetime
 ,null as 'error_is_alarm'
 ,L_error.id as 'error_id'
 ,L_cause.id as 'cause_id'
@@ -139,9 +140,9 @@ Print'--Update h_alarm with all NEW Unique alarms (Watch => constraints on wi_ti
 INSERT INTO GADATA.ABB.h_alarm
 SELECT 
  #ABB_AE_normalized.controller_id
-,#ABB_AE_normalized._timestamp
-,#ABB_AE_normalized.WnFileTime
-,abb.BigIntTimeToDateTime(abb.CombineToBigint(CONVERT(numeric(10),abb.[SplitString](#ABB_AE_normalized.WnFileTime,' ',1)),CONVERT(numeric(10),abb.[SplitString](#ABB_AE_normalized.WnFileTime,' ',2)))) as 'wd_timestamp'
+,#ABB_AE_normalized._timestamp --ts van sql server op insert
+,NULL as 'WnFileTime' --ts van robot WFN in varchar FYI this collum can be dropped from the system... wil do later. 
+,#ABB_AE_normalized.wd_timestamp -- ts van robot in datetime 
 ,#ABB_AE_normalized.error_is_alarm
 ,#ABB_AE_normalized.error_id
 ,#ABB_AE_normalized.cause_id
@@ -151,7 +152,7 @@ FROM #ABB_AE_normalized
 --this will filter out unique results
 LEFT join GADATA.abb.h_alarm on 
 (
-(#ABB_AE_normalized.WnFiletime  = GADATA.abb.h_alarm.wi_timestamp)
+(#ABB_AE_normalized.wd_timestamp  = GADATA.abb.h_alarm.wd_timestamp)
 AND
 (#ABB_AE_normalized.controller_id  = GADATA.abb.h_alarm.controller_id)
 AND
@@ -161,7 +162,7 @@ where (h_alarm.id IS NULL)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
-Print'--delete in rt_alarm is exist in h_alarm (Watch => constraints on wi_timestamp / controller_id / error_id)'
+Print'--delete in rt_alarm if exist in h_alarm (Watch => constraints on wi_timestamp / controller_id / error_id)'
 ---------------------------------------------------------------------------------------
 DELETE FROM gadata.abb.rt_alarm_IRC5 where gadata.abb.rt_alarm_IRC5.id <= (select max(id) from #ABB_AE_normalized)
 ---------------------------------------------------------------------------------------

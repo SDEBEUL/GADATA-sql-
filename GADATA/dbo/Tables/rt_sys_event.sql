@@ -9,3 +9,10 @@
 
 
 
+
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_rt_sys_event]
+    ON [dbo].[rt_sys_event]([controller_id] ASC, [_timestamp] ASC, [id] ASC, [sys_state] ASC);
+

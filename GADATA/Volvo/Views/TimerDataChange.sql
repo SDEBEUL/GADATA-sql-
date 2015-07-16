@@ -1,5 +1,7 @@
 ﻿
 
+
+
 CREATE VIEW [Volvo].[TimerDataChange]
 AS
 SELECT   
@@ -10,7 +12,7 @@ SELECT
 , CONVERT(char(19),TDC.DateTime, 120) AS 'Timestamp'
 , NULL AS 'Logcode'
 , NULL AS 'Severity'
-, 'Par: ' + CAST(TP.[Description] as varchar(35)) + '  Changed: ' + CAST(TDC.oldvalue as varchar(10)) +' -> ' + CAST(TDC.newvalue as varchar(10)) + ' User: ' + TU.CDSID  AS 'Logtekst'
+, 'Par: ' + CAST(TP.[Description] as varchar(35)) + '  Changed: ' + CAST(TDC.oldvalue as varchar(10)) +' -> ' + CAST(TDC.newvalue as varchar(10)) + ' User: ' + 'TU.CDSID'  AS 'Logtekst'
 , NULL AS DOWNTIME
 , T.Vyear AS 'Year'
 , T.Vweek AS 'Week'

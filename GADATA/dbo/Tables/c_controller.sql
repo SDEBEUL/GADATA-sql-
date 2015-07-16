@@ -21,3 +21,10 @@
     CONSTRAINT [PK_c_controller] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
+
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_C_Controller_Name]
+    ON [dbo].[c_controller]([location] ASC, [controller_name] ASC, [id] ASC);
+

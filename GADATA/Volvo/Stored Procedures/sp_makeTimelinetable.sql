@@ -67,8 +67,8 @@ if (OBJECT_ID('GADATA.VOLVO.L_timeline') is not null) drop table GADATA.VOLVO.L_
  SELECT 
  * 
      ,CASE 
-	  WHEN (L.[Vweek] %2 = 0) AND (L.[shift] = 1) THEN 'A' --even weken vroege shift 
-	  WHEN (L.[Vweek] %2 = 0) AND (L.[shift] = 2) THEN 'B' --even weken late shift
+	  WHEN (L.[Vweek] %2 = 0) AND (L.[shift] = 1) THEN 'B' --even weken vroege shift 
+	  WHEN (L.[Vweek] %2 = 0) AND (L.[shift] = 2) THEN 'A' --even weken late shift
 	  WHEN (L.[Vweek] %2 = 1) AND (L.[shift] = 1) THEN 'A' --oneven weken vroegen shift
 	  WHEN (L.[Vweek] %2 = 1) AND (L.[shift] = 2) THEN 'B' --oneven weken late shift
 	  WHEN L.[shift] = 3 THEN 'N'

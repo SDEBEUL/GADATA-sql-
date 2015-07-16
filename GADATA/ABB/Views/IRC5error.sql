@@ -1,4 +1,7 @@
 ﻿
+
+
+
 CREATE VIEW [ABB].[IRC5error]
 AS
 SELECT        
@@ -9,7 +12,7 @@ C.location
 , CONVERT(char(19), ISNULL(H._timestamp, H.wd_timestamp), 120) AS timestamp
 , L.error_number AS Logcode
 , L.error_severity AS Severity
-, L.error_text AS Logtekst
+, L.error_text + ' C: ' + lc.cause_text  AS Logtekst
 , NULL AS Downtime
 , T.Vyear AS Year
 , T.Vweek AS Week
@@ -20,6 +23,7 @@ C.location
 , CAST(H.id AS int) AS idx
 FROM            ABB.h_alarm AS H 
 LEFT OUTER JOIN ABB.L_error AS L ON L.id = H.error_id 
+LEFT OUTER JOIN ABB.L_Cause as Lc on lc.id = H.cause_id
 LEFT OUTER JOIN ABB.c_controller AS C ON H.controller_id = C.id 
 LEFT OUTER JOIN ABB.c_Appl ON L.Appl_id = ABB.c_Appl.id 
 LEFT OUTER JOIN ABB.c_Subgroup ON L.Subgroup_id = ABB.c_Subgroup.id 

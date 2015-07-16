@@ -1,5 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[Qinfo_Tsync]
    @Robot as varchar(16) = '99020R01'
+   ,@ErrCode as int = null
 AS
 BEGIN
 SELECT

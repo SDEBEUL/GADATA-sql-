@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [VOLVO].[LiveView]
+﻿CREATE PROCEDURE [Volvo].[LiveView]
 
    @StartDate as DATETIME = null,
    @EndDate as DATETIME = null,
@@ -8,21 +8,10 @@
    @RobotFilterMaskEnd as varchar(10) = '88999R99%',
    @LocationFilterWild as varchar(20) = '%',
 
-   @OrderbyRobot as bit = null,
-  
-   @GetC4GAction as bit = 1,
-   @GetC4Gerror as bit = 1,
-   @GetC4GEvents as bit = 0,
-   @GetC4GDowntimes as bit = 1,
-   @GetC4GDownTBegin as bit = 1,
-   @GetC4GCollisions as bit = 0,
-   @GetC4GSpeedCheck as bit = 1,
-   @GetC3GError as bit = 1,
-   @GetModification as bit = 0,
 
-   @ExcludeGateStops as bit = 1,
-   @MinLogserv as int = 10,
-   @minDowntime as int = 4
+   @GetC4GEvents as bit = 0
+
+
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
@@ -298,101 +287,6 @@ if (OBJECT_ID('tempdb..#SysBreakDwnTime') is not null) drop table #SysBreakDwnTi
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 
----------------------------------------------------------------------------------------
---Runs an update of the 'actionlog' timeoffset table  (builds a instance of #C4GActionLogtimediff)
----------------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------------
---create temp table in daterange to 'guess' the best timeoffset for action log 
----------------------------------------------------------------------------------------
-if (OBJECT_ID('tempdb..#C4GActionLogtimedifftemp') is not null) drop table #C4GActionLogtimedifftemp
-SELECT 
- --c_controller.controller_name
- --,rt_alarm._timestamp as 'realtime'
- --,rt_alarm.error_timestamp as 'controllertime'
-  rt_alarm.controller_id
- ,timeoffset = (rt_alarm._timestamp - rt_alarm.error_timestamp)
- ,ROW_NUMBER() OVER (PARTITION BY rt_alarm.controller_id ORDER BY rt_alarm._timestamp DESC) AS rnDESC
-INTO #C4GActionLogtimedifftemp
-FROM GADATA.dbo.c_controller
-JOIN GADATA.dbo.rt_alarm on c_controller.id = rt_alarm.controller_id
-
-WHERE 
---reference pool
-(rt_alarm._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE()))
---error must be a realtime alarm.
-AND
-(rt_alarm.error_is_alarm = 1)
-
-if (OBJECT_ID('tempdb..#C4GActionLogtimediff') is not null) drop table #C4GActionLogtimediff
-SELECT #C4GActionLogtimedifftemp.controller_id, #C4GActionLogtimedifftemp.timeoffset  
-INTO #C4GActionLogtimediff 
-FROM #C4GActionLogtimedifftemp
-WHERE rnDESC = 1 
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-
-
----------------------------------------------------------------------------------------
---create temp table for C4G speedcheck
----------------------------------------------------------------------------------------
-
---dump data into temp table to create rnDESC idx
-if (@GetC4GSpeedCheck = 1) 
-if (OBJECT_ID('tempdb..#C4GSpeedchecktemp') is not null) drop table #C4GSpeedchecktemp
-(
-SELECT 
-_timestamp,
-controller_id,
-value,
-ROW_NUMBER() OVER (PARTITION BY controller_id, variable_id ORDER BY _timestamp DESC) AS rnDESC
-INTO #C4GSpeedchecktemp
-FROM GADATA.dbo.rt_value
-WHERE 
-(rt_value.variable_id = 1) --$GEN_OVER
-AND 
-(GADATA.dbo.rt_value._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) 
-)
---BREAK
-if (@GetC4GSpeedCheck = 1) 
-if (OBJECT_ID('tempdb..#C4GSpeedcheck') is not null) drop table #C4GSpeedcheck
-(
-SELECT
-#C4GSpeedchecktemp.controller_id,
-#C4GSpeedchecktemp._timestamp AS 'TimestampNOK',
-lrt_value_rn_desc._timestamp AS 'TimestampOK',
-DATEDIFF(HOUR, ISNULL(Lrt_value_rn_desc._timestamp,getdate()), #C4GSpeedchecktemp._timestamp) AS 'hours',
-#C4GSpeedchecktemp.value AS 'ActiveSpeed',
-Lrt_value_rn_desc.value AS 'OldSpeedValue'
-INTO #C4GSpeedcheck
-FROM #C4GSpeedchecktemp
-LEFT JOIN #C4GSpeedchecktemp AS Lrt_value_rn_desc ON
-(
-(#C4GSpeedchecktemp.controller_id = Lrt_value_rn_desc.controller_id )
-AND
-(Lrt_value_rn_desc.value <> 100) 
-AND 
-(#C4GSpeedchecktemp.rnDESC = Lrt_value_rn_desc.rnDESC - 1)
-AND
-(#C4GSpeedchecktemp.value IN ( 100, null))
-)
-
-WHERE 
---robots that are not 100% now
-(
-(#C4GSpeedchecktemp.rnDESC = 1)
-AND
-(#C4GSpeedchecktemp.value <> 100)
-)
-OR --robots that where less than 100% for more than 1 hour 
-(
-(DATEDIFF(hour, Lrt_value_rn_desc._timestamp, #C4GSpeedchecktemp._timestamp) > 1)
-AND
-(#C4GSpeedchecktemp.value = 100)
-)
-)
-
 
 ---------------------------------------------------------------------------------------
 --********************************************************************************************************************************************--
@@ -480,92 +374,12 @@ END
 --------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---C4G Qry Slowspeed (Robot that are running slow)
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-SELECT TOP 5  
-              c_controller.location AS 'Location',
-			  c_controller.controller_name AS 'Robot',
-              'C4G' AS 'Type',
-			  'SLOWSPEED',
-			     CASE 
-				 --case robot stil slow event ongoing
-                    WHEN #C4GSpeedcheck.TimestampOK is null THEN  convert(char(19),ISNULL(#C4GSpeedcheck.TimestampOK,getdate()),120) 
-                 --case robot already back on 100% 
-				    ELSE convert(char(19),#C4GSpeedcheck.TimestampNOK,120) 
-                 END AS 'Timestamp',
-			  '99003' AS 'Logcode',
-              '20' AS 'Severity',
-              'CurrentSpeed: ' + #C4GSpeedcheck.ActiveSpeed + ' Slowspeed: '  + ISNULL(#C4GSpeedcheck.OldSpeedValue,'##') +  ' Since:  ' + convert(char(19),ISNULL(#C4GSpeedcheck.TimestampOK,#C4GSpeedcheck.TimestampNOK),120) + ' Hours: ' + CAST(#C4GSpeedcheck.hours as varchar(4)) AS 'Logtekst',
-			  NULL as 'DT',
-              DATEPART(YEAR, ISNULL(#C4GSpeedcheck.TimestampOK,getdate())) AS 'Year',
-			  DATEPART(WEEK,ISNULL(#C4GSpeedcheck.TimestampOK,getdate())) AS 'Week',
-			  GADATA.dbo.fn_volvoday(ISNULL(#C4GSpeedcheck.TimestampOK,getdate()),CAST(ISNULL(#C4GSpeedcheck.TimestampOK,getdate()) AS time)) AS 'day',
-			  GADATA.dbo.fn_volvoshift1(ISNULL(#C4GSpeedcheck.TimestampOK,getdate()),CAST(ISNULL(#C4GSpeedcheck.TimestampOK,getdate()) AS time)) AS 'Shift',
-			  'speed' AS 'Object',
-			  'speed' AS 'Subgroup',
-			  --debug collums
-              --SysBreakDwn.sys_state,
-              --CAST(SysBreakDwn.rnDESC AS int) AS 'rnDESC',
-              1 AS 'idx'
-              --CAST(SysBreakDwn.SysBreakDwnIndx AS int) AS 'SSidx'
-			  
-            
-FROM #C4GSpeedcheck
---join the controller name
-JOIN    c_controller ON (#C4GSpeedcheck.controller_id = c_controller.id) 
-WHERE 
---robot name filter 
-((c_controller.controller_name BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd))
-AND
-(c_controller.controller_name LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(c_controller.location,'') LIKE @LocationFilterWild )
-AND
---enable bit
-(@GetC4GSpeedCheck = 1)
-
----------------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---C4G Qry Breakdowns (einde van storings met storings tijd)
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-UNION
-SELECT TOP 20 * FROM GADATA.C4G.Breakdown as B
-WHERE 
---Datetime filter
- B.[Timestamp]  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
-AND
---robot name filter 
-((B.Robotname BETWEEN @RobotFilterMaskStart AND @RobotFilterMaskEnd))
-AND
-(B.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(B.location,'') LIKE @LocationFilterWild )
-AND
---Exclude Gatestops 
-((@ExcludeGateStops = 1 AND (ISNULL(B.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
-AND
---filter small breakdowns 
-(B.DOWNTIME > @minDowntime)
-AND
---enable bit
-(@GetC4GDowntimes = 1)
----------------------------------------------------------------------------------------
-
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 --c4g down right now 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
-UNION
-SELECT TOP 20
+SELECT 
               c_controller.location AS 'Location',
 			  c_controller.controller_name AS 'Robot',
               'C4G' AS 'Type',
@@ -580,89 +394,19 @@ SELECT TOP 20
 			  GADATA.dbo.fn_volvoday(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'day',
 			 -- DATEPART(WEEKDAY,L_breakdown.StartOfBreakdown)AS 'day',
 			  GADATA.dbo.fn_volvoshift1(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'Shift',
-			  c_logclass1.APPL AS 'Object',
-			  c_logclass1.subgroup AS 'Subgroup',
+			  'Na'AS 'Object',
+			  'Na' AS 'Subgroup',
               #SysBreakDwnTime.id
 			  
            
 FROM #SysBreakDwnTime
 --join the controller name
 JOIN    c_controller ON (#SysBreakDwnTime.controller_id = c_controller.id) 
---try and get an error classification
-LEFT JOIN GADATA.dbo.c_logclass1 as c_logclass1 ON 
-(
-(#SysBreakDwnTime.error_number BETWEEN c_logclass1.error_codeStart AND c_logclass1.error_codeEnd)
-OR
-(#SysBreakDwnTime.error_text LIKE c_logclass1.error_tekst)
-)
+
 WHERE 
-SysBreakDwnIndx = 1 and OKtimestamp > (getdate()-'1900-01-01 00:0:5.00') AND (error_text is not null OR sys_state = 262144)
+SysBreakDwnIndx = 1 and OKtimestamp > (getdate()-'1900-01-01 00:05:000') --AND (error_text is not null OR sys_state = 262144)
 
 
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---C4G Alarm information (error log)
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-UNION
-SELECT TOP 20 * FROM GADATA.C4G.Error AS C4GE
-WHERE 
---datetime filter
-(C4GE.[Timestamp]  BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())) 
-AND 
---Robot name filter 
-(C4GE.Robotname BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd)
-AND  
-(C4GE.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C4GE.location,'') LIKE @LocationFilterWild )
-AND
- --Exclude Gatestops 
-(
-(@ExcludeGateStops = 1 AND (ISNULL(C4GE.subgroup,'') NOT LIKE '%Gate/Hold%')) 
-OR 
-@ExcludeGateStops =0
-)
---minimum log serverity
-AND
-(C4GE.Severity  > (@MinLogserv-1))
---Enable bit 
-AND
-(@GetC4Gerror = 1)
----------------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---C3G Alarm information (error log)
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-UNION
-SELECT TOP 20 * FROM GADATA.C3G.Error AS C3GE
-WHERE
---date time filter
-C3GE.[timestamp] BETWEEN ISNULL(@StartDate,GETDATE()-@daysback) AND ISNULL(@EndDate,GETDATE())
-AND
---robot name filter 
-(C3GE.RobotName BETWEEN    @RobotFilterMaskStart AND @RobotFilterMaskEnd )
-AND  
-(C3GE.RobotName LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C3GE.location,'') LIKE @LocationFilterWild ) 
-AND
- --Exclude Gatestops 
-(
-(@ExcludeGateStops = 1 AND (ISNULL(C3GE.subgroup,'') NOT LIKE '%Gate/Hold%')) 
-OR 
-@ExcludeGateStops =0
-)
---minimum log serverity
-AND
-(C3GE.Severity  > (@MinLogserv-1))
---enable bit
-AND
-@GetC3GError = 1
 
 ---------------------------------------------------------------------------------------
 

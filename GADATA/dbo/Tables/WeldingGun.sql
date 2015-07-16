@@ -11,3 +11,10 @@
 
 
 
+
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_WedingGun]
+    ON [dbo].[WeldingGun]([Name] ASC, [ID] ASC, [ElectrodeNbr] ASC, [VariantID] ASC, [TimerID] ASC);
+
