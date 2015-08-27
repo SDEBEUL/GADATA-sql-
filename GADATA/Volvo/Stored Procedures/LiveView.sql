@@ -379,22 +379,24 @@ END
 --c4g down right now 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
+if (OBJECT_ID('GADATA.VOLVO.L_liveView') is not null) drop table GADATA.VOLVO.L_liveView
+SELECT * INTO GADATA.VOLVO.L_liveView FROM
+(
 SELECT 
               c_controller.location AS 'Location',
 			  c_controller.controller_name AS 'Robot',
               'C4G' AS 'Type',
-			  'BEZIG',
+			  'LIVE' as 'Errortype',
               convert(char(19),#SysBreakDwnTime.oktimestamp,120) AS 'Timestamp',
               #SysBreakDwnTime.error_number AS 'Logcode',
               20 AS 'Severity',
-              ISNULL('State: ' + CAST(GADATA.dbo.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|  Err: '  + #SysBreakDwnTime.error_text,'State: ' + CAST(GADATA.dbo.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar)) AS 'Logtekst',
+              ISNULL('State: ' + CAST(GADATA.dbo.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|  Err: '  + #SysBreakDwnTime.error_text,('State: ' + CAST(GADATA.dbo.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) ))  AS 'Logtekst',
 			  downtime as 'DT',
               DATEPART(YEAR, #SysBreakDwnTime.oktimestamp) AS 'Year',
 			  DATEPART(WEEK,#SysBreakDwnTime.oktimestamp) AS 'Week',
 			  GADATA.dbo.fn_volvoday(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'day',
-			 -- DATEPART(WEEKDAY,L_breakdown.StartOfBreakdown)AS 'day',
 			  GADATA.dbo.fn_volvoshift1(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'Shift',
-			  'Na'AS 'Object',
+			  'Na' AS 'Object',
 			  'Na' AS 'Subgroup',
               #SysBreakDwnTime.id
 			  
@@ -409,14 +411,16 @@ SysBreakDwnIndx = 1 and OKtimestamp > (getdate()-'1900-01-01 00:05:000') --AND (
 
 
 ---------------------------------------------------------------------------------------
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--c4g check service center status
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
 UNION
 SELECT DISTINCT  
               NULL AS 'Location',
 			  L_operation.Vcsc_name AS 'Robot',
               'C4G' AS 'Type',
-			  'BEZIG',
+			  'LIVE' as 'Errortype',
               convert(char(19),(getdate()+'1900-01-02 00:0:0.00'),120) AS 'Timestamp',
               NULL AS 'Logcode',
               20 AS 'Severity',
@@ -441,9 +445,41 @@ AND
 
 WHERE #L_operationActRobState.vcsc_name is null
 ---------------------------------------------------------------------------------------
-ORDER BY   [Timestamp] DESC 
 
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--ABB check data comm (geeft alarm als er 5 min geen data is)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT DISTINCT  
+              NULL AS 'Location',
+			  'ABB OPC' AS 'Robot',
+              x.type AS 'Type',
+			  'LIVE' as 'Errortype',
+              convert(char(19),(getdate()+'1900-01-02 00:00:0.00'),120) AS 'Timestamp',
+              NULL AS 'Logcode',
+              20 AS 'Severity',
+			  'ABB OPC WARNING type: ' + x.type + 'NO DATA FROM 5 min Last message: ' + convert(char(19),x.LastMessage,120) AS 'Logtekst',
+			  NULL AS 'DT',
+              NULL AS 'Year',
+			  NULL AS 'Week',
+			  NULL AS 'day',
+			  NULL AS 'Shift',
+			  null AS 'Object',
+			  null AS 'Subgroup',
+              NULL AS 'id'
+ FROM
+(SELECT 
+ comm.Type
+,comm.LastMessage
+,ROW_NUMBER() OVER (PARTITION BY comm.type ORDER BY comm.LastMessage DESC) AS rnDESC
+from GADATA.abb.LastCommList as comm
+) as x 
+where x.rnDESC = 1 
+and x.LastMessage < (getdate() - '1900-01-01 00:05:0.00')
+---------------------------------------------------------------------------------------
+) as x 
+ORDER BY   x.[Timestamp] DESC 
 --*/
-
-
 END

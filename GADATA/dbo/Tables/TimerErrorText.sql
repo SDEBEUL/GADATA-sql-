@@ -7,7 +7,8 @@
 
 
 
+
+
 GO
-CREATE UNIQUE NONCLUSTERED INDEX [NCI_TimerErrorText]
-    ON [dbo].[TimerErrorText]([ID] ASC, [ErrorText] ASC);
+
 

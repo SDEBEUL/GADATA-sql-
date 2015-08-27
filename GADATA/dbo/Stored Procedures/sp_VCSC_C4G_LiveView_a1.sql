@@ -796,7 +796,7 @@ SELECT DISTINCT
               20 AS 'Severity',
 			  CASE 
 			  WHEN #L_operationActRobState.vcsc_name LIKE '%%' THEN 'Serivce center OK'
-			  ELSE  '!!!! NO DATA FOR 60 minutes might be down !!!!  NOK'
+			  ELSE  '!!!! NO DATA for 60 minutes might be down !!!!  NOK'
 			  END AS 'Logtekst',
 			  NULL AS 'DT',
               NULL AS 'Year',
@@ -814,6 +814,40 @@ AND
 (#L_operationActRobState._timestamp  > (GETDATE()-'1900-01-01 01:00:00.00'))
 
 WHERE #L_operationActRobState.vcsc_name is null
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--ABB check data comm (geeft alarm als er 5 min geen data is)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT DISTINCT  
+              NULL AS 'Location',
+			  'ABB OPC' AS 'Robot',
+              x.type AS 'Type',
+			  'BEZIG',
+              convert(char(19),(getdate()+'1900-01-02 00:00:0.00'),120) AS 'Timestamp',
+              NULL AS 'Logcode',
+              20 AS 'Severity',
+			  ' NO TRAFIC for 10 min Last message: ' + convert(char(19),x.LastMessage,120) AS 'Logtekst',
+			  NULL AS 'DT',
+              NULL AS 'Year',
+			  NULL AS 'Week',
+			  NULL AS 'day',
+			  NULL AS 'Shift',
+			  null AS 'Object',
+			  null AS 'Subgroup',
+              NULL AS 'id'
+ FROM
+(SELECT 
+ comm.Type
+,comm.LastMessage
+,ROW_NUMBER() OVER (PARTITION BY comm.type ORDER BY comm.LastMessage DESC) AS rnDESC
+from GADATA.abb.LastCommList as comm
+) as x 
+where x.rnDESC = 1 
+and x.LastMessage < (getdate() - '1900-01-01 00:10:0.00')
 ---------------------------------------------------------------------------------------
 
 ORDER BY   Timestamp DESC --robotname,

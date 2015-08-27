@@ -7,3 +7,10 @@
     CONSTRAINT [FK_Robot_RobotClass] FOREIGN KEY ([Type]) REFERENCES [RobotGA].[RobotClass] ([ID])
 );
 
+
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_RobotGA]
+    ON [RobotGA].[Robot]([ID] ASC, [RobotName] ASC, [location] ASC);
+

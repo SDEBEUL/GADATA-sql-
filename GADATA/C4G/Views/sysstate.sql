@@ -2,6 +2,7 @@
 
 
 
+
 CREATE VIEW [C4G].[sysstate]
 AS
 
@@ -22,6 +23,7 @@ SELECT
 , robotState = dbo.fn_robstate(rt_sys_event.sys_state)
 /*calculates a robot state a running robot has 2 a non running one 0 */ 
 FROM GADATA.dbo.rt_sys_event AS rt_sys_event
+where _timestamp between getdate()-1 and getdate()
 /*data from L_operation (to catch robots goning offline)*/ 
 UNION
 SELECT        

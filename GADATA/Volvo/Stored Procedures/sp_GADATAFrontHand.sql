@@ -33,6 +33,6 @@ exec GADATA.c4g.sp_Decode_HandMonitor
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 SELECT * FROM GADATA.C4G.HandMonitor as h
-where h.timestamp between   @startdate and @EndDate
-AND h.Robotname LIKE @RobotFilterWild
+where --h.timestamp between   @startdate and @EndDate AND
+ h.Robotname LIKE @RobotFilterWild
 END

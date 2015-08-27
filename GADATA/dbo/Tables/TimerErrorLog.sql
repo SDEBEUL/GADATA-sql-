@@ -11,7 +11,11 @@
 
 
 
+
+
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [NCI_TimerErrorLog]
-    ON [dbo].[TimerErrorLog]([TimerID] ASC, [ErrorID] ASC, [DateTime] ASC, [ID] ASC);
+    ON [dbo].[TimerErrorLog]([TimerID] ASC, [ErrorID] ASC, [ID] ASC);
+
+
 
