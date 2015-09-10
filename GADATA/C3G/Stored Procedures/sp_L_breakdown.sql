@@ -1,19 +1,15 @@
-﻿CREATE PROCEDURE [C3G].[sp_L_breakdown_BETA]
+﻿
+CREATE PROCEDURE [C3G].[sp_L_breakdown]
 
    @StartDate as DATETIME = null,
    @EndDate as DATETIME = null,
-   @RobotFilterWild as varchar(10) = '%',
-   @RobotFilterMaskStart as varchar(10) = '%',
-   @RobotFilterMaskEnd as varchar(10) = '99999R99%',
-   @OrderbyRobot as bit = null,
-   @CalcBreakDowntags as bit = 0,
-   @controller_id as int = 622
+   @controller_id as int = null
 AS
 BEGIN
 
 
 ---------------------------------------------------------------------------------------
-print 'Running: [C3G].[sp_L_breakdown_BETA]'
+print 'Running: [C3G].[sp_L_breakdown]'
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -36,8 +32,10 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				rt_sys_event._timestamp,
 				rt_sys_event.sys_state,
 				robotState = c3g.fn_robstate(rt_sys_event.sys_state) --A running robot has 1 a non running one 0  
-			FROM  GADATA.C4G.rt_sys_event  AS rt_sys_event
-			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+			FROM  GADATA.C3G.rt_sys_event  AS rt_sys_event
+			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE()) 
+			      AND 
+				  rt_sys_event.controller_id BETWEEN ISNULL(@controller_id,0) AND ISNULL(@controller_id,10000)
 	
 	) AS x 
 ---------------------------------------------------------------------------------------
@@ -79,7 +77,7 @@ if (OBJECT_ID('tempdb..#SysEventTime') is not null) drop table #SysEventTime
        ) as x
        )
 ---------------------------------------------------------------------------------------
-SELECT TOP 30 *,info = GADATA.c3g.fn_decodeSysstate(sys_state) FROM #SysEventTime where controller_id = @controller_id order by _timestamp desc 
+SELECT TOP 30 *,info = GADATA.c3g.fn_decodeSysstate(sys_state) FROM #SysEventTime order by _timestamp desc 
 ---------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -139,20 +137,14 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
          #StartStopEvents.controller_id,
          #StartStopEvents._timestamp as '_Eb', 
 		 LStartStopEvents._timestamp as '_Sb',
-		 DATEDIFF(Minute,'1900-01-01 00:00:00',[C3G].[fts_Downtime] (#StartStopEvents._timestamp,LStartStopEvents._timestamp)) as 'DT',
          LStartStopEvents.sys_state as 'TriggerState',
-		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY rt_a._timestamp ASC) AS CauseIndx, --index op de mogelijke 'causes' idx 1 is normaal de trigger
-		 GADATA.C3G.fn_decodeSysstate(LStartStopEvents.sys_state) as 'TrigStateinfo',
-         --#StartStopEvents.rnDESC,
-         --LStartStopEvents.TimeInState as 'RespT', 
-		 --#StartStopEvents.robotState,
-         --#StartStopEvents.StartStopIndx as 'upIdx',
-		 --LStartStopEvents.StartStopIndx as 'DwnIdx',
-		 rt_a._timestamp,
-		 --rt_a.error_timestamp,
-		 --rt_a.error_count,
-		 rt_a.error_number,
-		 rt_a.error_text
+		 LStartStopEvents.TimeInState as 'repst',
+		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY H_a._timestamp ASC) AS CauseIndx, --index op de mogelijke 'causes' idx 1 is normaal de trigger
+		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY L_e.[error_severity] Desc) AS ReclassIndx, --index om makkelijk de zwaarste fout uit een storing te kunnen halen.
+		 H_a.id as 'error_id',
+		 L_e.[error_number],
+		 L_e.[error_severity],
+		 L_e.error_text
 
        INTO #SysBreakDwn
        FROM #StartStopEvents
@@ -170,28 +162,54 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
              )
 
 --Join al de mogelijke erros in het 'breakdown' timeslot
-	LEFT JOIN GADATA.C4G.rt_alarm as rt_a
+	LEFT JOIN GADATA.C3G.h_alarm as h_a
 	   ON (
-		(LStartStopEvents.controller_id = rt_a.controller_id) 
+		(LStartStopEvents.controller_id = h_a.controller_id) 
 		AND
-			(
-			--voor fouten die we kunnen terug vinden hebben in de errorlog
-				--fout moet zicht voordoen tussen de 3 seconden voor de trigger en het einde van de breakdown (gebruikt _timestamp = moment van insert)
-				(rt_a._timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:00:03.00') AND #StartStopEvents._timestamp)
-				AND
-				(rt_a.[error_severity] >= 4) --moet ten minste severity 4 zijn 
-			OR
-			--voor fouten die we niet konden koppelen in de errorlog.
-				--fout moet zicht voordoen tussen de 3 seconden voor de trigger en het einde van de breakdown (gebruikt error_timestamp = controller clock
-				(rt_a.error_timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:00:03.00') AND #StartStopEvents._timestamp)
-				AND
-				(rt_a.[error_severity] = -1) -- -1 wil zeggen dat we het niet konden matchen in de errorlog
-			)
+		--fout moet zicht voordoen tussen de 3 seconden voor de trigger en het einde van de breakdown (gebruikt _timestamp = moment van insert)
+		(h_a._timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:00:03.00') AND #StartStopEvents._timestamp)
+		AND
+        (h_a.controller_id BETWEEN ISNULL(@controller_id,0) AND ISNULL(@controller_id,10000))
 		  )
+     LEFT JOIN GADATA.C3G.L_error as L_e 
+	   ON ( 
+		(l_e.id = h_a.error_id) 
+		AND 
+		(L_e.[error_severity] >= 4)
+	      )
  )
 ---------------------------------------------------------------------------------------
+SELECT  
+         #SysBreakDwn.id,
+         #SysBreakDwn.controller_id,
+         #SysBreakDwn._Eb, 
+		 #SysBreakDwn._Sb,
+		 DATEDIFF(Minute,'1900-01-01 00:00:00',[C3G].[fts_Downtime] (#SysBreakDwn._Eb,#SysBreakDwn._Sb)) as 'DT',
+         #SysBreakDwn.TriggerState,
+		 GADATA.C3G.fn_decodeSysstate(#SysBreakDwn.TriggerState) as 'Triginfo',
+		 #SysBreakDwn.repst,
+		 #SysBreakDwn.CauseIndx,
+		 #SysBreakDwn.ReclassIndx,
+		 #SysBreakDwn.error_id,
+		 #SysBreakDwn.[error_number],
+		 #SysBreakDwn.[error_severity],
+		 #SysBreakDwn.error_text,
+		 LSysBreakDwn.error_id as 'Rerror_id',
+		 LSysBreakDwn.error_text as 'Rtext'
+FROM #SysBreakDwn
 
-SELECT TOP 20 c.controller_name, bwn.* FROM #SysBreakDwn as bwn 
-LEFT JOIN GADATA.C4G.c_controller as c on c.id = bwn.controller_id
+--join the best reclassifciation
+LEFT JOIN #SysBreakDwn as LSysBreakDwn
+ ON
+ (
+ ( #SysBreakDwn.id =  LSysBreakDwn.id)
+ AND
+ (#SysBreakDwn.CauseIndx = 1)
+ AND
+ (LSysBreakDwn.ReclassIndx = 1)
+ AND
+ (LSysBreakDwn.CauseIndx <> 1)
+ )
+
 order by _EB desc 
 END
