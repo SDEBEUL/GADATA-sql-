@@ -6,10 +6,7 @@
    @RobotFilterWild as varchar(10) = '%',
    @RobotFilterMaskStart as varchar(10) = '%',
    @RobotFilterMaskEnd as varchar(10) = '88999R99%',
-   @LocationFilterWild as varchar(20) = '%',
-
-
-   @GetC4GEvents as bit = 0
+   @LocationFilterWild as varchar(20) = '%'
 
 
 AS
@@ -39,7 +36,7 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				robotState = dbo.fn_robstate(rt_sys_event.sys_state) --calculates a robot state a running robot has 2 a non running one 0 
 			FROM  GADATA.dbo.rt_sys_event  AS rt_sys_event
 			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
-			AND @GetC4GEvents = 0
+
 	
 			--data from L_operation (to catch robots goning offline)
 			UNION
@@ -51,7 +48,6 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				robotState = 0
 			FROM GADATA.dbo.l_operation AS l_operation
 			WHERE (l_operation._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) AND (l_operation.code = 4) --connection lost 
-			AND @GetC4GEvents = 0
 	) AS x 
 	
 ---------------------------------------------------------------------------------------
@@ -75,7 +71,6 @@ if (OBJECT_ID('tempdb..#SysEventPast') is not null) drop table #SysEventPast
               (#SysEventIdx.controller_id = SyseventOffs.controller_id) 
               AND 
               (#SysEventIdx.rnDESC <> 1)
-	WHERE @GetC4GEvents = 0
 ---------------------------------------------------------------------------------------
 --SysEventIdx with rownumbers 1 to calc TimeInState (active event)
 ---------------------------------------------------------------------------------------
@@ -92,7 +87,6 @@ if (OBJECT_ID('tempdb..#SysEventLive') is not null) drop table #SysEventLive
        INTO #SysEventLive
        FROM #SysEventIdx
    WHERE (#SysEventIdx.rnDESC = 1)
-   	     AND @GetC4GEvents = 0
        )
 ---------------------------------------------------------------------------------------
 --SysEventPast UNION with the SysEventLive table. (ongoing and past events)
@@ -398,17 +392,16 @@ SELECT
 			  GADATA.dbo.fn_volvoshift1(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'Shift',
 			  'Na' AS 'Object',
 			  'Na' AS 'Subgroup',
-              #SysBreakDwnTime.id
-			  
+              #SysBreakDwnTime.id			  
            
 FROM #SysBreakDwnTime
 --join the controller name
 JOIN    c_controller ON (#SysBreakDwnTime.controller_id = c_controller.id) 
 
 WHERE 
-SysBreakDwnIndx = 1 and OKtimestamp > (getdate()-'1900-01-01 00:05:000') --AND (error_text is not null OR sys_state = 262144)
-
-
+ (SysBreakDwnIndx = 1 AND CombinedRobstate <> 3) --laatste event en robot heeft geen resolved event 
+  OR
+ (SysBreakDwnIndx = 1  AND (_timestamp > getdate()-'1900-01-01 00:05:00:000') ) --laatste event of not geen 5 min aan het draaien 
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
@@ -479,6 +472,7 @@ from GADATA.abb.LastCommList as comm
 where x.rnDESC = 1 
 and x.LastMessage < (getdate() - '1900-01-01 00:05:0.00')
 ---------------------------------------------------------------------------------------
+
 ) as x 
 ORDER BY   x.[Timestamp] DESC 
 --*/

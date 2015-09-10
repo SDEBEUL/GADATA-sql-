@@ -74,7 +74,7 @@ AND
 AND
 (H.StartOfBreakdown BETWEEN  @StartDate and @EndDate)
 AND 
-(dbo.c_controller.location  LIKE '%UB9%') --locatie moet gekend zijn 
+(dbo.c_controller.location  LIKE '%%') --locatie moet gekend zijn 
 
 
 order by H.StartOfBreakdown desc 

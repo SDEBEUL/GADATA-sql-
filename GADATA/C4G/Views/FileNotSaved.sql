@@ -1,4 +1,5 @@
 ﻿
+
 CREATE VIEW [C4G].[FileNotSaved]
 AS
 
@@ -47,8 +48,8 @@ WHERE
 (rt_not_saved_rndesc.modified = 1)
 AND
 (rt_not_saved_rndesc.rnDESC = 1)
-AND
-((rt_not_saved_rndesc.program NOT LIKE '%Rsssssrr%') AND (rt_not_saved_rndesc.program NOT LIKE '%Lsssssrr%'))
+--AND
+--((rt_not_saved_rndesc.program NOT LIKE '%Rsssssrr%') AND (rt_not_saved_rndesc.program NOT LIKE '%Lsssssrr%'))
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'FileNotSaved';
 

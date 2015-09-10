@@ -41,6 +41,8 @@ CREATE TABLE [ABB].[L_error] (
 
 
 
+
+
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [NCI_Category]
     ON [ABB].[L_error]([id] ASC, [category_id] ASC, [Appl_id] ASC, [Subgroup_id] ASC, [error_number] ASC, [error_severity] ASC, [error_text] ASC);

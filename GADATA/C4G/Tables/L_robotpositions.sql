@@ -1,4 +1,4 @@
-﻿CREATE TABLE [C4G].[L_robotpositions] (
+CREATE TABLE [C4G].[L_robotpositions] (
     [ID]             INT          IDENTITY (1, 1) NOT NULL,
     [_timestamp]     DATETIME     CONSTRAINT [DF_L_robotpositions] DEFAULT (getdate()) NULL,
     [file_timestamp] DATETIME     NULL,
@@ -16,6 +16,8 @@
     [Cnfg]           VARCHAR (20) NULL,
     CONSTRAINT [PK_L_robotpositions] PRIMARY KEY CLUSTERED ([ID] ASC)
 );
+
+
 
 
 GO

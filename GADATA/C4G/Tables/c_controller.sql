@@ -10,6 +10,7 @@
     [log_flag]              INT           NULL,
     [enable_bit]            INT           NULL,
     [variable_mask]         INT           NULL,
+    [statement_mask]        INT           NULL,
     [error_no_log_mask]     INT           NULL,
     [alarm_monitor]         BIT           NULL,
     [state_monitor]         INT           NULL,
@@ -18,11 +19,14 @@
     [poll_not_saved]        BIT           NULL,
     [poll_error_file_list]  BIT           NULL,
     [poll_action_file_list] BIT           NULL,
+    [read_sys]              INT           NULL,
+    [generation]            INT           NULL,
     CONSTRAINT [PK_c_controller] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
 
+
+
 GO
-CREATE UNIQUE NONCLUSTERED INDEX [NCI_C_Controller_Name]
-    ON [C4G].[c_controller]([location] ASC, [controller_name] ASC, [id] ASC);
+
 
