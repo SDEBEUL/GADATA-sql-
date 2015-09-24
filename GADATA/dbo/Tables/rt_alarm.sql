@@ -1,4 +1,4 @@
-CREATE TABLE [dbo].[rt_alarm] (
+﻿CREATE TABLE [dbo].[rt_alarm] (
     [id]              INT           IDENTITY (1, 1) NOT NULL,
     [controller_id]   INT           NULL,
     [_timestamp]      DATETIME      NULL,
@@ -44,13 +44,6 @@ GO
 
 GO
 
-CREATE TRIGGER [dbo].Trig_rt_alarm ON [GADATA].[dbo].rt_alarm AFTER INSERT 
-AS
-IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
-BEGIN
- exec [volvo].[spmonitor]
-END
 GO
-DISABLE TRIGGER [dbo].[Trig_rt_alarm]
-    ON [dbo].[rt_alarm];
+
 

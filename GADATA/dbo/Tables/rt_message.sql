@@ -39,6 +39,8 @@ CREATE TABLE [dbo].[rt_message] (
 
 
 
+
+
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'time stamp from OPC server (pc time)', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'rt_message', @level2type = N'COLUMN', @level2name = N'_timestamp';
 
@@ -48,9 +50,10 @@ EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'time stamp 
 
 
 GO
-CREATE TRIGGER ABB_IRC5_message_trigger ON gadata.dbo.rt_message AFTER INSERT 
+CREATE TRIGGER [dbo].[ABB_IRC5_message_trigger] ON [GADATA].[dbo].[rt_message] AFTER INSERT 
 AS
 IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
 BEGIN
  EXEC GADATA.abb.sp_Decode_AE_IRC5
+ EXEC GADATA.abb.sp_update_L_IRC5
 END

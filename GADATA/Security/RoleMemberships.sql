@@ -16,3 +16,15 @@ ALTER ROLE [db_datawriter] ADD MEMBER [GADATA];
 GO
 ALTER ROLE [db_datawriter] ADD MEMBER [VCCNET\dvanlae1];
 
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [VCCNET\SDEBEUL];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCCNET\SDEBEUL];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\SDEBEUL];
+

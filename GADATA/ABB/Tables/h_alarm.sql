@@ -23,7 +23,15 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [NCI_Timestamp]
     ON [ABB].[h_alarm]([_timestamp] ASC, [error_id] ASC, [controller_id] ASC, [wd_timestamp] ASC);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_H_alarm]
+    ON [ABB].[h_alarm]([controller_id] ASC, [wd_timestamp] ASC, [error_id] ASC)
+    INCLUDE([id]);
 

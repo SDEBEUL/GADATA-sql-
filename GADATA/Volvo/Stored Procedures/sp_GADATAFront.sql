@@ -24,6 +24,11 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @GetC4GLive as bit = 0,
 --Comau C3G Booleans   
    @GetC3GError as bit = 1,
+   @GetC3GREALTIMEError as bit = 0, --VOORLOPIG IMPLEMENTATIE VOOR NIEUW C3G SYSTEEM 
+   @GetC3GEvents as bit = 0, 
+   @GetC3GDowntimes as bit = 1, 
+   @GetC3GDownTBegin as bit = 0, 
+   @GetC3GSpeedCheck as bit = 0, --TBT
    @GetC3GSBCU as bit = 0, 
    @GetC3GMod as bit = 0, 
 --ABB S4C Booleans
@@ -65,7 +70,7 @@ SET DATEFIRST 1
 ---------------------------------------------------------------------------------------
 if ((@StartDate is null) OR (@StartDate = '1900-01-01 00:00:00:000'))
 BEGIN
-SET @StartDate = GETDATE()-1
+SET @StartDate = GETDATE()-'1900-01-01 12:00:00'
 END
 
 if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))
@@ -412,6 +417,113 @@ AND
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
+--C3G Alarm information (error log) --VOORLOPIG FOR REALTIME ERRORS 
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C3G.ErrorNew AS C3GE
+WHERE 
+--datetime filter
+(C3GE.[Timestamp] BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(C3GE.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(C3GE.location,'') LIKE @LocationFilterWild )
+--Application / subgroup filter
+AND
+ISNULL(C3GE.[Object],'') LIKE @ApplFilterWild AND ISNULL(C3GE.Subgroup,'') LIKE @SubgroupFilterWild
+AND
+--Exclude Gatestops 
+(
+(@ExcludeGateStops = 1 AND (ISNULL(C3GE.subgroup,'') NOT LIKE '%Gate/Hold%')) 
+OR 
+@ExcludeGateStops =0
+)
+--minimum log serverity
+AND
+(C3GE.Severity  > (@MinLogserv-1))
+--Enable bit 
+AND
+(@GetC3GREALTIMEError = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C3G Qry Breakdowns (einde van storings met storings tijd)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C3G.Breakdown as B
+WHERE 
+--Datetime filter
+ (B.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND
+--robot name filter 
+(B.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(B.location,'') LIKE @LocationFilterWild )
+--Application / subgroup filter
+AND
+ISNULL(B.[Object],'') LIKE @ApplFilterWild AND ISNULL(B.Subgroup,'') LIKE @SubgroupFilterWild
+AND
+--Exclude Gatestops 
+((@ExcludeGateStops = 1 AND (ISNULL(B.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
+AND
+--enable bit
+(@GetC3GDowntimes = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G Qry Breakdowns (begin van een storing)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C3G.BreakdownStart AS BS
+WHERE 
+--Datetime filter
+ (BS.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND
+(BS.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(BS.location,'') LIKE @LocationFilterWild )
+--Application / subgroup filter
+AND
+ISNULL(BS.[Object],'') LIKE @ApplFilterWild AND ISNULL(BS.Subgroup,'') LIKE @SubgroupFilterWild
+AND
+--Exclude Gatestops 
+((@ExcludeGateStops = 1 AND (ISNULL(BS.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
+AND
+--enable bit
+(@GetC3GDownTBegin = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C3G Qry Systate 
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C3G.sysstate AS SS
+WHERE 
+--Datetime filter
+ (SS.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND
+(SS.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(SS.location,'') LIKE @LocationFilterWild )
+AND
+--enable bit
+(@GetC3GEvents = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
 --C3G modifications
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
@@ -636,7 +748,7 @@ SET @rowcountmen = @@rowcount
 DECLARE @RequestString as varchar(255)
 SET @RequestString =
    CONCAT(
-   '[Volvo].[sp_VCSC_C4G_B5beta]',
+   '[Volvo].[sp_GADATAFront]',
    ' @StartDate = " '						, @StartDate
      ,' "  ,@EndDate = " '					, @EndDate
      ,' "  ,@RobotFilterWild = " '			, @RobotFilterWild
@@ -650,6 +762,6 @@ SET @RequestString =
      ,' "  ,@ExcludeGateStops = " '			, @ExcludeGateStops  
      ,' "  ,@MinLogserv = " '				, @MinLogserv ,' "'
 	)
-EXEC GADATA.dbo.sp_Activitylog @rowcount = @rowcountmen, @Request = @RequestString
+EXEC GADATA.volvo.sp_Alog @rowcount = @rowcountmen, @Request = @RequestString
 
 END

@@ -35,4 +35,14 @@ exec GADATA.c4g.sp_Decode_HandMonitor
 SELECT * FROM GADATA.C4G.HandMonitor as h
 where --h.timestamp between   @startdate and @EndDate AND
  h.Robotname LIKE @RobotFilterWild
+
+ ---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Activity log (logs the execution of the Query to a table)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+DECLARE @rowcountmen as int 
+SET @rowcountmen = @@rowcount
+EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = 'Running: [Volvo].[sp_GADATAFrontHand]'
+
 END

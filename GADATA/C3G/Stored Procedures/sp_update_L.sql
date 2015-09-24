@@ -35,14 +35,42 @@ AND
 (R.[error_severity] = L.[error_severity])
 AND
 (
-(R.error_text = L.error_text)
+(LTRIM(RTRIM(R.error_text)) = LTRIM(RTRIM(L.error_text)))
 )
-where (L.id IS NULL) AND (R.[error_number] <> -1)
+where 
+(L.id IS NULL) 
+AND 
+(R.[error_severity] <> -1)
+--****************************************************************************************************************--
+
+---------------------------------------------------------------------------------------
+Print'--step to normalize the rt_alarm dataset. gets the normalized id. and put it in a temp table'
+---------------------------------------------------------------------------------------
+if (OBJECT_ID('tempdb..#C3G_rt_alarm_normalized') is not null) drop table #C3G_rt_alarm_normalized
+SELECT 
+ R.controller_id
+,R._timestamp
+,R.error_timestamp as 'c_timestamp'
+,R.error_is_alarm as 'error_is_alarm'
+,L_error.id as 'error_id'
+,NULL as 'is_realtime'
+INTO #C3G_rt_alarm_normalized
+FROM GADATA.c3g.rt_alarm as R 
+
+--join error_id
+join gadata.C3G.L_error on 
+(
+(L_error.[error_number] = R.[error_number])
+AND
+(L_error.[error_severity] = R.[error_severity])
+AND
+(LTRIM(RTRIM(R.error_text)) = LTRIM(RTRIM(R.error_text)))
+AND 
+(R.[error_severity] <> -1)
+)
 
 ---------------------------------------------------------------------------------------
 
-
---****************************************************************************************************************--
 
 --****************************************************************************************************************--
 ---------------------------------------------------------------------------------------------------------------------
@@ -53,45 +81,42 @@ where (L.id IS NULL) AND (R.[error_number] <> -1)
 --****************************************************************************************************************--
 
 ---------------------------------------------------------------------------------------
-Print'--step to normalize the rt_alarm dataset. gets the normalized id. and put it in a temp table'
+Print'--Cross compare and put into Hystorian if needed'
 ---------------------------------------------------------------------------------------
 INSERT INTO GADATA.C3G.h_alarm
 SELECT 
  R.controller_id
 ,R._timestamp
-,R.error_timestamp as 'c_timestamp'
-,R.error_is_alarm as 'error_is_alarm'
-,L_error.id as 'error_id'
+,R.c_timestamp
+,R.error_is_alarm
+,R.error_id
 ,NULL as 'is_realtime'
-FROM GADATA.c3g.rt_alarm as R 
+FROM #C3G_rt_alarm_normalized as R 
 
---join error_id
-join gadata.C3G.L_error on 
-(
-(L_error.[error_number] = R.[error_number])
-AND
-(L_error.[error_severity] = R.[error_severity])
-AND
-(L_error.error_text = R.error_text) 
-)
 
 --this will filter out unique results
 LEFT join GADATA.C3G.h_alarm AS H on   --show also compare the logtekst here.... 
 (
 (R.controller_id  = H.controller_id)
 AND
-(R.error_timestamp = H.c_timestamp)
+--(R.error_timestamp = H.c_timestamp) --was losing data because of this (controle side clock resolution = 1s so errors in the same S only 1 would pass. 
+--Current solution MAY give Dups. is the rt_alarm does not contain the error that is in on the controller.
+(R._timestamp = H._timestamp) 
 )
-where (H.id IS NULL) AND (R.[error_number] <> -1)
-
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-Print'--delete in rt_alarm if older than 1 day'
----------------------------------------------------------------------------------------
---DELETE FROM gadata.c3g.rt_alarm where GADATA.c3g.rt_alarm.error_timestamp < getdate()-1
----------------------------------------------------------------------------------------
+where (H.id IS NULL) 
 
 --****************************************************************************************************************--
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Activity log (logs the execution of the Query to a table)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+DECLARE @rowcountmen as int 
+SET @rowcountmen = @@rowcount
+Print'GADATA.C4G.sp_Activitylog Newrecords:' + CONVERT(varchar(10),@rowcountmen) 
+DECLARE @RequestString as varchar(255)
+SET @RequestString = 'Running: [C3G].[sp_update_L]'
+EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = @RequestString
+---------------------------------------------------------------------------------------
 
 END

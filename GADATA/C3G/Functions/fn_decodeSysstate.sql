@@ -142,6 +142,12 @@ IF (@sysstate & 536870912 = 536870912)
 BEGIN
   SET @SysstateString = @SysstateString + 'Hold '
 END
+
+-- bit 31 DriveOff
+IF (@sysstate & 1073741824 = 1073741824)
+BEGIN
+  SET @SysstateString = @SysstateString + 'DriveOff '
+END
 ---------------------------------------------------------
 
 return @SysstateString 

@@ -25,9 +25,9 @@ INSERT INTO GADATA.abb.L_Remedy
 SELECT distinct 
 Remedy
 From GADATA.abb.rt_alarm_s4
-Left join GADATA.abb.L_Remedy on
+Left OUTER join GADATA.abb.L_Remedy on
 (rt_alarm_s4.Remedy = L_Remedy.Remedy_text)
-where (L_Remedy.id IS NULL)
+where (L_Remedy.id IS NULL) AND (rt_alarm_s4.Remedy IS NOT NULL)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -37,9 +37,9 @@ INSERT INTO GADATA.abb.L_Cause
 SELECT distinct 
 Cause
 From GADATA.abb.rt_alarm_s4
-Left join GADATA.abb.L_Cause on
+Left OUTER join GADATA.abb.L_Cause on
 (rt_alarm_s4.Cause = L_Cause.Cause_text)
-where (L_Cause.id IS NULL)
+where (L_Cause.id IS NULL) AND (rt_alarm_S4.Cause IS NOT NULL)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -79,9 +79,9 @@ SELECT distinct
 ,null
 ,c_category.id
 From GADATA.abb.rt_alarm_s4
-Left join GADATA.abb.L_error on
+Left OUTER join GADATA.abb.L_error on
 (rt_alarm_s4.[Message] = L_error.error_text)
-LEFT join GADATA.abb.c_category on 
+LEFT OUTER join GADATA.abb.c_category on 
 (GADATA.abb.rt_alarm_s4.Category = GADATA.abb.c_category.Category)
 where (L_error.id IS NULL)
 ---------------------------------------------------------------------------------------
@@ -103,15 +103,15 @@ where (L_error.id IS NULL)
 Print'--step to normalize the rt_alarm dataset. gets the normalized id. and put it in a temp table'
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#ABB_AE_normalized') is not null) drop table #ABB_AE_normalized
-SELECT 
+SELECT
  rt_alarm_s4.id
 ,c_controller.id as 'controller_id'
 ,rt_alarm_s4._timestamp
 ,rt_alarm_s4.WnFiletime
 ,null as 'error_is_alarm'
 ,L_error.id as 'error_id'
-,L_cause.id as 'cause_id'
-,L_remedy.id  as 'remedy_id'
+,Null as 'cause_id'
+,Null  as 'remedy_id'
 ,null as 'restart_id'
 INTO #ABB_AE_normalized
 FROM GADATA.ABB.rt_alarm_s4
@@ -127,10 +127,12 @@ AND
 AND
 (L_error.error_text = rt_alarm_s4.[message])
 )
+
 --join cause_id
-LEFT join GADATA.abb.L_Cause on (l_cause.cause_text = rt_alarm_s4.cause)
+--LEFT OUTER join GADATA.abb.L_Cause on (l_cause.cause_text = rt_alarm_s4.cause)
 --join remedy_id
-LEFT join GADATA.abb.L_Remedy on (L_Remedy.Remedy_text = rt_alarm_s4.Remedy)
+--LEFT OUTER join GADATA.abb.L_Remedy on (L_Remedy.Remedy_text = rt_alarm_s4.Remedy)
+
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -148,7 +150,10 @@ SELECT
 ,#ABB_AE_normalized.remedy_id
 ,#ABB_AE_normalized.restart_id
 FROM #ABB_AE_normalized
+
+--Removed this part because for the S4 generation there is no possibilty for duplicates 
 --this will filter out unique results
+/*
 LEFT join GADATA.abb.h_alarm on 
 (
 (#ABB_AE_normalized.WnFiletime  = GADATA.abb.h_alarm.wi_timestamp)
@@ -158,15 +163,13 @@ AND
 (#ABB_AE_normalized.error_id  = GADATA.abb.h_alarm.error_id)
 )
 where (h_alarm.id IS NULL)
+*/
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
-IF (GADATA.abb.getconfigbit('s4_clean_rt_alarm') = 1)
-BEGIN
 Print'--delete in rt_alarm is exist in h_alarm (Watch => constraints on wi_timestamp / controller_id / error_id)'
 ---------------------------------------------------------------------------------------
 DELETE FROM gadata.abb.rt_alarm_s4 where gadata.abb.rt_alarm_s4.id <= (select max(id) from #ABB_AE_normalized)
-END
 ---------------------------------------------------------------------------------------
 
 --****************************************************************************************************************--

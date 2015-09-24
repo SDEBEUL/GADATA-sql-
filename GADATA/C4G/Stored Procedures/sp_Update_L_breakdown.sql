@@ -312,7 +312,7 @@ DECLARE @rowcountmen as int
 SET @rowcountmen = @@rowcount
 DECLARE @RequestString as varchar(255)
 SET @RequestString = 'Running: [C4G].[sp_Update_L_breakdown]'
-EXEC GADATA.C4G.sp_Activitylog @rowcount = @rowcountmen, @Request = @RequestString
+EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = @RequestString
 ---------------------------------------------------------------------------------------
 
 END

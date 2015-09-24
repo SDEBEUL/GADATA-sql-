@@ -1,4 +1,4 @@
-CREATE TABLE [ABB].[rt_alarm_IRC5] (
+﻿CREATE TABLE [ABB].[rt_alarm_IRC5] (
     [key]        INT            IDENTITY (1, 1) NOT NULL,
     [id]         INT            NULL,
     [_timestamp] DATETIME       NULL,
@@ -45,9 +45,3 @@ CREATE TABLE [ABB].[rt_alarm_IRC5] (
 
 
 GO
-CREATE TRIGGER [ABB].[ABB_IRC5_normalize_trigger] ON [GADATA].[ABB].[rt_alarm_IRC5] AFTER INSERT 
-AS
-IF ((SELECT TRIGGER_NESTLEVEL()) < 3)
-BEGIN
- EXEC GADATA.abb.sp_update_L_IRC5
-END

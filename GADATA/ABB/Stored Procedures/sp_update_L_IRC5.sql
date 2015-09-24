@@ -25,7 +25,7 @@ INSERT INTO GADATA.abb.L_Remedy
 SELECT distinct 
 Remedy
 From GADATA.abb.rt_alarm_IRC5
-Left join GADATA.abb.L_Remedy on
+Left OUTER join GADATA.abb.L_Remedy on
 (rt_alarm_IRC5.Remedy = L_Remedy.Remedy_text)
 where (L_Remedy.id IS NULL)
 ---------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ INSERT INTO GADATA.abb.L_Cause
 SELECT distinct 
 Cause
 From GADATA.abb.rt_alarm_IRC5
-Left join GADATA.abb.L_Cause on
+Left OUTER join GADATA.abb.L_Cause on
 (rt_alarm_IRC5.Cause = L_Cause.Cause_text)
 where (L_Cause.id IS NULL)
 ---------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ INSERT INTO GADATA.abb.C_Category
 SELECT distinct 
 rt_alarm_IRC5.Category
 From GADATA.abb.rt_alarm_IRC5
-Left join GADATA.abb.C_Category on
+Left OUTER join GADATA.abb.C_Category on
 (rt_alarm_IRC5.category = C_Category.Category)
 where (C_Category.id IS NULL)
 ---------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ INSERT INTO GADATA.abb.c_controller
 SELECT distinct 
 rt_alarm_IRC5.Controller
 From GADATA.abb.rt_alarm_IRC5
-Left join GADATA.abb.c_controller on
+Left OUTER join GADATA.abb.c_controller on
 (rt_alarm_IRC5.controller = c_controller.controller_name)
 where (c_controller.id IS NULL)
 ---------------------------------------------------------------------------------------
@@ -79,9 +79,9 @@ SELECT distinct
 ,null
 ,c_category.id
 From GADATA.abb.rt_alarm_IRC5
-Left join GADATA.abb.L_error on
+Left OUTER join GADATA.abb.L_error on
 (rt_alarm_IRC5.[Message] = L_error.error_text)
-LEFT join GADATA.abb.c_category on 
+LEFT OUTER join GADATA.abb.c_category on 
 (GADATA.abb.rt_alarm_IRC5.Category = GADATA.abb.c_category.Category)
 where (L_error.id IS NULL)
 ---------------------------------------------------------------------------------------
@@ -117,10 +117,10 @@ SELECT
 INTO #ABB_AE_normalized
 FROM GADATA.ABB.rt_alarm_IRC5
 --join controller_id
-join gadata.abb.c_controller on (c_controller.controller_name = rt_alarm_IRC5.controller)
+ join gadata.abb.c_controller on (c_controller.controller_name = rt_alarm_IRC5.controller)
 
 --join error_id
-join gadata.abb.L_error on 
+ join gadata.abb.L_error on 
 (
 (L_error.[error_number] = rt_alarm_IRC5.number)
 AND
@@ -129,9 +129,9 @@ AND
 (L_error.error_text = rt_alarm_IRC5.[message])
 )
 --join cause_id
-join GADATA.abb.L_Cause on (l_cause.cause_text = rt_alarm_IRC5.cause)
+ join GADATA.abb.L_Cause on (l_cause.cause_text = rt_alarm_IRC5.cause)
 --join remedy_id
-join GADATA.abb.L_Remedy on (L_Remedy.Remedy_text = rt_alarm_IRC5.Remedy)
+ join GADATA.abb.L_Remedy on (L_Remedy.Remedy_text = rt_alarm_IRC5.Remedy)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ SELECT
 ,#ABB_AE_normalized.restart_id
 FROM #ABB_AE_normalized
 --this will filter out unique results
-LEFT join GADATA.abb.h_alarm on 
+LEFT OUTER join GADATA.abb.h_alarm on 
 (
 (#ABB_AE_normalized.wd_timestamp  = GADATA.abb.h_alarm.wd_timestamp)
 AND

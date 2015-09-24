@@ -1,5 +1,5 @@
 ﻿
-CREATE PROCEDURE [C4G].[sp_Activitylog]
+CREATE PROCEDURE [Volvo].[sp_Alog]
    @RowCount as int = null
   ,@Request as varchar(255) = ''
 AS
@@ -26,19 +26,17 @@ CREATE TABLE #sp_who2
 INSERT INTO #sp_who2 EXEC sp_who2
 
 
-INSERT INTO GADATA.C4G.L_ActivityLog
-SELECT
+INSERT INTO GADATA.Volvo.L_ActivityLog
+SELECT top 1
     Getdate() as '_timestamp'      
 	,#sp_who2.Login
 	,#sp_who2.HostName
 	,#sp_who2.CPUTime
 	,#sp_who2.DiskIO
 	,@RowCount as 'rowCount'
-	,DBNAME + ' | ' +  @Request as 'Request'
+	,@Request as 'Request'
 FROM        #sp_who2 Where [DBName] LIKE '%GADATA%'
-
+order by Dbname asc
 DROP TABLE #sp_who2
-
-
 
 END

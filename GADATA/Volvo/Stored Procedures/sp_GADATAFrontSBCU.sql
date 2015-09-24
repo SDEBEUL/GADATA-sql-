@@ -31,4 +31,14 @@ END
 SELECT * FROM GADATA.RobotGA.sbcuData as s
 where s.tool_timestamp between   @startdate and @EndDate
 AND s.RobotName LIKE @RobotFilterWild
+
+
+ ---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Activity log (logs the execution of the Query to a table)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+DECLARE @rowcountmen as int 
+SET @rowcountmen = @@rowcount
+EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = 'Running: [Volvo].[sp_GADATAFrontSBCU]'
 END

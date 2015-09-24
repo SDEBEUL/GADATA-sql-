@@ -20,6 +20,8 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [IX_h_alarm]
     ON [C4G].[h_alarm]([id] ASC);
@@ -48,4 +50,10 @@ CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_h_alarm_Error2]
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_h_alarm_Error]
     ON [C4G].[h_alarm]([id] ASC, [controller_id] ASC, [_timestamp] ASC, [error_is_alarm] ASC, [error_id] ASC);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_IsAlarm]
+    ON [C4G].[h_alarm]([error_is_alarm] ASC)
+    INCLUDE([id], [controller_id], [_timestamp], [c_timestamp], [error_id]);
 

@@ -327,6 +327,6 @@ SET @RequestString =
      ,' "  ,@ExcludeGateStops = " '			, @ExcludeGateStops  
      ,' "  ,@MinLogserv = " '				, @MinLogserv ,' "'
 	)
-EXEC GADATA.dbo.sp_Activitylog @rowcount = @rowcountmen, @Request = @RequestString
+EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = @RequestString
 
 END

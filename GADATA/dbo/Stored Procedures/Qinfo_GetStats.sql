@@ -25,12 +25,13 @@ SELECT
 (SELECT count(Error.Logcode) FROM GADATA.C4G.Error WHERE Robotname = @Robot  AND Error.logcode = @Errcode)
 
 ,'First Time:' =
-(SELECT top 1 Error.[timestamp] FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND Error.logcode = @Errcode) order by Error.[timestamp] ASC)
+(SELECT top 1 CONVERT(char(19),Error.[timestamp], 120)  FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND Error.logcode = @Errcode) order by Error.[timestamp] ASC)
 
 ,'Last Time:' = 
-(SELECT top 1 Error.[timestamp] FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND Error.logcode = @Errcode) order by Error.[timestamp] DESC)
+(SELECT top 1 CONVERT(char(19),Error.[timestamp], 120)  FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND Error.logcode = @Errcode) order by Error.[timestamp] DESC)
 
 END
+
 --case of C3G robot
 IF @IsC4g is null
 SELECT
@@ -51,11 +52,11 @@ SELECT
   where (Robot.RobotName = @Robot) AND (rt_alarm.error_number = @ErrCode))
 
 ,'First Time:' =
-(select top 1 rt_alarm.error_timestamp from robotga.rt_alarm join RobotGA.Robot on Robot.id = rt_alarm.controller_id 
+(select top 1 CONVERT(char(19),rt_alarm.error_timestamp, 120)  from robotga.rt_alarm join RobotGA.Robot on Robot.id = rt_alarm.controller_id 
   where (Robot.RobotName = @Robot) AND (rt_alarm.error_number = @ErrCode) ORDER BY rt_alarm.error_timestamp ASC)
 
 ,'Last Time:' =
-(select top 1 rt_alarm.error_timestamp from robotga.rt_alarm join RobotGA.Robot on Robot.id = rt_alarm.controller_id 
+(select top 1 CONVERT(char(19),rt_alarm.error_timestamp, 120)  from robotga.rt_alarm join RobotGA.Robot on Robot.id = rt_alarm.controller_id 
   where (Robot.RobotName = @Robot) AND (rt_alarm.error_number = @ErrCode) ORDER BY rt_alarm.error_timestamp DESC)
 
 END

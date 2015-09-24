@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[L_ActivityLog] (
+﻿CREATE TABLE [Volvo].[L_ActivityLog] (
     [id]         INT           IDENTITY (1, 1) NOT NULL,
     [_timestamp] DATETIME      NULL,
     [login]      VARCHAR (255) NULL,

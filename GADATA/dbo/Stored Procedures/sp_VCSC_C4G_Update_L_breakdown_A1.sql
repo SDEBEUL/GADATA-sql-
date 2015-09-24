@@ -10,10 +10,7 @@
 AS
 BEGIN
 
---added this to be autorigger by job (cause my table trigger ain't working)
-exec [C4G].[sp_update_L]
-exec [C4G].sp_Update_L_breakdown
-exec [C4G].sp_ReClass_L_breakdown
+
 
 
 ---------------------------------------------------------------------------------------
@@ -309,12 +306,7 @@ WHERE
  ISNULL(c_logtekst.error_number, SysBreakDwnTime.error_number) is not null
 ORDER BY   _timestamp DESC 
 
-/* --sdebeul table was lost somewhere? why ? killed this 'option' 15w16d1
-insert into GADATA.dbo.L_updatelog (BreakdownCount,_timestamp)
-Values (@@ROWCOUNT,getdate())
-*/
-
-
+EXEC GADATA.volvo.sp_Alog  @rowcount = 0, @Request = '[dbo].[sp_VCSC_C4G_Update_L_breakdown_A1]'
 
 
 END
