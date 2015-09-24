@@ -1,5 +1,5 @@
 ﻿
-CREATE PROCEDURE [Volvo].[sp_GADATAFront]
+CREATE PROCEDURE [Volvo].[sp_GADATAFrontTEST]
 --timeparameters
    @StartDate as DATETIME = null,
    @EndDate as DATETIME = null,
@@ -385,7 +385,7 @@ where
 --C3G Alarm information (error log)
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
-UNION
+/*UNION
 SELECT * FROM GADATA.C3G.Error AS C3GE
 
 WHERE
@@ -412,7 +412,7 @@ AND
 (C3GE.Severity  > (@MinLogserv-1))
 --enable bit
 AND
-@GetC3GError = 1
+@GetC3GError = 1*/
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
@@ -445,7 +445,7 @@ AND
 (C3GE.Severity  > (@MinLogserv-1))
 --Enable bit 
 AND
-(@GetC3GREALTIMEError = 1)
+(@GetC3GError = 1)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -750,7 +750,7 @@ SET @rowcountmen = @@rowcount
 DECLARE @RequestString as varchar(255)
 SET @RequestString =
    CONCAT(
-   '[Volvo].[sp_GADATAFront]',
+   '[Volvo].[sp_GADATAFrontTEST]',
    ' @StartDate = " '						, @StartDate
      ,' "  ,@EndDate = " '					, @EndDate
      ,' "  ,@RobotFilterWild = " '			, @RobotFilterWild

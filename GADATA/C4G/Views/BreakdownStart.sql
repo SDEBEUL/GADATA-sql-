@@ -1,13 +1,26 @@
 ﻿
 
+
 CREATE VIEW [C4G].[BreakdownStart]
 AS
-SELECT        dbo.c_controller.location AS 'Location', dbo.c_controller.controller_name AS 'Robotname', 'C4G' AS 'Type', 'BEGIN' AS Expr1, CONVERT(char(19), 
-                         dbo.L_breakdown.StartOfBreakdown, 120) AS 'Timestamp', dbo.L_breakdown.error_number AS 'Logcode', NULL AS 'Severity', ISNULL(dbo.L_breakdown.error_text, 
-                         '-----------Breakdown Tag-----------') AS 'Logtekst', NULL AS 'DOWNTIME', T.Vyear AS 'Year', T.Vweek AS 'Week', T.Vday AS 'day', T.shift AS 'Shift', 
-                         la.APPL AS 'Object', LS.Subgroup, dbo.L_breakdown.idx
-FROM            dbo.L_breakdown INNER JOIN
-                         dbo.c_controller ON dbo.L_breakdown.controller_id = dbo.c_controller.id 
+SELECT        
+dbo.c_controller.location AS 'Location'
+, dbo.c_controller.controller_name AS 'Robotname'
+, 'C4G' AS 'Type', 'BEGIN' AS Expr1
+, dbo.L_breakdown.StartOfBreakdown AS 'Timestamp'
+, dbo.L_breakdown.error_number AS 'Logcode'
+, NULL AS 'Severity'
+, ISNULL(dbo.L_breakdown.error_text,  '-----------Breakdown Tag-----------') AS 'Logtekst'
+, NULL AS 'DOWNTIME'
+, T.Vyear AS 'Year'
+, T.Vweek AS 'Week'
+, T.Vday AS 'day'
+, T.shift AS 'Shift'
+, la.APPL AS 'Object'
+, LS.Subgroup
+, dbo.L_breakdown.idx
+FROM    dbo.L_breakdown 
+INNER JOIN dbo.c_controller ON dbo.L_breakdown.controller_id = dbo.c_controller.id 
 						 --join appl groups
 						 LEFT OUTER JOIN
                          GADATA.C4G.c_LogClassRules AS LR ON 

@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [C4G].[ResolveTime]
 AS
 SELECT      
@@ -7,7 +8,7 @@ dbo.c_controller.location AS 'Location'
 , dbo.c_controller.controller_name AS 'Robotname'
 , 'C4G' AS 'Type'
 , 'ReolvT' AS 'Errortype'
-, CONVERT(char(19),H.EndOfBreakdown-'1900-01-01 00:00:01.00', 120) AS 'Timestamp'
+, H.EndOfBreakdown-'1900-01-01 00:00:01.00' AS 'Timestamp'
 , L.[error_number] AS 'Logcode'
 , L.[error_severity] AS 'Severity'
 , L.error_text AS 'Logtekst'

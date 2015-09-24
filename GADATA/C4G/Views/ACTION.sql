@@ -1,16 +1,31 @@
 ﻿
+
 CREATE VIEW [C4G].[ACTION]
 AS
-SELECT        C.location, C.controller_name AS Robotname, 'C4G' AS Type, 'ACTION' AS Errortype, CONVERT(char(19), H.c_timestamp, 120) AS timestamp, 
-                         L.error_number AS Logcode, L.error_severity AS Severity, L.error_text AS Logtekst, NULL AS Downtime, T.Vyear AS Year, T.Vweek AS Week, T.Vday AS day, T.shift, 
-                         C4G.c_Appl.APPL AS Object, C4G.c_Subgroup.Subgroup, CAST(H.id AS int) AS idx
-FROM            C4G.h_alarm AS H LEFT OUTER JOIN
-                         C4G.L_error AS L ON L.id = H.error_id LEFT OUTER JOIN
-                         dbo.c_controller AS C ON H.controller_id = C.id LEFT OUTER JOIN
-                         C4G.c_Appl ON L.Appl_id = C4G.c_Appl.id LEFT OUTER JOIN
-                         C4G.c_Subgroup ON L.Subgroup_id = C4G.c_Subgroup.id LEFT OUTER JOIN
-                         VOLVO.L_timeline AS T ON H._timestamp BETWEEN T.starttime AND T.endtime
-WHERE        (H.error_is_alarm = 0)
+SELECT        
+C.location
+, C.controller_name AS Robotname
+, 'C4G' AS Type
+, 'ACTION' AS Errortype
+, H.c_timestamp AS timestamp
+, L.error_number AS Logcode
+, L.error_severity AS Severity
+, L.error_text AS Logtekst
+, NULL AS Downtime
+, T.Vyear AS Year
+, T.Vweek AS Week
+, T.Vday AS day
+, T.shift
+, C4G.c_Appl.APPL AS Object
+, C4G.c_Subgroup.Subgroup
+, CAST(H.id AS int) AS idx
+FROM    C4G.h_alarm AS H 
+LEFT OUTER JOIN C4G.L_error AS L ON L.id = H.error_id 
+LEFT OUTER JOIN dbo.c_controller AS C ON H.controller_id = C.id 
+LEFT OUTER JOIN C4G.c_Appl ON L.Appl_id = C4G.c_Appl.id 
+LEFT OUTER JOIN C4G.c_Subgroup ON L.Subgroup_id = C4G.c_Subgroup.id 
+LEFT OUTER JOIN VOLVO.L_timeline AS T ON H._timestamp BETWEEN T.starttime AND T.endtime
+WHERE      (H.error_is_alarm = 0)
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'ACTION';
 

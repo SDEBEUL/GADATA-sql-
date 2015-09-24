@@ -1,6 +1,7 @@
 ﻿
 
 
+
 CREATE VIEW [C4G].[Breakdown]
 AS
 
@@ -9,7 +10,7 @@ dbo.c_controller.location AS 'Location'
 , dbo.c_controller.controller_name AS 'Robotname'
 , 'C4G' AS 'Type'
 , 'BREAKDOWN' AS Expr1
-, CONVERT(char(19),H.EndOfBreakdown, 120) AS 'Timestamp'
+, H.EndOfBreakdown AS 'Timestamp'
 , ISNULL(LR.[error_number],L.[error_number]) AS 'Logcode'
 , NULL AS 'Severity'
 , ISNULL(('|R: ' + LR.error_text), L.error_text ) AS 'Logtekst'

@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [Volvo].[Timeline]
 
 AS
@@ -8,7 +9,7 @@ SELECT
 , 'Timeline' AS 'Robotname'
 , 'Ti' AS 'Type'
 , 'Ti' AS 'Errortype'
-, CONVERT(char(19),T.starttime, 120) AS 'Timestamp'
+, T.starttime AS 'Timestamp'
 , NULL AS 'Logcode'
 , Null AS 'Severity'
 , 'Begin of Shift Ploeg:'+ T.PLOEG AS 'Logtekst'

@@ -4,6 +4,7 @@
 
 
 
+
 CREATE VIEW [C4G].[sysstate]
 AS
 SELECT  
@@ -11,7 +12,7 @@ SELECT
 			  C.controller_name AS 'Robotname',
               'C4G' AS 'Type',
 			  'EVENT' AS 'Errortype',
-			  convert(char(19),Y._timestamp,120) AS 'Timestamp',
+			  Y._timestamp AS 'Timestamp',
               NULL AS 'Logcode',
               NULL AS 'Severity',
               '  Code: ' + CAST(Y.Sys_state AS varchar) +   '  SysState: ' + (GADATA.dbo.fn_decodeSysstate(y.Sys_state)) AS 'Logtekst',
