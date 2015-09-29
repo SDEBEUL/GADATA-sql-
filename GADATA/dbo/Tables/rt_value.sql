@@ -10,3 +10,11 @@
 
 
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [NCI_variable_id]
+    ON [dbo].[rt_value]([variable_id] ASC, [_timestamp] ASC)
+    INCLUDE([id], [controller_id], [value]);
+

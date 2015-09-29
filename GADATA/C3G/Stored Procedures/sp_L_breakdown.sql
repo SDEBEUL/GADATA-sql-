@@ -129,19 +129,25 @@ if (OBJECT_ID('tempdb..#StartStopEvents') is not null) drop table #StartStopEven
 
 ---------------------------------------------------------------------------------------
 print'Preselect and join H_alarm with L_error.'
+--also join rt_sys_events 0 and 1 (disconnect and controller side block) give this a servity of 11
+--WATCH OUT ! I added id = 0 to the L_error table to represent the 2 events
+--id	error_number	error_severity	error_text							Appl_id	Subgroup_id
+--0		99010			11				Controller disconnected / Watchdog	1		1
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#Error') is not null) drop table #Error
 (
+SELECT * INTO  #Error
+FROM
+(
 	SELECT 
-	 L.id --USE ID FROM THE L_error. (not from data hystorican.. Will speed up performence in vieuws)
+	 L.id 
 	,H._timestamp
 	,H.c_timestamp
 	,H.controller_id
 	,H.error_id
 	,L.[error_number]
 	,L.[error_severity]
-	,L.error_text
-    INTO #Error 
+	,L.error_text 
 	FROM GADATA.C3G.h_alarm as h 
 	LEFT JOIN GADATA.C3G.L_error as L 
 	on L.id = h.error_id 
@@ -150,6 +156,25 @@ if (OBJECT_ID('tempdb..#Error') is not null) drop table #Error
 	AND 
 	H.controller_id BETWEEN ISNULL(@controller_id,0) AND ISNULL(@controller_id,10000)
 	AND L.[error_severity] <> -1
+
+	UNION --union disconnect an watchdog events 
+	SELECT  
+	 0 as 'id' 
+	,H._timestamp
+	,H._timestamp as 'C_timestamp'
+	,H.controller_id
+	,H.sys_state as 'error_id'
+	,H.sys_state as 'error_number'
+	,11 as 'error_severity'
+	,'Disconnected OR controller watchdog' as 'error_text'
+	FROM GADATA.C3G.rt_sys_event as h 
+	WHERE 
+	H._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE()) 
+	AND 
+	H.controller_id BETWEEN ISNULL(@controller_id,0) AND ISNULL(@controller_id,10000)
+	AND 
+	H.sys_state in(0,1)
+) as x
 )	
 ---------------------------------------------------------------------------------------
 
@@ -191,8 +216,8 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 	   ON (
 		(LStartStopEvents.controller_id = T_a.controller_id) 
 		AND
-		--fout moet zicht voordoen tussen de 3 seconden voor of + 1 min na de trigger (gebruikt _timestamp = moment van insert)
-		(T_a._timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:00:03.00') AND LStartStopEvents._timestamp + '1900-01-01 00:01:00.00')
+		--fout moet zicht voordoen tussen de 30 seconden voor of + 1 min na de trigger (gebruikt _timestamp = moment van insert)
+		(T_a.C_timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:00:30.00') AND LStartStopEvents._timestamp + '1900-01-01 00:01:00.00')
 		AND
 		(T_a.[error_severity] >= 4) --een trigger fout moet minsten severity 4 zijn
 	      )
@@ -204,8 +229,8 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 	   ON (
 		(LStartStopEvents.controller_id = h_a.controller_id) 
 		AND
-		--fout moet zicht voordoen tussen de 3 seconden voor de trigger en het einde van de breakdown (gebruikt _timestamp = moment van insert)
-		(h_a._timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:00:03.00') AND #StartStopEvents._timestamp)
+		--fout moet zicht voordoen tussen de 30 seconden voor de trigger en het einde van de breakdown (gebruikt _timestamp = moment van insert)
+		(h_a.C_timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:00:30.00') AND #StartStopEvents._timestamp)
 	      )
 ---------------------------------------------------------
  )
@@ -239,12 +264,12 @@ LEFT JOIN #SysBreakDwn as LSysBreakDwn
  (
  (#SysBreakDwn.id =  LSysBreakDwn.id) 
  AND
+ (#SysBreakDwn.controller_id = LSysBreakDwn.controller_id)
+ AND
  (ISNULL(#SysBreakDwn.TriggerIndx,0) <= 1) --reclasificeer enkel de trigger fout 0 = geen trigger error gekoppeld 1 = hoogst waarschijnlijke trigger
  AND
  (LSysBreakDwn.ReclassIndx = 1) --Koppel de beste reclasificatie (hoogste serv)
  AND
- --(ISNULL(#SysBreakDwn.TriggerIndx,0) <> LSysBreakDwn.TriggerIndx) --Reclass kan niet de trigger zijn 
- --AND 
  (ISNULL(#SysBreakDwn.Terror_number,0) <> LSysBreakDwn.Rerror_number) --Reclass kan niet zelfde fout zijn als trigger 
  )
 ----------------------------------------------------------------

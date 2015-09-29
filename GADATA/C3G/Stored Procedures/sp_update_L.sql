@@ -64,7 +64,7 @@ join gadata.C3G.L_error on
 AND
 (L_error.[error_severity] = R.[error_severity])
 AND
-(LTRIM(RTRIM(R.error_text)) = LTRIM(RTRIM(R.error_text)))
+(LTRIM(RTRIM(L_error.error_text)) = LTRIM(RTRIM(R.error_text)))
 AND 
 (R.[error_severity] <> -1)
 )

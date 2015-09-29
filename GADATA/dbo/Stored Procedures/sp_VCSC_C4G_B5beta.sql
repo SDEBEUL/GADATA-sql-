@@ -34,7 +34,7 @@ EXEC GADATA.Volvo.sp_GADATAFront
    @ExcludeGateStops  = @ExcludeGateStops,
 --Filterparameters.
    @RobotFilterWild = @RobotFilterWild,
-   @LocationFilterWild = @RobotFilterWild,
+   @LocationFilterWild = @LocationFilterWild,
 --COMAU C4G booleans
    @GetC4GAction = @GetC4GAction,
    @GetC4Gerror= @GetC4Gerror,
@@ -42,11 +42,15 @@ EXEC GADATA.Volvo.sp_GADATAFront
    @GetC4GDowntimes = @GetC4GDowntimes,
    @GetC4GDownTBegin = @GetC4GDownTBegin,
    @GetC4GCollisions = @GetC4GCollisions,
-   @GetC4GSpeedCheck = @GetC4GSpeedCheck, 
 --Comau C3G Booleans   
    @GetC3GError =  @GetC4Gerror,
 --optional pars
-   @MinLogserv = @MinLogserv 
+   @MinLogserv = @MinLogserv, 
+
+--blocked pars 
+   @GetC4GSBCU = 0,  
+   @GetTimerWear = 0,
+   @GetC4GSpeedCheck = 0
 
 EXEC GADATA.volvo.sp_Alog  @rowcount = 0, @Request = 'Running: [dbo].[sp_VCSC_C4G_B5beta] => DUMMYCALL'
 
