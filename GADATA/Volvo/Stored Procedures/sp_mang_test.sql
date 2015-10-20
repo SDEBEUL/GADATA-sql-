@@ -14,7 +14,7 @@ SET DATEFIRST 1
 ---------------------------------------------------------------------------------------
 
 SET @EndDate = getdate()
-SET @StartDate = getdate()-60
+SET @StartDate = '2015-05-01 00:00:00.000' -- getdate()-80
 
 
 SELECT 
@@ -35,6 +35,8 @@ SELECT
 , DATEDIFF(SECOND,'1900-01-01 00:00:00.00',H.Rt) as 'ResponseT'
 , DATEDIFF(SECOND,(H.StartOfBreakdown +  H.Rt),H.EndOfBreakdown) as 'ReolveT'
 , ISNULL(('|R: ' + LR.error_text), L.error_text ) AS 'Logtekst'
+, DATEPART(QUARTER, H.StartOfBreakdown) as 'QUARTER'
+, H.StartOfBreakdown AS 'timestamp'
 
 FROM   GADATA.C4G.h_breakdown as H 
 INNER JOIN dbo.c_controller ON H.controller_id = dbo.c_controller.id 

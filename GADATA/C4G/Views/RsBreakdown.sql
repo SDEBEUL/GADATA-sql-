@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [C4G].[RsBreakdown]
 AS
 
@@ -10,7 +11,7 @@ dbo.c_controller.location AS 'Location'
 , 'BREAKDOWN' AS Expr1
 , H.EndOfBreakdown AS 'Timestamp'
 , ISNULL(LR.[error_number],L.[error_number]) AS 'Logcode'
-, NULL AS 'Severity'
+, ISNULL(LR.error_severity,L.error_severity) AS 'Severity'
 ,CASE 
     WHEN RSB.ID is not null THEN ('|RS|' + ISNULL(('|R: ' + LR.error_text), L.error_text ))
 	ELSE ISNULL(('|R: ' + LR.error_text), L.error_text )

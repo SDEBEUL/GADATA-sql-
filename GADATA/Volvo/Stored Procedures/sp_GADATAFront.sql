@@ -26,7 +26,7 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @GetC3GError as bit = 1,
    @GetC3GREALTIMEError as bit = 0, --VOORLOPIG IMPLEMENTATIE VOOR NIEUW C3G SYSTEEM 
    @GetC3GEvents as bit = 0, 
-   @GetC3GDowntimes as bit = 1, 
+   @GetC3GDowntimes as bit = 0, 
    @GetC3GDownTBegin as bit = 0, 
    @GetC3GSpeedCheck as bit = 0, --TBT
    @GetC3GSBCU as bit = 0, 

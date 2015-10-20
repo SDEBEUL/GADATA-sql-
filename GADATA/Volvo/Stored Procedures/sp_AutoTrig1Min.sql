@@ -17,4 +17,12 @@ exec [C4G].[sp_update_L]
 exec [C4G].sp_Update_L_breakdown
 exec [C4G].sp_ReClass_L_breakdown
 
+--abb s4 
+exec GADATA.abb.sp_Decode_AE_S4
+exec GADATA.abb.sp_update_L_S4
+
+--abb irc5
+ exec GADATA.abb.sp_Decode_AE_IRC5
+ exec GADATA.abb.sp_update_L_IRC5
+
 END

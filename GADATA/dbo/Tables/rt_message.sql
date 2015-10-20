@@ -1,4 +1,4 @@
-CREATE TABLE [dbo].[rt_message] (
+﻿CREATE TABLE [dbo].[rt_message] (
     [id]           INT            IDENTITY (1, 1) NOT NULL,
     [_timestamp]   DATETIME       NULL,
     [_message]     VARCHAR (2000) NULL,
@@ -54,10 +54,3 @@ EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'time stamp 
 
 
 GO
-CREATE TRIGGER [dbo].[ABB_IRC5_message_trigger] ON [GADATA].[dbo].[rt_message] AFTER INSERT 
-AS
-IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
-BEGIN
- EXEC GADATA.abb.sp_Decode_AE_IRC5
- EXEC GADATA.abb.sp_update_L_IRC5
-END
