@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [C4G].[mod]
 AS
 WITH modtemp as
@@ -65,7 +66,7 @@ AND
 (modtemp.Pos = Lmodtemp.pos)
 AND
 ((modtemp.ModCount - 1) = Lmodtemp.ModCount)
-LEFT JOIN GADATA.dbo.c_controller as c on c.id = modtemp.controller_id
+LEFT JOIN GADATA.c4g.c_controller as c on c.id = modtemp.controller_id
 LEFT JOIN GADATA.volvo.L_timeline as LT on modtemp.file_timestamp BETWEEN lt.starttime AND LT.endtime
 where modtemp.modcount <> 1
 GO

@@ -1,11 +1,12 @@
 ﻿
 
 
+
 CREATE VIEW [C4G].[ResolveTime]
 AS
 SELECT      
-dbo.c_controller.location AS 'Location'
-, dbo.c_controller.controller_name AS 'Robotname'
+  c.location AS 'Location'
+, c.controller_name AS 'Robotname'
 , 'C4G' AS 'Type'
 , 'ReolvT' AS 'Errortype'
 , H.EndOfBreakdown-'1900-01-01 00:00:01.00' AS 'Timestamp'
@@ -24,7 +25,7 @@ dbo.c_controller.location AS 'Location'
 
 
 FROM   GADATA.C4G.h_breakdown as H 
-INNER JOIN dbo.c_controller ON H.controller_id = dbo.c_controller.id 
+INNER JOIN c4g.c_controller as c ON H.controller_id = c.id 
 --join L_error
 LEFT OUTER JOIN GADATA.C4G.L_error  AS L ON L.id = H.error_id 
 

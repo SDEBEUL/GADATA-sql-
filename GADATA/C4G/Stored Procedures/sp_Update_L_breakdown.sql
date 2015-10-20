@@ -36,7 +36,7 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				rt_sys_event._timestamp,
 				rt_sys_event.sys_state,
 				robotState = dbo.fn_robstate(rt_sys_event.sys_state) --calculates a robot state. A running robot has 2 a non running one 0 
-			FROM  GADATA.dbo.rt_sys_event  AS rt_sys_event
+			FROM  GADATA.C4G.rt_sys_event  AS rt_sys_event
 			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
 	
 			--data from L_operation (to catch robots offline)
@@ -47,7 +47,7 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				l_operation._timestamp,
 				sys_state = 262144, --set unused bit in sysstate to signal "connection lost"
 				robotState = 0 ---simulate robot Down
-			FROM GADATA.dbo.l_operation AS l_operation
+			FROM GADATA.C4G.l_operation AS l_operation
 			WHERE (l_operation._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) AND (l_operation.code = 4) --connection lost 
 	) AS x 
 ---------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ if (OBJECT_ID('tempdb..#SysEventTime') is not null) drop table #SysEventTime
        ) as x
        )
 ---------------------------------------------------------------------------------------
---SELECT TOP 10 *,ifno = GADATA.dbo.fn_decodeSysstate(sys_state) FROM #SysEventTime where controller_id =  @controller_id order by _timestamp desc 
+--SELECT TOP 10 *,ifno = GADATA.C4G.fn_decodeSysstate(sys_state) FROM #SysEventTime where controller_id =  @controller_id order by _timestamp desc 
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------

@@ -1,11 +1,12 @@
 ﻿
+
 CREATE VIEW [C4G].[LastCommList]
 AS
 With MaxDates as (
 SELECT  
 h.controller_id
 ,MAX(_timestamp) as LastMessage
-FROM    GADATA.dbo.rt_sys_event as h
+FROM    GADATA.c4g.rt_sys_event as h
 GROUP BY h.controller_id
 )
 
@@ -15,7 +16,7 @@ SELECT
 ,c.controller_name
 ,M.LastMessage
 ,DATEDIFF(hour,M.LastMessage,GETDATE()) as NOcommHours
-FROM    GADATA.dbo.c_controller AS c INNER JOIN
+FROM    GADATA.c4g.c_controller AS c INNER JOIN
         MaxDates as M ON c.id = M.controller_id 
 
 --order by LastMessage asc

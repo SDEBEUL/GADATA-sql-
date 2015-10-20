@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [C4G].[FileNotSaved]
 AS
 
@@ -12,7 +13,7 @@ WITH rt_not_saved_rndesc AS
 		  ,[program]
 		  ,[modified],
 		  ROW_NUMBER() OVER (PARTITION BY controller_id, program ORDER BY _timestamp DESC) AS rnDESC
-	  FROM [GADATA].[dbo].[rt_not_saved]
+	  FROM [GADATA].[c4g].[rt_not_saved]
 )
 
 
@@ -25,7 +26,7 @@ SELECT
 	datediff(hour,Lrt_not_saved_rndesc._timestamp,getdate()) as 'hours not saved'
 FROM rt_not_saved_rndesc 
 
-left join c_controller on controller_id = c_controller.id
+left join c4g.c_controller on controller_id = c_controller.id
 
 left join rt_not_saved_rndesc AS Lrt_not_saved_rndesc ON
 (

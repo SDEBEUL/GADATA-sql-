@@ -11,7 +11,12 @@ BEGIN
 	SET @SysstateString = ''
 
 	
-
+--1 connection 
+IF (@sysstate  = 0)
+BEGIN
+  SET @SysstateString =  'DISCONNECTED '
+  return @SysstateString 
+END
 --1 connection 
 IF (@sysstate & 262144 = 262144)
 BEGIN

@@ -82,7 +82,7 @@ SELECT
 	  ,ROW_NUMBER() OVER (PARTITION BY c.controller_name, l.pos ORDER BY l._timestamp DESC) AS rnDESC
 	  ,ROW_NUMBER() OVER (PARTITION BY c.controller_name, l.pos ORDER BY l._timestamp ASC) AS ModCount
   FROM [GADATA].[C4g].[L_robotpositions] as l 
-  left join GADATA.dbo.c_controller  as c on c.id = l.controller_id
+  left join GADATA.c4g.c_controller  as c on c.id = l.controller_id
   
   WHERE 
   c.location LIKE @LocationFilterWild

@@ -6,6 +6,8 @@
 
 
 
+
+
 /*only ERRORPOST
 -------------------------------------------------------------------------------------  */
 CREATE VIEW [C4G].[Error]
@@ -28,7 +30,7 @@ C.location
 , CAST(H.id AS int) AS idx
 FROM            C4G.h_alarm AS H 
 LEFT OUTER JOIN C4G.L_error AS L ON L.id = H.error_id 
-LEFT OUTER JOIN dbo.c_controller AS C ON H.controller_id = C.id 
+LEFT OUTER JOIN c4g.c_controller AS C ON H.controller_id = C.id 
 LEFT  JOIN C4G.c_Appl ON L.Appl_id = C4G.c_Appl.id 
 LEFT  JOIN C4G.c_Subgroup ON L.Subgroup_id = C4G.c_Subgroup.id 
 LEFT OUTER JOIN VOLVO.L_timeline AS T ON isnull(H._timestamp, H.c_timestamp) BETWEEN T.starttime AND T.endtime

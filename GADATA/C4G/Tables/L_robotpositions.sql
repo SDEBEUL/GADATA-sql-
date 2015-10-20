@@ -30,6 +30,8 @@ CREATE TABLE [C4G].[L_robotpositions] (
 
 
 
+
+
 GO
 
 CREATE TRIGGER [C4G].[C4G_L_robotpositions_remove_dup] ON [GADATA].[C4G].[L_robotpositions] for insert, update, delete

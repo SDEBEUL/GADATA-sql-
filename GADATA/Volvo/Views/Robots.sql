@@ -1,4 +1,5 @@
-﻿CREATE VIEW Volvo.Robots
+﻿
+CREATE VIEW [Volvo].[Robots]
 AS
 select
  'c4g' as controller_type
@@ -6,7 +7,7 @@ select
 ,c4g.id
 ,c4g.controller_name
 ,c4g.location
-from GADATA.dbo.c_controller as c4g
+from GADATA.c4g.c_controller as c4g
 
 UNION
 select

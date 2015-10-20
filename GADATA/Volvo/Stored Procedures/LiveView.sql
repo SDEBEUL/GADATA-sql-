@@ -5,7 +5,7 @@
    @daysback as int = 1,
    @RobotFilterWild as varchar(10) = '%',
    @RobotFilterMaskStart as varchar(10) = '%',
-   @RobotFilterMaskEnd as varchar(10) = '88999R99%',
+   @RobotFilterMaskEnd as varchar(10) = '%',
    @LocationFilterWild as varchar(20) = '%'
 
 
@@ -34,7 +34,7 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				rt_sys_event._timestamp,
 				rt_sys_event.sys_state,
 				robotState = dbo.fn_robstate(rt_sys_event.sys_state) --calculates a robot state a running robot has 2 a non running one 0 
-			FROM  GADATA.dbo.rt_sys_event  AS rt_sys_event
+			FROM  GADATA.c4g.rt_sys_event  AS rt_sys_event
 			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
 
 	
@@ -46,7 +46,7 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				l_operation._timestamp,
 				sys_state = 262144, 
 				robotState = 0
-			FROM GADATA.dbo.l_operation AS l_operation
+			FROM GADATA.C4G.l_operation AS l_operation
 			WHERE (l_operation._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) AND (l_operation.code = 4) --connection lost 
 	) AS x 
 	
@@ -231,7 +231,7 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
               ) 
 
 --zwaar gefoefel om via timestamp te proberen catchen welke error in rt_alarm het systeem down heeft getrokken	
-	LEFT JOIN GADATA.dbo.rt_alarm as rt_alarm 
+	LEFT JOIN GADATA.c4g.rt_alarm as rt_alarm 
 	   ON (
 		(#StartStopEvents.controller_id = rt_alarm.controller_id) 
 		AND
@@ -299,7 +299,7 @@ SELECT
 				rt_sys_event._timestamp,
 				rt_sys_event.sys_state,
 				robotState = dbo.fn_robstate(rt_sys_event.sys_state) --calculates a robot state a running robot has 2 a non running one 0 
-			FROM  GADATA.dbo.rt_sys_event  AS rt_sys_event
+			FROM  GADATA.c4g.rt_sys_event  AS rt_sys_event
 			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
 	
 			--data from L_operation (to catch robots goning offline)
@@ -313,7 +313,7 @@ SELECT
 				 WHEN 4 THEN -1
 				 WHEN 5 THEN 0
 				END as 'robotState'
-			FROM GADATA.dbo.l_operation AS l_operation
+			FROM GADATA.c4g.l_operation AS l_operation
 			WHERE 
 			(l_operation._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) AND (l_operation.code in (4,5)) --connection lost / regain 
 ) as Y
@@ -332,7 +332,7 @@ SELECT [ID]
       ,[Description]
 	  ,(ROW_NUMBER() OVER (PARTITION BY L_operation.controller_id, L_operation.code ORDER BY L_operation._timestamp DESC)) As rnDesc
   INTO #L_operationServiceCenter
-  FROM [GADATA].[dbo].[L_operation]
+  FROM [GADATA].[c4g].[L_operation]
   where (code = 3)
 END
 --********************************************************************************************************************************************--
@@ -396,13 +396,14 @@ SELECT
            
 FROM #SysBreakDwnTime
 --join the controller name
-JOIN    c_controller ON (#SysBreakDwnTime.controller_id = c_controller.id) 
+JOIN    c4g.c_controller ON (#SysBreakDwnTime.controller_id = c_controller.id) 
 
 WHERE 
  (SysBreakDwnIndx = 1 AND CombinedRobstate <> 3) --laatste event en robot heeft geen resolved event 
   OR
  (SysBreakDwnIndx = 1  AND (_timestamp > getdate()-'1900-01-01 00:05:00:000') ) --laatste event of not geen 5 min aan het draaien 
 
+ 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 --c4g check service center status
@@ -430,7 +431,7 @@ SELECT DISTINCT
 			  null AS 'Subgroup',
               NULL AS 'id'
 
-FROM GADATA.dbo.L_operation
+FROM GADATA.c4g.L_operation
 LEFT JOIN #L_operationActRobState ON
 (#L_operationActRobState.Vcsc_name = L_operation.Vcsc_name)
 AND
@@ -453,7 +454,7 @@ SELECT DISTINCT
               convert(char(19),(getdate()+'1900-01-02 00:00:0.00'),120) AS 'Timestamp',
               NULL AS 'Logcode',
               20 AS 'Severity',
-			  'ABB OPC WARNING type: ' + x.type + 'NO DATA FROM 5 min Last message: ' + convert(char(19),x.LastMessage,120) AS 'Logtekst',
+			  'ABB OPC WARNING type: ' + x.type + '  NO DATA FROM 5 min Last message: ' + convert(char(19),x.LastMessage,120) AS 'Logtekst',
 			  NULL AS 'DT',
               NULL AS 'Year',
 			  NULL AS 'Week',

@@ -102,7 +102,7 @@ SELECT
 C.controller_name
 ,* 
 FROM #C4GRclass
-LEFT JOIN GADATA.dbo.c_controller as C  ON C.id = #C4GRclass.controller_id 
+LEFT JOIN GADATA.C4G.c_controller as C  ON C.id = #C4GRclass.controller_id 
 WHERE 
 c.controller_name LIKE ('%' + @Robotname +'%')
 --AND 

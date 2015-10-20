@@ -2,12 +2,13 @@
 
 
 
+
 CREATE VIEW [C4G].[Breakdown]
 AS
 
 SELECT      
-dbo.c_controller.location AS 'Location'
-, dbo.c_controller.controller_name AS 'Robotname'
+  c.location AS 'Location'
+, c.controller_name AS 'Robotname'
 , 'C4G' AS 'Type'
 , 'BREAKDOWN' AS Expr1
 , H.EndOfBreakdown AS 'Timestamp'
@@ -25,7 +26,7 @@ dbo.c_controller.location AS 'Location'
 
 
 FROM   GADATA.C4G.h_breakdown as H 
-INNER JOIN dbo.c_controller ON H.controller_id = dbo.c_controller.id 
+INNER JOIN c4g.c_controller as c ON H.controller_id = c.id 
 --join L_error (normal cause)
 LEFT OUTER JOIN GADATA.C4G.L_error  AS L ON 
 L.id = H.error_id 

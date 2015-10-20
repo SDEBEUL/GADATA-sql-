@@ -27,7 +27,7 @@ SELECT  distinct
 ,R.error_text as 'error_text'
 ,NULL as 'Appl_id'
 ,NULL as 'Subgroup_id'
-From GADATA.dbo.rt_alarm as R 
+From GADATA.C4G.rt_alarm as R 
 
 Left join GADATA.C4G.L_error as L on
 (R.[error_number] = L.[error_number])
@@ -63,7 +63,7 @@ SELECT
 ,R.error_is_alarm as 'error_is_alarm'
 ,L_error.id as 'error_id'
 ,NULL as 'is_realtime'
-FROM GADATA.dbo.rt_alarm as R 
+FROM GADATA.C4G.rt_alarm as R 
 
 --join error_id
 join gadata.C4G.L_error on 
@@ -89,7 +89,7 @@ where (H.id IS NULL)
 ---------------------------------------------------------------------------------------
 Print'--delete in rt_alarm if older than 1 day'
 ---------------------------------------------------------------------------------------
-DELETE FROM gadata.dbo.rt_alarm where GADATA.dbo.rt_alarm.error_timestamp < getdate()-1
+DELETE FROM gadata.C4G.rt_alarm where GADATA.C4G.rt_alarm.error_timestamp < getdate()-1
 ---------------------------------------------------------------------------------------
 
 --****************************************************************************************************************--

@@ -1,9 +1,10 @@
 ﻿
 
+
 CREATE VIEW [C4G].[CollisionInfo]
 AS
 SELECT        
-C.location AS 'Location'
+ C.location AS 'Location'
 , C.controller_name AS 'Robotname'
 , 'C4G' AS 'Type'
 , 'COLLISION' AS 'Errortype'
@@ -20,7 +21,7 @@ C.location AS 'Location'
 , 'coll' AS 'Subgroup'
 , CAST(dbo.rt_value.id AS int) AS 'idx'
 FROM    dbo.rt_value 
-LEFT OUTER JOIN dbo.c_controller AS C ON dbo.rt_value.controller_id = C.id 
+LEFT OUTER JOIN c4g.c_controller AS C ON dbo.rt_value.controller_id = C.id 
 LEFT OUTER JOIN VOLVO.L_timeline AS T ON dbo.rt_value._timestamp BETWEEN T.starttime AND T.endtime
 WHERE        (dbo.rt_value.variable_id = 11)
 GO

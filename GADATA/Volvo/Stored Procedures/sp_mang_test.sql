@@ -18,8 +18,8 @@ SET @StartDate = '2015-05-01 00:00:00.000' -- getdate()-80
 
 
 SELECT 
-  dbo.c_controller.location AS 'Location'
-, dbo.c_controller.controller_name AS 'Robotname'
+  c4g.c_controller.location AS 'Location'
+, c4g.c_controller.controller_name AS 'Robotname'
 , ISNULL(LRA.APPL, LA.APPL) AS 'Object'
 , ISNULL(LRS.Subgroup, LS.Subgroup) AS 'Subgroup'
 , T.Vyear AS 'Year'
@@ -39,7 +39,7 @@ SELECT
 , H.StartOfBreakdown AS 'timestamp'
 
 FROM   GADATA.C4G.h_breakdown as H 
-INNER JOIN dbo.c_controller ON H.controller_id = dbo.c_controller.id 
+INNER JOIN c4g.c_controller ON H.controller_id = c4g.c_controller.id 
 --join L_error (normal cause)
 LEFT OUTER JOIN GADATA.C4G.L_error  AS L ON 
 L.id = H.error_id 
@@ -76,7 +76,7 @@ AND
 AND
 (H.StartOfBreakdown BETWEEN  @StartDate and @EndDate)
 AND 
-(dbo.c_controller.location  LIKE '%%') --locatie moet gekend zijn 
+(c4g.c_controller.location  LIKE '%%') --locatie moet gekend zijn 
 
 
 order by H.StartOfBreakdown desc 

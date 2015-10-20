@@ -1,41 +1,41 @@
 ﻿
 
 
+
 CREATE VIEW [C4G].[BreakdownStart]
 AS
 SELECT        
-dbo.c_controller.location AS 'Location'
-, dbo.c_controller.controller_name AS 'Robotname'
+  c.location AS 'Location'
+, c.controller_name AS 'Robotname'
 , 'C4G' AS 'Type', 'BEGIN' AS Expr1
-, dbo.L_breakdown.StartOfBreakdown AS 'Timestamp'
-, dbo.L_breakdown.error_number AS 'Logcode'
-, NULL AS 'Severity'
-, ISNULL(dbo.L_breakdown.error_text,  '-----------Breakdown Tag-----------') AS 'Logtekst'
+, h.StartOfBreakdown AS 'Timestamp'
+, l.error_number AS 'Logcode'
+, l.error_severity AS 'Severity'
+, ISNULL(l.error_text,  '-----------Breakdown Tag-----------') AS 'Logtekst'
 , NULL AS 'DOWNTIME'
 , T.Vyear AS 'Year'
 , T.Vweek AS 'Week'
 , T.Vday AS 'day'
 , T.shift AS 'Shift'
 , la.APPL AS 'Object'
-, LS.Subgroup
-, dbo.L_breakdown.idx
-FROM    dbo.L_breakdown 
-INNER JOIN dbo.c_controller ON dbo.L_breakdown.controller_id = dbo.c_controller.id 
-						 --join appl groups
-						 LEFT OUTER JOIN
-                         GADATA.C4G.c_LogClassRules AS LR ON 
-						 dbo.L_breakdown.error_number BETWEEN LR.Err_start AND LR.Err_end 
-						 OR
-                         dbo.L_breakdown.error_text LIKE RTRIM(LR.err_text) 
+, LS.Subgroup AS 'Subgroup'
+, h.id as 'IDX'
+FROM    c4g.h_breakdown as h 
+INNER JOIN c4g.c_controller as c ON c.id = h.controller_id
+--join L_error (normal cause)
+LEFT OUTER JOIN GADATA.C4G.L_error  AS L ON 
+L.id = H.error_id 
+			
+
 						 --appl
 						 LEFT OUTER JOIN
-						 GADATA.C4g.c_Appl as LA ON (LA.id =LR.Appl_id)
+						 GADATA.C4g.c_Appl as LA ON (LA.id =L.Appl_id)
 						 --subgroup
 						 LEFT OUTER JOIN
-						 gadata.c4g.C_subgroup as LS ON (LS.id = LR.subgroup_id)
+						 gadata.c4g.C_subgroup as LS ON (LS.id = L.subgroup_id)
 						 --
 						 LEFT OUTER JOIN
-                         VOLVO.L_timeline AS T ON dbo.L_breakdown.StartOfBreakdown BETWEEN T.starttime AND T.endtime
+                         VOLVO.L_timeline AS T ON h.StartOfBreakdown BETWEEN T.starttime AND T.endtime
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'BreakdownStart';
 

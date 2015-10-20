@@ -18,7 +18,7 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @GetC4GDowntimes as bit = 1,
    @GetC4GDownTBegin as bit = 0,
    @GetC4GCollisions as bit = 0,
-   @GetC4GSpeedCheck as bit = 0, --TBT
+   @GetC4GSpeedCheck as bit = 0,
    @GetC4GSBCU as bit = 0, --TBT
    @GetC4GMod as bit = 0,
    @GetC4GLive as bit = 0,
@@ -52,7 +52,7 @@ BEGIN
 ---------------------------------------------------------------------------------------
 --Kindly responde to user if using unfinished stuff
 ---------------------------------------------------------------------------------------
-IF ((@GetC4GSBCU = 1)  Or (@GetTimerWear =1 ) OR (@GetC4GSpeedCheck =1))
+IF ((@GetC4GSBCU = 1)  Or (@GetTimerWear =1 ))
 BEGIN
 RAISERROR (15600,-1,-1, 'Im sorry ... Have not got this implemented (SDEBEUL)');
 END
@@ -79,21 +79,11 @@ SET @EndDate = GETDATE()
 END
 
 ---------------------------------------------------------------------------------------
-
---***********************************************************************************************************************--
---PRECALCULATIONS
---***********************************************************************************************************************--
+if @getc4glive = 1
+begin
+exec [Volvo].[LiveView]
+end
 ---------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---C4G liveview (action breakdowns) PRECALC
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-if @GetC4GLive = 1
-BEGIN
-EXEC GADATA.[Volvo].[LiveView]
-END
----------------------------------------------------------------------------------------
-
 
 --template ! 
 SELECT
@@ -343,6 +333,27 @@ ISNULL(C4GA.[Object],'') LIKE @ApplFilterWild AND ISNULL(C4GA.Subgroup,'') LIKE 
 AND 
 @GetC4GAction = 1
 ---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C4G SPEED information (GEN OVR)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.c4g.gen_ovr AS C4GSPEED
+WHERE
+--datetime filter
+(C4GSPEED.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(C4GSPEED.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(C4GSPEED.location,'') LIKE @LocationFilterWild )
+AND 
+@GetC4GSpeedCheck = 1
+---------------------------------------------------------------------------------------
+
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 --C4G modifications

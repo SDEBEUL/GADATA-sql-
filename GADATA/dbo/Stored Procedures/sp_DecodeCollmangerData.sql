@@ -11,7 +11,7 @@ value,
 CONVERT(XML,'<Product><Attribute>' + REPLACE(value,',', '</Attribute><Attribute>') + '</Attribute></Product>') AS Value_Attributes 
 INTO #Colldatasplit
 FROM rt_value
-	Join c_controller on C_controller.id = rt_value.controller_id 
+	Join c4g.c_controller on C_controller.id = rt_value.controller_id 
 WHERE 
 	variable_id = 4
 	AND 

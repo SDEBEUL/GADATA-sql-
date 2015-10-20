@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [C4G].[ACTION]
 AS
 SELECT        
@@ -21,7 +22,7 @@ C.location
 , CAST(H.id AS int) AS idx
 FROM    C4G.h_alarm AS H 
 LEFT OUTER JOIN C4G.L_error AS L ON L.id = H.error_id 
-LEFT OUTER JOIN dbo.c_controller AS C ON H.controller_id = C.id 
+LEFT OUTER JOIN C4G.c_controller AS C ON H.controller_id = C.id 
 LEFT OUTER JOIN C4G.c_Appl ON L.Appl_id = C4G.c_Appl.id 
 LEFT OUTER JOIN C4G.c_Subgroup ON L.Subgroup_id = C4G.c_Subgroup.id 
 LEFT OUTER JOIN VOLVO.L_timeline AS T ON H._timestamp BETWEEN T.starttime AND T.endtime

@@ -6,6 +6,7 @@
 
 
 
+
 CREATE VIEW [C4G].[sysstate]
 AS
 SELECT  
@@ -26,9 +27,9 @@ SELECT
 			  'Event'  AS 'Subgroup',
               CAST(Y.id AS int) AS 'idx'
 
-FROM  GADATA.dbo.rt_sys_event as Y
+FROM  GADATA.c4g.rt_sys_event as Y
 --join the controller name
-LEFT JOIN    GADATA.dbo.c_controller as C ON (Y.controller_id = C.id) 
+LEFT JOIN    GADATA.c4g.c_controller as C ON (Y.controller_id = C.id) 
 --join the timeline
 LEFT JOIN GADATA.VOLVO.L_timeline AS T ON ( Y._timestamp BETWEEN T.starttime AND T.endtime)
 
@@ -51,9 +52,9 @@ SELECT
 			  'Event'  AS 'Object',
 			  'Event'  AS 'Subgroup',
               CAST(Y.id AS int) AS 'idx'
-			FROM GADATA.dbo.l_operation  AS y
+			FROM GADATA.c4g.l_operation  AS y
 --join the controller name
-LEFT JOIN    GADATA.dbo.c_controller as C ON (Y.controller_id = C.id) 
+LEFT JOIN    GADATA.c4g.c_controller as C ON (Y.controller_id = C.id) 
 --join the timeline
 LEFT JOIN GADATA.VOLVO.L_timeline AS T ON ( Y._timestamp BETWEEN T.starttime AND T.endtime)
 WHERE (y.code = 4) --connection lost 
