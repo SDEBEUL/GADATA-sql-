@@ -33,21 +33,10 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				rt_sys_event.controller_id,
 				rt_sys_event._timestamp,
 				rt_sys_event.sys_state,
-				robotState = dbo.fn_robstate(rt_sys_event.sys_state) --calculates a robot state a running robot has 2 a non running one 0 
+				robotState = c4g.fn_robstate(rt_sys_event.sys_state) --calculates a robot state a running robot has 2 a non running one 0 
 			FROM  GADATA.c4g.rt_sys_event  AS rt_sys_event
 			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
 
-	
-			--data from L_operation (to catch robots goning offline)
-			UNION
-			SELECT 
-				l_operation.id,
-				l_operation.controller_id,
-				l_operation._timestamp,
-				sys_state = 262144, 
-				robotState = 0
-			FROM GADATA.C4G.l_operation AS l_operation
-			WHERE (l_operation._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) AND (l_operation.code = 4) --connection lost 
 	) AS x 
 	
 ---------------------------------------------------------------------------------------
@@ -298,24 +287,9 @@ SELECT
 				rt_sys_event.controller_id,
 				rt_sys_event._timestamp,
 				rt_sys_event.sys_state,
-				robotState = dbo.fn_robstate(rt_sys_event.sys_state) --calculates a robot state a running robot has 2 a non running one 0 
+				robotState = c4g.fn_robstate(rt_sys_event.sys_state) --calculates a robot state a running robot has 2 a non running one 0 
 			FROM  GADATA.c4g.rt_sys_event  AS rt_sys_event
 			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
-	
-			--data from L_operation (to catch robots goning offline)
-			UNION
-			SELECT 
-				l_operation.id,
-				l_operation.controller_id,
-				l_operation._timestamp,
-				sys_state = 262144, 
-				CASE l_operation.code
-				 WHEN 4 THEN -1
-				 WHEN 5 THEN 0
-				END as 'robotState'
-			FROM GADATA.c4g.l_operation AS l_operation
-			WHERE 
-			(l_operation._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) AND (l_operation.code in (4,5)) --connection lost / regain 
 ) as Y
 END
 
@@ -373,8 +347,10 @@ END
 --c4g down right now 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
-if (OBJECT_ID('GADATA.VOLVO.L_liveView') is not null) drop table GADATA.VOLVO.L_liveView
-SELECT * INTO GADATA.VOLVO.L_liveView FROM
+--if (OBJECT_ID('GADATA.VOLVO.L_liveView') is not null) drop table GADATA.VOLVO.L_liveView
+DELETE GADATA.volvo.L_liveView FROM GADATA.volvo.L_liveView
+INSERT INTO GADATA.VOLVO.L_liveView
+SELECT *  FROM
 (
 SELECT 
               c_controller.location AS 'Location',
@@ -384,7 +360,7 @@ SELECT
               convert(char(19),#SysBreakDwnTime.oktimestamp,120) AS 'Timestamp',
               #SysBreakDwnTime.error_number AS 'Logcode',
               20 AS 'Severity',
-              ISNULL('State: ' + CAST(GADATA.dbo.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|  Err: '  + #SysBreakDwnTime.error_text,('State: ' + CAST(GADATA.dbo.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) ))  AS 'Logtekst',
+              ISNULL('State: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|  Err: '  + #SysBreakDwnTime.error_text,('State: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) ))  AS 'Logtekst',
 			  downtime as 'DT',
               DATEPART(YEAR, #SysBreakDwnTime.oktimestamp) AS 'Year',
 			  DATEPART(WEEK,#SysBreakDwnTime.oktimestamp) AS 'Week',
@@ -401,7 +377,7 @@ JOIN    c4g.c_controller ON (#SysBreakDwnTime.controller_id = c_controller.id)
 WHERE 
  (SysBreakDwnIndx = 1 AND CombinedRobstate <> 3) --laatste event en robot heeft geen resolved event 
   OR
- (SysBreakDwnIndx = 1  AND (_timestamp > getdate()-'1900-01-01 00:05:00:000') ) --laatste event of not geen 5 min aan het draaien 
+ (SysBreakDwnIndx = 1  AND (_timestamp > getdate()-'1900-01-01 00:04:00:000') ) --laatste event of not geen 5 min aan het draaien 
 
  
 ---------------------------------------------------------------------------------------

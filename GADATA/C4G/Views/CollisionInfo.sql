@@ -1,17 +1,19 @@
 ﻿
 
 
+
 CREATE VIEW [C4G].[CollisionInfo]
 AS
+
 SELECT        
  C.location AS 'Location'
 , C.controller_name AS 'Robotname'
 , 'C4G' AS 'Type'
 , 'COLLISION' AS 'Errortype'
-, dbo.rt_value._timestamp  AS 'Timestamp'
+, rt_collInfo._timestamp  AS 'Timestamp'
 , NULL AS 'Logcode'
 , NULL AS 'Severity'
-, dbo.rt_value.value AS 'Logtekst'
+, rt_collInfo.value AS 'Logtekst'
 , NULL AS 'Downtime'
 , T.Vyear AS 'Year'
 , T.Vweek AS 'Week'
@@ -19,11 +21,11 @@ SELECT
 , T.shift AS 'Shift'
 , 'coll' AS 'Object'
 , 'coll' AS 'Subgroup'
-, CAST(dbo.rt_value.id AS int) AS 'idx'
-FROM    dbo.rt_value 
-LEFT OUTER JOIN c4g.c_controller AS C ON dbo.rt_value.controller_id = C.id 
-LEFT OUTER JOIN VOLVO.L_timeline AS T ON dbo.rt_value._timestamp BETWEEN T.starttime AND T.endtime
-WHERE        (dbo.rt_value.variable_id = 11)
+, CAST(rt_collInfo.id AS int) AS 'idx'
+FROM    c4g.rt_collInfo 
+LEFT OUTER JOIN c4g.c_controller AS C ON rt_collInfo.controller_id = C.id 
+LEFT OUTER JOIN VOLVO.L_timeline AS T ON rt_collInfo._timestamp BETWEEN T.starttime AND T.endtime
+WHERE        (rt_collInfo.variable_id = 57)
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'CollisionInfo';
 

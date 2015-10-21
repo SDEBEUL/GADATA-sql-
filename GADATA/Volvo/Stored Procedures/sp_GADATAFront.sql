@@ -46,7 +46,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @RespT as bit = 0, --tbt
    @RelvT as bit =0, --tbt
 --optional pars
-   @MinLogserv as int = 0 
+   @MinLogserv as int = 0,
+   @MinDowntime as int = 0 
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
@@ -184,6 +185,9 @@ ISNULL(B.[Object],'') LIKE @ApplFilterWild AND ISNULL(B.Subgroup,'') LIKE @Subgr
 AND
 --Exclude Gatestops 
 ((@ExcludeGateStops = 1 AND (ISNULL(B.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
+AND
+--minimun downtime option
+(@MinDowntime <= B.Downtime)
 AND
 --enable bit
 (@GetC4GDowntimes = 1)
@@ -356,6 +360,23 @@ AND
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
+--C4G SPEED information (GEN OVR NOW not 100) (for live view)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.c4g.SLOWspeed AS C4GSlowSPEED
+WHERE
+--Robot name filter 
+(C4GSlowSPEED.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(C4GSlowSPEED.location,'') LIKE @LocationFilterWild )
+AND 
+@GetC4GLive = 1
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
 --C4G modifications
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
@@ -370,7 +391,6 @@ AND
 --Location Filter
 AND
 (ISNULL(C4GM.location,'') LIKE @LocationFilterWild )
-
 AND 
 @GetC4gMOD = 1
 ---------------------------------------------------------------------------------------
@@ -480,7 +500,10 @@ AND
 ISNULL(B.[Object],'') LIKE @ApplFilterWild AND ISNULL(B.Subgroup,'') LIKE @SubgroupFilterWild
 AND
 --Exclude Gatestops 
-((@ExcludeGateStops = 1 AND (ISNULL(B.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
+((@ExcludeGateStops = 1 AND (B.logtekst NOT LIKE '%(SS)%')) OR @ExcludeGateStops =0)
+AND
+--minimun downtime option
+(@MinDowntime <= B.Downtime)
 AND
 --enable bit
 (@GetC3GDowntimes = 1)

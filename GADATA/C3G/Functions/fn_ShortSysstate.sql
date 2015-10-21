@@ -54,7 +54,7 @@ END
 --bit 4 safety gate or Estop
 IF (@sysstate & 8 = 8)
 BEGIN
-  SET @SysstateString = @SysstateString + 'Safety Gate OR E-stop'
+  SET @SysstateString = @SysstateString + 'Safety Gate OR E-stop (SS)'
    return @SysstateString 
 END
 
@@ -87,7 +87,7 @@ END
 -- bit 31 DriveOff
 IF (@sysstate & 1073741824 = 1073741824)
 BEGIN
-  SET @SysstateString = @SysstateString + 'DriveOff '
+  SET @SysstateString = @SysstateString + 'DriveOff (SS) '
 END
 ---------------------------------------------------------
 

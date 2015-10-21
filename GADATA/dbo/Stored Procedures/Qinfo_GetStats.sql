@@ -5,7 +5,7 @@ AS
 BEGIN
 
 DECLARE @IsC4g int 
-set @IsC4g = (select c_controller.id from c_controller where c_controller.controller_name = @robot)
+set @IsC4g = (select c_controller.id from c4g.c_controller where c_controller.controller_name = @robot)
 
 --case of C4G robot
 IF @IsC4g is not null

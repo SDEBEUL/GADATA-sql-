@@ -4,16 +4,16 @@ AS
 
 if (OBJECT_ID('tempdb..#Colldatasplit') is not null) drop table #Colldatasplit
 SELECT TOP 10000
-rt_value.id,
+rt_collLog.id,
 controller_name,    
 _timestamp,    
 value,    
 CONVERT(XML,'<Product><Attribute>' + REPLACE(value,',', '</Attribute><Attribute>') + '</Attribute></Product>') AS Value_Attributes 
 INTO #Colldatasplit
-FROM rt_value
-	Join c4g.c_controller on C_controller.id = rt_value.controller_id 
+FROM GADATA.C4G.rt_collLog
+	Join c4g.c_controller on C_controller.id = rt_collLog.controller_id 
 WHERE 
-	variable_id = 4
+	variable_id = 55
 	AND 
 	c_controller.controller_name LIKE @Robotname
 ORDER BY _timestamp DESC 

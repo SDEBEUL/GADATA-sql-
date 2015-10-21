@@ -22,8 +22,8 @@ _timestamp as '_timestamp',   --switched to sql server time
 Value,
 CONVERT(XML,'<Product><Attribute>' + REPLACE([ABB].[fnStripLowAscii](Value),' ', '</Attribute><Attribute>') + '</Attribute></Product>') AS Message_Attr 
 INTO #C4G_Rt_value_Handmonitor
-FROM gadata.dbo.rt_value
-WHERE rt_value.variable_id = 29 AND len(value) <> 0 --drops empty records
+FROM gadata.c4g.rt_handData
+WHERE rt_handData.variable_id = 58 AND len(value) <> 0 --drops empty records
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------

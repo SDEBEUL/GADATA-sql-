@@ -1,6 +1,7 @@
 ﻿
 
-CREATE FUNCTION [dbo].[fn_robstate] 
+
+CREATE FUNCTION [c4g].[fn_robstate] 
 	(
 		@Sysstate int
 	) 

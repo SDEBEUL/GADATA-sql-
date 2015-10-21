@@ -25,31 +25,17 @@ SET DATEFIRST 1
 print'to index sys event table based on time and robotid'
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
-	SELECT *,
-		 ROW_NUMBER() OVER (PARTITION BY x.controller_id ORDER BY x._timestamp DESC) AS rnDESC
-		 INTO #SysEventIdx FROM 
-	(
 			--data from rt_sys_event table. 
 			SELECT 
 				rt_sys_event.id,
 				rt_sys_event.controller_id,
 				rt_sys_event._timestamp,
 				rt_sys_event.sys_state,
-				robotState = dbo.fn_robstate(rt_sys_event.sys_state) --calculates a robot state. A running robot has 2 a non running one 0 
+				robotState = c4g.fn_robstate(rt_sys_event.sys_state), --calculates a robot state. A running robot has 2 a non running one 0 
+				ROW_NUMBER() OVER (PARTITION BY rt_sys_event.controller_id ORDER BY rt_sys_event._timestamp DESC) AS rnDESC
+	        INTO #SysEventIdx
 			FROM  GADATA.C4G.rt_sys_event  AS rt_sys_event
 			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
-	
-			--data from L_operation (to catch robots offline)
-			UNION
-			SELECT 
-				l_operation.id,
-				l_operation.controller_id,
-				l_operation._timestamp,
-				sys_state = 262144, --set unused bit in sysstate to signal "connection lost"
-				robotState = 0 ---simulate robot Down
-			FROM GADATA.C4G.l_operation AS l_operation
-			WHERE (l_operation._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())) AND (l_operation.code = 4) --connection lost 
-	) AS x 
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------

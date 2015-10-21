@@ -83,7 +83,7 @@ SELECT
 C.controller_name
 ,* 
 FROM #C4GCheckGate
-LEFT JOIN GADATA.dbo.c_controller as C  ON C.id = #C4GCheckGate.controller_id 
+LEFT JOIN GADATA.c4g.c_controller as C  ON C.id = #C4GCheckGate.controller_id 
 WHERE 
 c.controller_name LIKE ('%' + @Robotname +'%')
 

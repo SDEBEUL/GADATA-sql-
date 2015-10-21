@@ -1,12 +1,4 @@
-﻿CREATE TABLE [dbo].[rt_value] (
-    [id]            INT            IDENTITY (1, 1) NOT NULL,
-    [controller_id] INT            NULL,
-    [_timestamp]    DATETIME       NULL,
-    [value]         VARCHAR (2048) NULL,
-    [variable_id]   INT            NULL,
-    CONSTRAINT [PK_rt_value] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_rt_value_c_variable] FOREIGN KEY ([variable_id]) REFERENCES [dbo].[c_variable] ([id])
-);
+﻿
 
 
 
@@ -14,7 +6,5 @@
 
 
 GO
-CREATE NONCLUSTERED INDEX [NCI_variable_id]
-    ON [dbo].[rt_value]([variable_id] ASC, [_timestamp] ASC)
-    INCLUDE([id], [controller_id], [value]);
+
 
