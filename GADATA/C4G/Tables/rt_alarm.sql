@@ -10,6 +10,9 @@
     [error_is_alarm]  BIT           NULL,
     [error_id]        INT           NULL,
     CONSTRAINT [PK_rt_alarm] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_rt_alarm_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id])
+    CONSTRAINT [FK_rt_alarm_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id]),
+    CONSTRAINT [FK_rt_alarm_c_controller1] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id])
 );
+
+
 

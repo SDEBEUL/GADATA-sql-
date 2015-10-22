@@ -30,7 +30,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @GetC3GDownTBegin as bit = 0, 
    @GetC3GSpeedCheck as bit = 0, --TBT
    @GetC3GSBCU as bit = 0, 
-   @GetC3GMod as bit = 0, 
+   @GetC3GMod as bit = 0,
+   @GetC3gLive as bit = 0, 
 --ABB S4C Booleans
    @GetS4Error as bit = 0,
    @GetS4State as bit = 0,
@@ -511,7 +512,28 @@ AND
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
---C4G Qry Breakdowns (begin van een storing)
+--C3G Qry LIVE
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C3G.Live as Live
+WHERE 
+--robot name filter 
+(Live.Robotname LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(Live.location,'') LIKE @LocationFilterWild )
+--Application / subgroup filter
+AND
+ISNULL(Live.[Object],'') LIKE @ApplFilterWild AND ISNULL(Live.Subgroup,'') LIKE @SubgroupFilterWild
+AND
+--enable bit
+(@GetC3GLive = 1)
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--C3G Qry Breakdowns (begin van een storing)
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION

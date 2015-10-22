@@ -15,3 +15,11 @@
 
 
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_h_breakdown]
+    ON [C3G].[h_breakdown]([controller_id] ASC)
+    INCLUDE([id], [EndOfBreakdown], [StartOfBreakdown], [Trig_state], [error_id], [RC_error_id]);
+
