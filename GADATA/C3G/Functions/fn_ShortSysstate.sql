@@ -27,7 +27,15 @@ BEGIN
   return @SysstateString 
 END
 
-
+--Running state ---------------------------------------------------------
+--not bit 31 (drive-on)
+--    bit 7  (no appl fault)
+--not bit 27 (system alarm)
+IF (NOT @sysstate & 1073741824 = 1073741824) AND (@sysstate & 64 = 64) AND (not @sysstate & 67108864 = 67108864)
+BEGIN
+  SET @SysstateString =  'Run '
+  return @SysstateString 
+END
 ---------------------------------------------------------
 
 -- bit 15 AUTO-local

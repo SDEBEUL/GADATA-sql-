@@ -1,4 +1,5 @@
 ﻿
+
 CREATE VIEW [ABB].[S4state]
 AS
 SELECT      
@@ -6,7 +7,7 @@ C.location
 , C.controller_name AS Robotname
 , 'S4' AS Type
 , 'State' AS Errortype
-, CONVERT(char(19), ISNULL(H._timestamp, H.wd_timestamp), 120) AS timestamp
+, ISNULL(H._timestamp, H.wd_timestamp) AS timestamp
 , L.error_number AS Logcode
 , L.error_severity AS Severity
 , L.error_text AS Logtekst
