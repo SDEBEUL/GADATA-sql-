@@ -10,3 +10,11 @@
 
 
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_rt_sysevent_tis]
+    ON [C3G].[rt_sys_event]([_timestamp] ASC)
+    INCLUDE([id], [controller_id], [sys_state]);
+

@@ -10,8 +10,7 @@ EXEC GADATA.volvo.sp_Alog  @rowcount = 0, @Request = '1 Min auto Trig'
 
 -- C3g
 exec GADATA.C3G.sp_update_L
---exec GADATA.C3G.sp_L_breakdown
-exec GADATA.C3G.sp_L_breakdownBETA
+exec GADATA.C3G.sp_L_breakdown
 --C4G
 exec [C4G].[sp_update_L]
 exec [C4G].sp_Update_L_breakdown

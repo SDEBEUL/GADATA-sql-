@@ -35,6 +35,7 @@ exec GADATA.c4g.sp_Decode_HandMonitor
 SELECT * FROM GADATA.C4G.HandMonitor as h
 where --h.timestamp between   @startdate and @EndDate AND
  h.Robotname LIKE @RobotFilterWild
+ AND h.Time < 3000 --zit nog ergens bug langs controller kant 
 
  ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------

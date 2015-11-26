@@ -1,7 +1,8 @@
 ﻿
 
 
-CREATE FUNCTION [c4g].[fn_decodeSysstate] 
+
+CREATE FUNCTION [C4G].[fn_decodeSysstate] 
 	(
 		@Sysstate int
 	) 
@@ -75,7 +76,7 @@ END
 --test for safety gate 8
 IF (@sysstate & 8 = 8)
 BEGIN
-  SET @SysstateString = @SysstateString + 'SS '
+  SET @SysstateString = @SysstateString + '(SS) '
 END
 
 

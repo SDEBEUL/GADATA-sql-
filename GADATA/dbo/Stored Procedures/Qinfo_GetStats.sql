@@ -1,16 +1,18 @@
 ﻿CREATE PROCEDURE [dbo].[Qinfo_GetStats]
    @Robot as varchar(16) = null
    ,@ErrCode as int = null
+     ,@ErrID as int = null
 AS
 BEGIN
 
-DECLARE @IsC4g int 
-set @IsC4g = (select c_controller.id from c4g.c_controller where c_controller.controller_name = @robot)
+
+DECLARE @robType varchar(20)
+SET @robType = (select robots.controller_type from GADATA.Volvo.Robots where Robots.controller_name = @robot) 
+
 
 --case of C4G robot
-IF @IsC4g is not null
+IF @robType = 'c4g'
 BEGIN
-
 SELECT
 'Count LastDay:' =
 (SELECT count(Error.Logcode) FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-1 AND getdate()) AND Error.logcode = @Errcode)
@@ -29,34 +31,75 @@ SELECT
 
 ,'Last Time:' = 
 (SELECT top 1 CONVERT(char(19),Error.[timestamp], 120)  FROM GADATA.C4G.Error WHERE (Robotname = @Robot AND Error.logcode = @Errcode) order by Error.[timestamp] DESC)
-
 END
 
 --case of C3G robot
-IF @IsC4g is null
+IF @robType = 'c3g'
+BEGIN
 SELECT
 'Count LastDay:' =
-(select Count(rt_alarm.error_number) from robotga.rt_alarm join RobotGA.Robot on Robot.id = rt_alarm.controller_id 
-  where (Robot.RobotName = @Robot) AND (rt_alarm.error_number = @ErrCode) AND (rt_alarm.error_timestamp BETWEEN getdate()-1 AND getdate()))
+(SELECT count(Error.Logcode) FROM GADATA.C3G.Error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-1 AND getdate()) AND Error.logcode = @Errcode)
 
 ,'Count LastWeek:' =
-(select Count(rt_alarm.error_number) from robotga.rt_alarm join RobotGA.Robot on Robot.id = rt_alarm.controller_id 
-  where (Robot.RobotName = @Robot) AND (rt_alarm.error_number = @ErrCode) AND (rt_alarm.error_timestamp BETWEEN getdate()-7 AND getdate()))
+(SELECT count(Error.Logcode) FROM GADATA.C3G.Error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-7 AND getdate()) AND Error.logcode = @Errcode)
 
 ,'Count LastMonth:' =
-(select Count(rt_alarm.error_number) from robotga.rt_alarm join RobotGA.Robot on Robot.id = rt_alarm.controller_id 
-  where (Robot.RobotName = @Robot) AND (rt_alarm.error_number = @ErrCode) AND (rt_alarm.error_timestamp BETWEEN getdate()-31 AND getdate()))
+(SELECT count(Error.Logcode) FROM GADATA.C3G.Error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-31 AND getdate()) AND Error.logcode = @Errcode)
 
 ,'Count ALL:' =
-(select Count(rt_alarm.error_number) from robotga.rt_alarm join RobotGA.Robot on Robot.id = rt_alarm.controller_id 
-  where (Robot.RobotName = @Robot) AND (rt_alarm.error_number = @ErrCode))
+(SELECT count(Error.Logcode) FROM GADATA.C3G.Error WHERE Robotname = @Robot  AND Error.logcode = @Errcode)
 
 ,'First Time:' =
-(select top 1 CONVERT(char(19),rt_alarm.error_timestamp, 120)  from robotga.rt_alarm join RobotGA.Robot on Robot.id = rt_alarm.controller_id 
-  where (Robot.RobotName = @Robot) AND (rt_alarm.error_number = @ErrCode) ORDER BY rt_alarm.error_timestamp ASC)
+(SELECT top 1 CONVERT(char(19),Error.[timestamp], 120)  FROM GADATA.C3G.Error WHERE (Robotname = @Robot AND Error.logcode = @Errcode) order by Error.[timestamp] ASC)
 
-,'Last Time:' =
-(select top 1 CONVERT(char(19),rt_alarm.error_timestamp, 120)  from robotga.rt_alarm join RobotGA.Robot on Robot.id = rt_alarm.controller_id 
-  where (Robot.RobotName = @Robot) AND (rt_alarm.error_number = @ErrCode) ORDER BY rt_alarm.error_timestamp DESC)
+,'Last Time:' = 
+(SELECT top 1 CONVERT(char(19),Error.[timestamp], 120)  FROM GADATA.C3G.Error WHERE (Robotname = @Robot AND Error.logcode = @Errcode) order by Error.[timestamp] DESC)
+END
+
+--case of irc5 robot
+IF @robType = 'IRC5'
+BEGIN
+SELECT
+'Count LastDay:' =
+(SELECT count(IRC5error.Logcode) FROM GADATA.ABB.IRC5error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-1 AND getdate()) AND IRC5error.logcode = @Errcode)
+
+,'Count LastWeek:' =
+(SELECT count(IRC5error.Logcode) FROM GADATA.ABB.IRC5error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-7 AND getdate()) AND IRC5error.logcode = @Errcode)
+
+,'Count LastMonth:' =
+(SELECT count(IRC5error.Logcode) FROM GADATA.ABB.IRC5error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-31 AND getdate()) AND IRC5error.logcode = @Errcode)
+
+,'Count ALL:' =
+(SELECT count(IRC5error.Logcode) FROM GADATA.ABB.IRC5error WHERE Robotname = @Robot  AND IRC5error.logcode = @Errcode)
+
+,'First Time:' =
+(SELECT top 1 CONVERT(char(19),IRC5error.[timestamp], 120)  FROM GADATA.ABB.IRC5error WHERE (Robotname = @Robot AND IRC5error.logcode = @Errcode) order by IRC5error.[timestamp] ASC)
+
+,'Last Time:' = 
+(SELECT top 1 CONVERT(char(19),IRC5error.[timestamp], 120)  FROM GADATA.ABB.IRC5error WHERE (Robotname = @Robot AND IRC5error.logcode = @Errcode) order by IRC5error.[timestamp] DESC)
+END
+
+--case of s4 robot
+IF (@robType = 'S4C') OR (@robType = 'S4C+')
+BEGIN
+SELECT
+'Count LastDay:' =
+(SELECT count(S4error.Logcode) FROM GADATA.ABB.S4error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-1 AND getdate()) AND S4error.logcode = @Errcode)
+
+,'Count LastWeek:' =
+(SELECT count(S4error.Logcode) FROM GADATA.ABB.S4error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-7 AND getdate()) AND S4error.logcode = @Errcode)
+
+,'Count LastMonth:' =
+(SELECT count(S4error.Logcode) FROM GADATA.ABB.S4error WHERE (Robotname = @Robot AND [timestamp] BETWEEN getdate()-31 AND getdate()) AND S4error.logcode = @Errcode)
+
+,'Count ALL:' =
+(SELECT count(S4error.Logcode) FROM GADATA.ABB.S4error WHERE Robotname = @Robot  AND S4error.logcode = @Errcode)
+
+,'First Time:' =
+(SELECT top 1 CONVERT(char(19),S4error.[timestamp], 120)  FROM GADATA.ABB.S4error WHERE (Robotname = @Robot AND S4error.logcode = @Errcode) order by S4error.[timestamp] ASC)
+
+,'Last Time:' = 
+(SELECT top 1 CONVERT(char(19),S4error.[timestamp], 120)  FROM GADATA.ABB.S4error WHERE (Robotname = @Robot AND S4error.logcode = @Errcode) order by S4error.[timestamp] DESC)
+END
 
 END

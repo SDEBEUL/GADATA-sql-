@@ -293,49 +293,6 @@ SELECT
 ) as Y
 END
 
---********************************************************************************************************************************************--
---Last loading of a controller in a center...
---********************************************************************************************************************************************--
-if (OBJECT_ID('tempdb..#L_operationServiceCenter') is not null) drop table #L_operationServiceCenter
-BEGIN
-SELECT [ID]
-      ,[_timestamp]
-      ,[code]
-      ,[Vcsc_name]
-      ,[controller_id]
-      ,[Description]
-	  ,(ROW_NUMBER() OVER (PARTITION BY L_operation.controller_id, L_operation.code ORDER BY L_operation._timestamp DESC)) As rnDesc
-  INTO #L_operationServiceCenter
-  FROM [GADATA].[c4g].[L_operation]
-  where (code = 3)
-END
---********************************************************************************************************************************************--
-
-
---********************************************************************************************************************************************--
---Get last event recieve from each controller from sys_event
---********************************************************************************************************************************************--
-if (OBJECT_ID('tempdb..#L_operationActRobState') is not null) drop table #L_operationActRobState
-BEGIN
-SELECT
-#L_operationHeartBeat.controller_id
-,#L_operationHeartBeat._timestamp
-,#L_operationHeartBeat.sys_state
-,#L_operationHeartBeat.robotState
-,#L_operationHeartBeat.rnDESC
-,#L_operationServiceCenter.Vcsc_name
-INTO #L_operationActRobState
-FROM #L_operationHeartBeat
-LEFT JOIN #L_operationServiceCenter on 
-(#L_operationHeartBeat.controller_id = #L_operationServiceCenter.controller_id)
-AND
-(#L_operationServiceCenter.rndesc = 1)
-
-WHERE 
-(#L_operationHeartBeat.rnDESC =1)
-END
-
-
 --------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------
 --Output qry 
@@ -360,14 +317,15 @@ SELECT
               convert(char(19),#SysBreakDwnTime.oktimestamp,120) AS 'Timestamp',
               #SysBreakDwnTime.error_number AS 'Logcode',
               20 AS 'Severity',
-              ISNULL('State: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|  Err: '  + #SysBreakDwnTime.error_text,('State: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) ))  AS 'Logtekst',
+			  'S: ' + GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state)  + '  |T: '  + ISNULL(#SysBreakDwnTime.error_text,GADATA.C4G.fn_decodeSysstate(#SysBreakDwnTime.sys_state))  AS 'Logtekst',
+			 -- ISNULL('S: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|T: '  + #SysBreakDwnTime.error_text,('S: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) ))  AS 'Logtekst',
 			  downtime as 'DT',
               DATEPART(YEAR, #SysBreakDwnTime.oktimestamp) AS 'Year',
 			  DATEPART(WEEK,#SysBreakDwnTime.oktimestamp) AS 'Week',
 			  GADATA.dbo.fn_volvoday(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'day',
 			  GADATA.dbo.fn_volvoshift1(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'Shift',
-			  'Na' AS 'Object',
-			  'Na' AS 'Subgroup',
+			  'N/A' AS 'Object',
+			  'N/A' AS 'Subgroup',
               #SysBreakDwnTime.id			  
            
 FROM #SysBreakDwnTime
@@ -380,41 +338,7 @@ WHERE
  (SysBreakDwnIndx = 1  AND (_timestamp > getdate()-'1900-01-01 00:04:00:000') ) --laatste event of not geen 5 min aan het draaien 
 
  
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---c4g check service center status
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-UNION
-SELECT DISTINCT  
-              NULL AS 'Location',
-			  L_operation.Vcsc_name AS 'Robot',
-              'C4G' AS 'Type',
-			  'LIVE' as 'Errortype',
-              convert(char(19),(getdate()+'1900-01-02 00:0:0.00'),120) AS 'Timestamp',
-              NULL AS 'Logcode',
-              20 AS 'Severity',
-			  CASE 
-			  WHEN #L_operationActRobState.vcsc_name LIKE '%%' THEN 'Serivce center OK'
-			  ELSE  '!!!! NO DATA FOR 60 minutes might be down !!!!  NOK'
-			  END AS 'Logtekst',
-			  NULL AS 'DT',
-              NULL AS 'Year',
-			  NULL AS 'Week',
-			  NULL AS 'day',
-			  NULL AS 'Shift',
-			  null AS 'Object',
-			  null AS 'Subgroup',
-              NULL AS 'id'
 
-FROM GADATA.c4g.L_operation
-LEFT JOIN #L_operationActRobState ON
-(#L_operationActRobState.Vcsc_name = L_operation.Vcsc_name)
-AND
-(#L_operationActRobState._timestamp  > (GETDATE()-'1900-01-01 01:00:00.00'))
-
-WHERE #L_operationActRobState.vcsc_name is null
----------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------

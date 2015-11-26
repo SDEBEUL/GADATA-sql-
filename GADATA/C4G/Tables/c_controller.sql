@@ -21,8 +21,11 @@
     [poll_action_file_list] BIT           NULL,
     [read_sys]              INT           NULL,
     [generation]            INT           NULL,
+    [ownership]             VARCHAR (256) NULL,
     CONSTRAINT [PK_c_controller] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 

@@ -29,6 +29,10 @@ CREATE TABLE [C3G].[rt_alarm] (
 
 
 
+
+
+GO
+
 GO
 
 GO

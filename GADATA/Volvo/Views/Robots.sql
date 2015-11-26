@@ -1,13 +1,20 @@
 ﻿
+
+
 CREATE VIEW [Volvo].[Robots]
 AS
+SELECT distinct * FROM
+(
 select
  'c4g' as controller_type
 ,'GADATA.dbo.c_controller' as 'table'
 ,c4g.id
 ,c4g.controller_name
 ,c4g.location
+,c4g.ownership
+,lop.Vcsc_name as 'server'
 from GADATA.c4g.c_controller as c4g
+left join GADATA.C4G.L_operation as lop on lop.controller_id = c4g.id and lop.code = 3
 
 UNION
 select
@@ -16,7 +23,10 @@ select
 ,c3g.id
 ,c3g.RobotName
 ,c3g.location
+,null as 'ownership' --needs to be updated when i switch to c3g shema
+,lop.Vcsc_name as 'server'
 from GADATA.RobotGA.Robot as c3g
+left join GADATA.C3G.L_operation as lop on lop.controller_id = c3g.id and lop.code = 3
 
 UNION
 select
@@ -25,7 +35,10 @@ select
 ,abb.id
 ,abb.controller_name
 ,abb.location
+,abb.ownership
+,Null as 'server'
 from GADATA.ABB.c_controller as abb
+) as x
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Robots';
 

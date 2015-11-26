@@ -17,64 +17,33 @@ print 'Running: [C3G].[sp_L_breakdown]'
 SET DATEFIRST 1
 
 ---------------------------------------------------------------------------------------
-print'to index sys event table based on time and robotid'
+--Set default values of start and end date
 ---------------------------------------------------------------------------------------
-if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
-	SELECT *,
-		 ROW_NUMBER() OVER (PARTITION BY x.controller_id ORDER BY x._timestamp DESC) AS rnDESC
-		 INTO #SysEventIdx FROM 
-	(
-			--data from rt_sys_event table. 
-			SELECT 
-				rt_sys_event.id,
-				rt_sys_event.controller_id,
-				rt_sys_event._timestamp,
-				rt_sys_event.sys_state,
-				robotState = c3g.fn_robstate(rt_sys_event.sys_state) --A running robot has 1 a non running one 0  
-			FROM  GADATA.C3G.rt_sys_event  AS rt_sys_event
-			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE()) 
-			      AND 
-				  rt_sys_event.controller_id BETWEEN ISNULL(@controller_id,0) AND ISNULL(@controller_id,10000)
-	
-	) AS x 
----------------------------------------------------------------------------------------
+if ((@StartDate is null) OR (@StartDate = '1900-01-01 00:00:00:000'))
+BEGIN
+SET @StartDate = GETDATE()-'1900-01-01 12:00:00'
+END
+
+if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))
+BEGIN
+SET @EndDate = GETDATE()
+END
 
 ---------------------------------------------------------------------------------------
-print'UNION between passed events and current event. Joining events to get TIS "time in state"'
+print'Joining events to get TIS "time in state"'
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#SysEventTime') is not null) drop table #SysEventTime
-       (
-      SELECT * into #SysEventTime from (
-       --passed events
-	   SELECT 
-         #SysEventIdx.id,
-         #SysEventIdx.controller_id,
-         #SysEventIdx._timestamp,
-         #SysEventIdx.sys_state,
-         #SysEventIdx.rnDESC,
-         TimeInState = SyseventOffs._timestamp - #SysEventIdx._timestamp,  
-         #SysEventIdx.robotState
-       FROM #SysEventIdx
-		JOIN    #SysEventIdx AS SyseventOffs 
-		ON (#SysEventIdx.rnDESC = SyseventOffs.rnDESC + 1)  
-              AND 
-              (#SysEventIdx.controller_id = SyseventOffs.controller_id) 
-              AND 
-              (#SysEventIdx.rnDESC <> 1)
-		--current event
-		UNION 
-		SELECT 
-         #SysEventIdx.id,
-         #SysEventIdx.controller_id,
-         #SysEventIdx._timestamp,
-         #SysEventIdx.sys_state,
-         #SysEventIdx.rnDESC,
-         TimeInState = (GETDATE()-#SysEventIdx._timestamp),
-         #SysEventIdx.robotState
-       FROM #SysEventIdx
-		WHERE (#SysEventIdx.rnDESC = 1)
-       ) as x
-       )
+SELECT 
+ rt_e.id
+,rt_e.controller_id
+,rt_e._timestamp
+,rt_e.sys_state
+,ROW_NUMBER() OVER (PARTITION BY rt_e.controller_id ORDER BY rt_e._timestamp DESC) AS 'rnDesc'
+,ISNULL((lag(_timestamp) OVER (PARTITION BY rt_e.controller_id ORDER BY _timestamp desc)-_timestamp),getdate()-_timestamp) as 'TimeInState'
+,robotState = c3g.fn_robstate(rt_e.sys_state) --A running robot has 1 a non running one 0  
+INTO #SysEventTime
+FROM GADATA.C3G.rt_sys_event as rt_e
+WHERE rt_e._timestamp  BETWEEN @StartDate AND @EndDate
 ---------------------------------------------------------------------------------------
 --SELECT TOP 30 *,info = GADATA.c3g.fn_decodeSysstate(sys_state) FROM #SysEventTime  order by _timestamp desc 
 ---------------------------------------------------------------------------------------
@@ -122,9 +91,22 @@ if (OBJECT_ID('tempdb..#StartStopEvents') is not null) drop table #StartStopEven
 			  AND
 			  (LSyseventTime.robotState = 1)
               )  
+
+	    OR
+
+			 (
+		--stop event (robot is currently down) 
+		     (#SysEventTime.controller_id = LSysEventTime.controller_id) 
+			 AND
+			 (#SysEventTime.rnDESC = 1)
+			 AND
+			 (LSysEventTime.rnDESC = 1)
+			 AND
+			 (#SysEventTime.robotState = 0)
+			 )
        )
 ---------------------------------------------------------------------------------------
---SELECT TOP 10 *,info = GADATA.c4g.fn_decodeSysstate(sys_state) FROM #StartStopEvents where controller_id = @controller_id order by _timestamp desc 
+--SELECT TOP 10 *,info = GADATA.c4g.fn_decodeSysstate(sys_state) FROM #StartStopEvents order by _timestamp desc 
 
 
 ---------------------------------------------------------------------------------------
@@ -152,10 +134,9 @@ FROM
 	LEFT JOIN GADATA.C3G.L_error as L 
 	on L.id = h.error_id 
 	WHERE 
-	H._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE()) 
+	H._timestamp  BETWEEN @StartDate AND @EndDate
 	AND 
-	H.controller_id BETWEEN ISNULL(@controller_id,0) AND ISNULL(@controller_id,10000)
-	AND L.[error_severity] <> -1
+	L.[error_severity] <> -1
 
 	UNION --union disconnect an watchdog events 
 	SELECT  
@@ -169,9 +150,7 @@ FROM
 	,'Disconnected OR controller watchdog' as 'error_text'
 	FROM GADATA.C3G.rt_sys_event as h 
 	WHERE 
-	H._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE()) 
-	AND 
-	H.controller_id BETWEEN ISNULL(@controller_id,0) AND ISNULL(@controller_id,10000)
+	H._timestamp  BETWEEN @StartDate AND @EndDate 
 	AND 
 	H.sys_state in(0,1)
 ) as x
@@ -194,14 +173,20 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY H_a.[error_severity] Desc) AS ReclassIndx, --index om makkelijk de zwaarste fout uit een storing te kunnen halen.
 		 T_a.id as 'Terror_id', --Trigger error id 
 		 T_a.[error_number] as 'Terror_number',
+		 --T_a.error_text as 'Terror_text',
 		 H_a.id as 'Rerror_id', --Reclassification error id 
-		 H_a.[error_number] as 'Rerror_number'
+		 H_a.[error_number] as 'Rerror_number',
+		 --H_a.error_text as 'Rerror_text',
+		 #StartStopEvents.robotState as 'BreakdownFinishedBit', --als deze bit 0 is is de storing nog bezig 
+		 #StartStopEvents.sys_state  as 'ActiveState' --only for use in ongoing breakdowns (current state of the system)
        INTO #SysBreakDwn
        FROM #StartStopEvents
 --join last start event to 'next' stop event
      JOIN    #StartStopEvents AS LStartStopEvents 
-       ON   (
-       --start events (overgang van Robstate 0->1) 
+       ON   
+	   (
+	         (
+       --koppel start van storing aan einde storing (overgang van Robstate 0->1) Storing is afgelopen 
               (#StartStopEvents.controller_id = LStartStopEvents.controller_id) 
               AND
               (#StartStopEvents.StartStopIndx = (LStartStopEvents.StartStopIndx-1))
@@ -210,14 +195,28 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 			  AND
 			  (LStartStopEvents.robotState = 0)
              )
+		OR
+		--Koppel begin van een storing aan het laatst ontvangen event. (berekenen van sotring die nog bezig is ... voor live vieuw)
+		     (
+			  (#StartStopEvents.controller_id = LStartStopEvents.controller_id) 
+              AND
+              (#StartStopEvents.StartStopIndx = (LStartStopEvents.StartStopIndx-1))
+			  AND 
+              (#StartStopEvents.robotState = 0) --punt einde storing
+			  AND
+			  (#StartStopEvents.rnDESC = 1) --active event 
+			  AND
+			  (LStartStopEvents.robotState = 0) --punt begin storing
+			 )
+		)
 --Join mogelijke errors in 'Trigger' timeslot => Dit is de poging om de errorcode te vinden die als 'trigger' van de breakdown kan worden gezien.
 ---------------------------------------------------------
 	LEFT JOIN #Error as T_a
 	   ON (
 		(LStartStopEvents.controller_id = T_a.controller_id) 
 		AND
-		--fout moet zicht voordoen tussen de 30 seconden voor of + 1 min na de trigger (gebruikt _timestamp = moment van insert)
-		(T_a.C_timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:00:30.00') AND LStartStopEvents._timestamp + '1900-01-01 00:01:00.00')
+		--fout moet zicht voordoen tussen de 3 min voor of + 1 min na de trigger (gebruikt _timestamp = moment van insert)
+		(T_a.C_timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:03:00.00') AND LStartStopEvents._timestamp + '1900-01-01 00:01:00.00')
 		AND
 		(T_a.[error_severity] >= 4) --een trigger fout moet minsten severity 4 zijn
 	      )
@@ -229,8 +228,8 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 	   ON (
 		(LStartStopEvents.controller_id = h_a.controller_id) 
 		AND
-		--fout moet zicht voordoen tussen de 30 seconden voor de trigger en het einde van de breakdown (gebruikt _timestamp = moment van insert)
-		(h_a.C_timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:00:30.00') AND #StartStopEvents._timestamp)
+		--fout moet zicht voordoen tussen de 3 min voor de trigger en het einde van de breakdown (gebruikt _timestamp = moment van insert)
+		(h_a.C_timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:03:00.00') AND #StartStopEvents._timestamp)
 	      )
 ---------------------------------------------------------
  )
@@ -238,7 +237,7 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 --select * from #SysBreakDwn
 --------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------
-Print'Output qry (and check for new items in hystorian)' 
+Print'Output qry (and check for new items in hystorian) FOR FINISED BREAKDOWNS' 
 --------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------
 INSERT into GADATA.C3G.h_breakdown 
@@ -254,9 +253,10 @@ SELECT
 		 --#SysBreakDwn.TriggerIndx, --for debug 
 		 --#SysBreakDwn.ReclassIndx, --for debug 
 		 #SysBreakDwn.Terror_id as 'error_id',
-		 --ET.error_text as 'Trigger', --for debug 
+		 --#SysBreakDwn.Terror_text as 'Trigger', --for debug 
 		 LSysBreakDwn.Rerror_id as 'RC_error_id'
-		 --ER.error_text as 'Reclass'  --for debug 
+		 --#SysBreakDwn.Rerror_text as 'Reclass',  --for debug 
+		 --#SysBreakDwn.BreakdownFinishedBit --for debug
 FROM #SysBreakDwn
 --join the best reclassifciation
 LEFT JOIN #SysBreakDwn as LSysBreakDwn 
@@ -281,15 +281,19 @@ H.controller_id = #SysBreakDwn.controller_id
 AND
 H.Trig_id = #SysBreakDwn.id
 )
+
 WHERE
 --Only Root cause errors  
 ISNULL(#SysBreakDwn.TriggerIndx,0) <= 1 
+--Only Breakdown that are finised 
+AND
+#SysBreakDwn.BreakdownFinishedBit = 1
 AND
 --only ad new records
 (H.id IS NULL)
 
 ORDER BY EndOfBreakdown DESC 
-
+--------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 --Activity log (logs the execution of the Query to a table)
@@ -302,4 +306,58 @@ DECLARE @RequestString as varchar(255)
 SET @RequestString = 'Running: [C3G].[sp_Update_L_breakdown] Cid: ' + CONVERT(varchar(10),isnull(@controller_id,0))
 EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = @RequestString
 ---------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+Print'Output qry (and check for new items in hystorian) FOR ONGOINING BREAKDOWNS' 
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--first clear the 'rt_breakdown' table
+DELETE GADATA.C3G.rt_breakdown FROM GADATA.C3G.rt_breakdown
+--------------------------------------------------------------------------------------------------------------------------------------------------
+INSERT INTO GADATA.C3G.rt_breakdown
+SELECT    
+         #SysBreakDwn.controller_id as 'controller_id',
+         getdate() as 'EndOfBreakdown', 
+		 #SysBreakDwn._Sb as 'StartOfBreakdown',
+		 -- DATEDIFF(SECOND,'1900-01-01 00:00:00',[C3G].[fts_Downtime] (getdate(),#SysBreakDwn._Sb)) as 'DT', --for debug 
+         #SysBreakDwn.TriggerState as 'Trig_state',
+		 --GADATA.C3G.fn_decodeSysstate(#SysBreakDwn.TriggerState) as 'Triginfo', --for debug 
+		 #SysbreakDwn.id as 'Trig_id',
+		 #SysBreakDwn.repst as 'Rt',
+		 --#SysBreakDwn.TriggerIndx, --for debug 
+		 --#SysBreakDwn.ReclassIndx, --for debug 
+		 #SysBreakDwn.Terror_id as 'error_id',
+		 --#SysBreakDwn.Terror_text as 'Trigger', --for debug 
+		 LSysBreakDwn.Rerror_id as 'RC_error_id',
+		 --#SysBreakDwn.Rerror_text as 'Reclass',  --for debug 
+		 --#SysBreakDwn.BreakdownFinishedBit --for debug
+		 #SysBreakDwn.ActiveState
+FROM #SysBreakDwn
+--join the best reclassifciation
+LEFT JOIN #SysBreakDwn as LSysBreakDwn 
+ ON
+ (
+ (#SysBreakDwn.id =  LSysBreakDwn.id) 
+ AND
+ (#SysBreakDwn.controller_id = LSysBreakDwn.controller_id)
+ AND
+ (ISNULL(#SysBreakDwn.TriggerIndx,0) <= 1) --reclasificeer enkel de trigger fout 0 = geen trigger error gekoppeld 1 = hoogst waarschijnlijke trigger
+ AND
+ (LSysBreakDwn.ReclassIndx = 1) --Koppel de beste reclasificatie (hoogste serv)
+ AND
+ (ISNULL(#SysBreakDwn.Terror_number,0) <> LSysBreakDwn.Rerror_number) --Reclass kan niet zelfde fout zijn als trigger 
+ )
+----------------------------------------------------------------
+WHERE
+--Only Root cause errors  
+ISNULL(#SysBreakDwn.TriggerIndx,0) <= 1 
+--Only Breakdown that are still bussy 
+AND
+#SysBreakDwn.BreakdownFinishedBit = 0
+
+--ORDER BY EndOfBreakdown DESC 
+
+
+
 END

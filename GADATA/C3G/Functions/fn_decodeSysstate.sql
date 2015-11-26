@@ -47,11 +47,12 @@ END
 --geeft problemen ... raar snap het niet
 --controler 'mode' ---------------------------------------------------------
 -- bit 14 AUTO-Remote
+/*
 IF (@sysstate & 8192 = 8192)
 BEGIN
  SET @SysstateString =  @SysstateString +'T3 |'
 END
-
+*/
 -- bit 15 AUTO-local
 IF (@sysstate & 16384 = 16384)
 BEGIN
@@ -99,7 +100,7 @@ END
 --bit 4 safety gate or Estop
 IF (@sysstate & 8 = 8)
 BEGIN
-  SET @SysstateString = @SysstateString + 'SS '
+  SET @SysstateString = @SysstateString + '(SS) '
 END
 
 --bit 5 Remote user connected

@@ -12,8 +12,10 @@
     [Week]      INT           NULL,
     [day]       INT           NULL,
     [Shift]     INT           NULL,
-    [Object]    VARCHAR (2)   NULL,
-    [Subgroup]  VARCHAR (2)   NULL,
+    [Object]    VARCHAR (25)  NULL,
+    [Subgroup]  VARCHAR (25)  NULL,
     [id]        INT           NULL
 );
+
+
 

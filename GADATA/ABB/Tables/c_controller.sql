@@ -21,8 +21,11 @@
     [A_Preceptron]      BIT           NULL,
     [A_Visdelta]        BIT           NULL,
     [A_Edixia]          BIT           NULL,
+    [ownership]         VARCHAR (256) NULL,
     CONSTRAINT [PK_c_controller] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 

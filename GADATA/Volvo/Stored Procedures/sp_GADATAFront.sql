@@ -1,9 +1,11 @@
 ﻿
 
+
 CREATE PROCEDURE [Volvo].[sp_GADATAFront]
 --timeparameters
    @StartDate as DATETIME = null,
    @EndDate as DATETIME = null,
+   @Ndays as int = null,
 --BooleanParms
    @Timeline as bit = 1,
    @ExcludeGateStops as bit = 0,
@@ -81,6 +83,11 @@ BEGIN
 SET @EndDate = GETDATE()
 END
 
+--for days back mode
+if (@ndays is not null)
+BEGIN
+SET @StartDate = GETDATE() - @ndays
+END 
 ---------------------------------------------------------------------------------------
 if @getc4glive = 1
 begin
@@ -423,6 +430,15 @@ AND
 UNION
 SELECT * FROM GADATA.Volvo.L_liveView AS C4GLive
 where
+--Exclude Gatestops 
+((@ExcludeGateStops = 1 AND ((C4GLive.logtekst NOT LIKE '%(SS)%') OR (C4GLive.logtekst NOT LIKE '%bla bla bla%') )) OR @ExcludeGateStops =0)
+AND
+--robot name filter 
+(C4GLive.Robot LIKE @RobotFilterWild)
+--Location Filter
+AND
+(ISNULL(C4GLive.location,'') LIKE @LocationFilterWild )
+AND
 @GetC4GLive = 1
 ---------------------------------------------------------------------------------------
 
@@ -544,6 +560,9 @@ AND
 --Application / subgroup filter
 AND
 ISNULL(Live.[Object],'') LIKE @ApplFilterWild AND ISNULL(Live.Subgroup,'') LIKE @SubgroupFilterWild
+AND
+--Exclude Gatestops 
+((@ExcludeGateStops = 1 AND (LIVE.logtekst NOT LIKE '%(SS)%')) OR @ExcludeGateStops =0)
 AND
 --enable bit
 (@GetC3GLive = 1)

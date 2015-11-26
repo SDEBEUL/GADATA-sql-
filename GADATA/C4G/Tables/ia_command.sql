@@ -8,9 +8,10 @@
     [description]   VARCHAR (256) NULL,
     [reply_table]   VARCHAR (256) NULL,
     [request_data]  VARCHAR (256) NULL,
-    CONSTRAINT [PK_ia_command] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_ia_command_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id])
+    CONSTRAINT [PK_ia_command] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 
