@@ -1,6 +1,7 @@
 ﻿
 
 
+
 CREATE PROCEDURE [Volvo].[sp_GADATAFront]
 --timeparameters
    @StartDate as DATETIME = null,
@@ -51,7 +52,9 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @RelvT as bit =0, --tbt
 --optional pars
    @MinLogserv as int = 0,
-   @MinDowntime as int = 0 
+   @MinDowntime as int = 0 ,
+   @UsePloeg as bit = 0,
+   @UseOwnership as bit = 0
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
@@ -97,7 +100,7 @@ end
 
 --template ! 
 SELECT
-  output.Location		AS 'Location'
+  GADATA.volvo.fn_useOwnership(output.Location, output.Robotname, @UseOwnership) AS 'Location' 
 , output.robotname		AS 'Robotname'
 , output.type			AS 'Type'
 , output.errortype		AS 'Errortype'
@@ -109,7 +112,7 @@ SELECT
 , output.year			AS 'Year'
 , output.week			AS 'Week'
 , output.day			AS 'day'
-, output.shift			AS 'Shift'
+, GADATA.volvo.fn_usePloeg(output.shift, output.Timestamp, @UsePloeg) AS 'Shift'
 , output.object			AS 'Object'
 , output.Subgroup		AS 'Subgroup'
 , output.idx		    AS 'idx'

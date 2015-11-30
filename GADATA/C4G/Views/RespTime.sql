@@ -3,6 +3,7 @@
 
 
 
+
 CREATE VIEW [C4G].[RespTime]
 AS
 
@@ -20,7 +21,7 @@ SELECT
 , T.Vyear AS 'Year'
 , T.Vweek AS 'Week'
 , T.Vday AS 'day'
-, T.ploeg AS 'Shift'
+, T.shift AS 'Shift'
 , LA.APPL AS 'Object'
 , LS.Subgroup
 , H.id

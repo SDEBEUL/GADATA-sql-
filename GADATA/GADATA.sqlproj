@@ -135,6 +135,7 @@
     <Folder Include="C3G\Tables\" />
     <Folder Include="GLUE\" />
     <Folder Include="GLUE\Tables\" />
+    <Folder Include="Volvo\Functions\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\c_controller.sql">
@@ -1117,6 +1118,14 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="Security\GLUE.sql" />
+    <Build Include="Volvo\Functions\fn_usePloeg.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="Volvo\Functions\fn_useOwnership.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
   </ItemGroup>
   <ItemGroup>
     <None Include="ExcelFront\SQLfront_C1.xlsm" />
