@@ -2,6 +2,8 @@
 
 
 
+
+
 CREATE FUNCTION [C3G].[fn_ShortSysstate] 
 	(
 		@Sysstate int
@@ -32,7 +34,8 @@ END
 --not bit 31 (drive-on)
 --    bit 7  (no appl fault)
 --not bit 27 (system alarm)
-IF (NOT @sysstate & 1073741824 = 1073741824) AND (@sysstate & 64 = 64) AND (not @sysstate & 67108864 = 67108864)
+-- not bit 8 ($Gen_ovr)
+IF (NOT @sysstate & 1073741824 = 1073741824) AND (@sysstate & 64 = 64) AND (not @sysstate & 67108864 = 67108864) AND (not @sysstate & 128 = 128)
 BEGIN
   SET @SysstateString =  'Run '
   return @SysstateString 
@@ -74,6 +77,13 @@ BEGIN
   return @SysstateString 
 END
 
+--bit 8 not $Gen 100
+IF (@sysstate & 128 = 128)
+BEGIN
+  SET @SysstateString = @SysstateString + 'Robot running Slow '
+END
+
+
 --not bit 7 Application fault
 IF NOT (@sysstate & 64 = 64)
 BEGIN
@@ -98,6 +108,8 @@ IF (@sysstate & 1073741824 = 1073741824)
 BEGIN
   SET @SysstateString = @SysstateString + 'DriveOff '
 END
+
+
 ---------------------------------------------------------
 
 return @SysstateString 
