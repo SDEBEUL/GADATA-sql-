@@ -28,7 +28,6 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @GetC4GLive as bit = 0,
 --Comau C3G Booleans   
    @GetC3GError as bit = 1,
-   @GetC3GREALTIMEError as bit = 0, --VOORLOPIG IMPLEMENTATIE VOOR NIEUW C3G SYSTEEM 
    @GetC3GEvents as bit = 0, 
    @GetC3GDowntimes as bit = 0, 
    @GetC3GDownTBegin as bit = 0, 
@@ -483,39 +482,6 @@ AND
 AND
 @GetC3GError = 1
 
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---C3G Alarm information (error log) --VOORLOPIG FOR REALTIME ERRORS 
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-UNION
-SELECT * FROM GADATA.C3G.ErrorNew AS C3GE
-WHERE 
---datetime filter
-(C3GE.[Timestamp] BETWEEN @StartDate AND @EndDate)
-AND 
---Robot name filter 
-(C3GE.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C3GE.location,'') LIKE @LocationFilterWild )
---Application / subgroup filter
-AND
-ISNULL(C3GE.[Object],'') LIKE @ApplFilterWild AND ISNULL(C3GE.Subgroup,'') LIKE @SubgroupFilterWild
-AND
---Exclude Gatestops 
-(
-(@ExcludeGateStops = 1 AND (ISNULL(C3GE.subgroup,'') NOT LIKE '%Gate/Hold%')) 
-OR 
-@ExcludeGateStops =0
-)
---minimum log serverity
-AND
-(C3GE.Severity  > (@MinLogserv-1))
---Enable bit 
-AND
-(@GetC3GREALTIMEError = 1)
----------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------

@@ -1,17 +1,32 @@
 ﻿
+
+
 CREATE VIEW [C3G].[Error]
 AS
-SELECT        RobotGA.Robot.location AS 'Location', RobotGA.Robot.RobotName AS 'Robotname', 'C3G' AS 'Type', 'ERROR' AS 'Errortype', 
-                         RobotGA.rt_alarm.error_timestamp AS 'timestamp', RobotGA.rt_alarm.error_number AS 'Logcode', RobotGA.rt_alarm.error_severity AS 'Severity', 
-                         ISNULL(RobotGA.rt_alarm.error_text, RobotGA.RobotLogText.LogText) AS 'Logtekst', NULL AS 'Downtime', T.Vyear AS 'Year', T.Vweek AS 'Week', T.Vday AS 'day', 
-                         T.shift AS 'Shift', c_logclass1.APPL AS 'Object', c_logclass1.Subgroup, CAST(RobotGA.rt_alarm.id AS int) AS 'idx'
-FROM            RobotGA.rt_alarm INNER JOIN
-                         RobotGA.Robot ON RobotGA.rt_alarm.controller_id = RobotGA.Robot.ID LEFT OUTER JOIN
-                         RobotGA.RobotLogText ON RobotGA.rt_alarm.error_text_id = RobotGA.RobotLogText.ID LEFT OUTER JOIN
-                         dbo.c_logclass1 AS c_logclass1 ON RobotGA.rt_alarm.error_number BETWEEN c_logclass1.error_codeStart AND c_logclass1.error_codeEnd OR
-                         ISNULL(RobotGA.rt_alarm.error_text, RobotGA.RobotLogText.LogText) LIKE RTRIM(c_logclass1.error_tekst) LEFT OUTER JOIN
-                         VOLVO.L_timeline AS T ON RobotGA.rt_alarm.error_timestamp BETWEEN T.starttime AND T.endtime
-WHERE        (RobotGA.Robot.Type = 1)
+SELECT        
+  C.location
+, C.controller_name AS Robotname
+, 'C3G' AS Type
+, 'ERROR' AS Errortype
+, H.C_timestamp AS timestamp
+, L.error_number AS Logcode
+, L.error_severity AS Severity
+, L.error_text AS Logtekst
+, NULL AS Downtime
+, T.Vyear AS Year
+, T.Vweek AS Week
+, T.Vday AS day
+, T.shift
+, ISNULL(C3G.c_Appl.APPL,'NA') AS 'Object'
+, ISNULL(C3G.c_Subgroup.Subgroup, 'NA') as 'Subgroup' 
+, CAST(H.id AS int) AS idx
+FROM            C3G.h_alarm AS H 
+LEFT OUTER JOIN C3G.L_error AS L ON L.id = H.error_id 
+LEFT OUTER JOIN C3G.c_controller AS C ON H.controller_id = C.id 
+LEFT  JOIN C3G.c_Appl ON L.Appl_id = C3G.c_Appl.id 
+LEFT  JOIN C3G.c_Subgroup ON L.Subgroup_id = C3G.c_Subgroup.id 
+LEFT OUTER JOIN VOLVO.L_timeline AS T ON isnull(H._timestamp, H.c_timestamp) BETWEEN T.starttime AND T.endtime
+WHERE  (H.error_is_alarm = 1) AND (L.[error_severity] <> -1) and h.c_timestamp < getdate()
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'Error';
 
