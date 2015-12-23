@@ -316,7 +316,7 @@ SELECT
 			  'LIVE' as 'Errortype',
               convert(char(19),#SysBreakDwnTime.oktimestamp,120) AS 'Timestamp',
               #SysBreakDwnTime.error_number AS 'Logcode',
-              20 AS 'Severity',
+              NULL AS 'Severity',
 			  'S: ' + GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state)  + '  |T: '  + ISNULL(#SysBreakDwnTime.error_text,GADATA.C4G.fn_decodeSysstate(#SysBreakDwnTime.sys_state))  AS 'Logtekst',
 			 -- ISNULL('S: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|T: '  + #SysBreakDwnTime.error_text,('S: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) ))  AS 'Logtekst',
 			  downtime as 'DT',

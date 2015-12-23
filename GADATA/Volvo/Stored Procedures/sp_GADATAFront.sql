@@ -53,7 +53,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @MinLogserv as int = 0,
    @MinDowntime as int = 0 ,
    @UsePloeg as bit = 0,
-   @UseOwnership as bit = 0
+   @UseOwnership as bit = 0,
+   @ServerMessages as bit = 0
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
@@ -90,12 +91,6 @@ if (@ndays is not null)
 BEGIN
 SET @StartDate = GETDATE() - @ndays
 END 
----------------------------------------------------------------------------------------
-if @getc4glive = 1
-begin
-exec [Volvo].[LiveView]
-end
----------------------------------------------------------------------------------------
 
 --template ! 
 SELECT
@@ -159,9 +154,17 @@ AND
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION
+--HeartBeats
 SELECT * FROM GADATA.Volvo.vcscinfo 
 WHERE
-@getc3glive =1 OR @GetC4GLive = 1
+(@getc3glive =1 OR @GetC4GLive = 1)
+UNION
+--All L_operation messages
+SELECT * FROM GADATA.Volvo.vcscmessages
+WHERE 
+(vcscmessages.[timestamp] BETWEEN @StartDate AND @EndDate)
+AND
+(@ServerMessages = 1)
 ---------------------------------------------------------------------------------------
 
 
@@ -183,9 +186,6 @@ WHERE
 AND 
 --Robot name filter 
 (CI.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(CI.location,'') LIKE @LocationFilterWild )
 AND
 --Enable bit
 (@GetC4GCollisions = 1)
@@ -204,9 +204,6 @@ WHERE
 AND
 --robot name filter 
 (B.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(B.location,'') LIKE @LocationFilterWild )
 --Application / subgroup filter
 AND
 ISNULL(B.[Object],'') LIKE @ApplFilterWild AND ISNULL(B.Subgroup,'') LIKE @SubgroupFilterWild
@@ -233,9 +230,6 @@ WHERE
  (BS.[Timestamp]  BETWEEN @StartDate AND @EndDate)
 AND
 (BS.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(BS.location,'') LIKE @LocationFilterWild )
 --Application / subgroup filter
 AND
 ISNULL(BS.[Object],'') LIKE @ApplFilterWild AND ISNULL(BS.Subgroup,'') LIKE @SubgroupFilterWild
@@ -259,9 +253,6 @@ WHERE
  (SS.[Timestamp]  BETWEEN @StartDate AND @EndDate)
 AND
 (SS.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(SS.location,'') LIKE @LocationFilterWild )
 AND
 --enable bit
 (@GetC4GEvents = 1)
@@ -280,9 +271,6 @@ WHERE
 AND
 --robot name filter 
 (RespT.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(RespT.location,'') LIKE @LocationFilterWild )
 --enable bit
 And 
 @RespT = 1
@@ -301,9 +289,6 @@ WHERE
 AND
 --robot name filter 
 (RelvT.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(RelvT.location,'') LIKE @LocationFilterWild )
 --enable bit
 And 
 @RelvT = 1
@@ -322,9 +307,6 @@ WHERE
 AND 
 --Robot name filter 
 (C4GE.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C4GE.location,'') LIKE @LocationFilterWild )
 --Application / subgroup filter
 AND
 ISNULL(C4GE.[Object],'') LIKE @ApplFilterWild AND ISNULL(C4GE.Subgroup,'') LIKE @SubgroupFilterWild
@@ -356,9 +338,6 @@ WHERE
 AND 
 --Robot name filter 
 (C4GA.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C4GA.location,'') LIKE @LocationFilterWild )
 --Application / subgroup filter
 AND
 ISNULL(C4GA.[Object],'') LIKE @ApplFilterWild AND ISNULL(C4GA.Subgroup,'') LIKE @SubgroupFilterWild
@@ -379,9 +358,6 @@ WHERE
 AND 
 --Robot name filter 
 (C4GSPEED.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C4GSPEED.location,'') LIKE @LocationFilterWild )
 AND 
 @GetC4GSpeedCheck = 1
 ---------------------------------------------------------------------------------------
@@ -396,9 +372,6 @@ SELECT * FROM GADATA.c4g.SLOWspeed AS C4GSlowSPEED
 WHERE
 --Robot name filter 
 (C4GSlowSPEED.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C4GSlowSPEED.location,'') LIKE @LocationFilterWild )
 AND 
 @GetC4GLive = 1
 ---------------------------------------------------------------------------------------
@@ -416,9 +389,6 @@ WHERE
 AND 
 --Robot name filter 
 (C4GM.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C4GM.location,'') LIKE @LocationFilterWild )
 AND 
 @GetC4gMOD = 1
 ---------------------------------------------------------------------------------------
@@ -437,9 +407,6 @@ where
 AND
 --robot name filter 
 (C4GLive.Robot LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C4GLive.location,'') LIKE @LocationFilterWild )
 AND
 @GetC4GLive = 1
 ---------------------------------------------------------------------------------------
@@ -462,9 +429,6 @@ WHERE
 AND
 --robot name filter  
 (C3GE.RobotName LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C3GE.location,'') LIKE @LocationFilterWild ) 
 --Application / subgroup filter
 AND
 ISNULL(C3GE.[Object],'') LIKE @ApplFilterWild AND ISNULL(C3GE.Subgroup,'') LIKE @SubgroupFilterWild
@@ -496,9 +460,6 @@ WHERE
 AND
 --robot name filter 
 (B.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(B.location,'') LIKE @LocationFilterWild )
 --Application / subgroup filter
 AND
 ISNULL(B.[Object],'') LIKE @ApplFilterWild AND ISNULL(B.Subgroup,'') LIKE @SubgroupFilterWild
@@ -523,9 +484,6 @@ SELECT * FROM GADATA.C3G.Live as Live
 WHERE 
 --robot name filter 
 (Live.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(Live.location,'') LIKE @LocationFilterWild )
 --Application / subgroup filter
 AND
 ISNULL(Live.[Object],'') LIKE @ApplFilterWild AND ISNULL(Live.Subgroup,'') LIKE @SubgroupFilterWild
@@ -549,9 +507,6 @@ WHERE
  (BS.[Timestamp]  BETWEEN @StartDate AND @EndDate)
 AND
 (BS.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(BS.location,'') LIKE @LocationFilterWild )
 --Application / subgroup filter
 AND
 ISNULL(BS.[Object],'') LIKE @ApplFilterWild AND ISNULL(BS.Subgroup,'') LIKE @SubgroupFilterWild
@@ -575,9 +530,6 @@ WHERE
  (SS.[Timestamp]  BETWEEN @StartDate AND @EndDate)
 AND
 (SS.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(SS.location,'') LIKE @LocationFilterWild )
 AND
 --enable bit
 (@GetC3GEvents = 1)
@@ -596,10 +548,6 @@ WHERE
 AND 
 --Robot name filter 
 (C3GM.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C3GM.location,'') LIKE @LocationFilterWild )
-
 AND 
 @GetC3gMOD = 1
 ---------------------------------------------------------------------------------------
@@ -619,11 +567,20 @@ WHERE
 AND 
 --Robot name filter 
 (C3GSBCU.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(C3GSBCU.location,'') LIKE @LocationFilterWild )
 AND 
 @GetC3GSBCU = 1
+---------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--SBCU OUT OF LIMIT
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.RobotGA.SBCUoutOfLimit 
+WHERE
+@GetC3gLive = 1
 ---------------------------------------------------------------------------------------
 
 --***********************************************************************************************************************--
@@ -642,9 +599,6 @@ WHERE
 AND 
 --Robot name filter 
 (S4E.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(S4E.location,'') LIKE @LocationFilterWild )
 --Application / subgroup filter
 AND
 ISNULL(S4E.[Object],'') LIKE @ApplFilterWild AND ISNULL(S4E.Subgroup,'') LIKE @SubgroupFilterWild
@@ -668,9 +622,6 @@ WHERE
 AND 
 --Robot name filter 
 (S4S.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(S4S.location,'') LIKE @LocationFilterWild )
 AND 
 @GetS4State = 1
 ---------------------------------------------------------------------------------------
@@ -688,9 +639,6 @@ WHERE
 AND
 --robot name filter 
 (B.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(B.location,'') LIKE @LocationFilterWild )
 AND
 --enable bit
 (@GetABBDowntimes = 1)
@@ -713,9 +661,6 @@ WHERE
 AND 
 --Robot name filter 
 (IRC5E.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(IRC5E.location,'') LIKE @LocationFilterWild )
 --Application / subgroup filter
 AND
 ISNULL(IRC5E.[Object],'') LIKE @ApplFilterWild AND ISNULL(IRC5E.Subgroup,'') LIKE @SubgroupFilterWild
@@ -739,9 +684,6 @@ WHERE
 AND 
 --Robot name filter 
 (IRC5S.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(IRC5S.location,'') LIKE @LocationFilterWild )
 AND 
 @GetIRC5State = 1
 ---------------------------------------------------------------------------------------
@@ -762,9 +704,6 @@ WHERE
 AND 
 --Robot name filter 
 (TE.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(TE.location,'') LIKE @LocationFilterWild )
 AND 
 @GetTimerError = 1
 ---------------------------------------------------------------------------------------
@@ -783,9 +722,6 @@ WHERE
 AND 
 --Robot name filter 
 (TDC.Robotname LIKE @RobotFilterWild)
---Location Filter
-AND
-(ISNULL(TDC.location,'') LIKE @LocationFilterWild )
 AND 
 @GetTimerData = 1
 ---------------------------------------------------------------------------------------
@@ -793,7 +729,10 @@ AND
 
 ) as output
 
-
+WHERE
+--***********************************************************************************************************************--
+--Location Filter (with an option to filter by ownership ... Will clean this up when I find my mojo)
+GADATA.volvo.fn_useOwnership(output.Location, output.Robotname, @UseOwnership) LIKE @LocationFilterWild
 --***********************************************************************************************************************--
 ORDER BY [Timestamp] DESC 
 --***********************************************************************************************************************--

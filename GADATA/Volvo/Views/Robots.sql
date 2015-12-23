@@ -2,13 +2,14 @@
 
 
 
+
 CREATE VIEW [Volvo].[Robots]
 AS
 SELECT distinct * FROM
 (
 select
  'c4g' as controller_type
-,'GADATA.dbo.c_controller' as 'table'
+,'GADATA.c4g.c_controller' as 'table'
 ,c4g.id
 ,c4g.controller_name
 ,c4g.location
@@ -20,11 +21,11 @@ left join GADATA.C4G.L_operation as lop on lop.controller_id = c4g.id and lop.co
 UNION
 select
  'c3g' as controller_type
-,'GADATA.RobotGA.Robot' as 'table'
+,'GADATA.c3g.c_controller' as 'table'
 ,c3g.id
 ,c3g.controller_name
 ,c3g.location
-,null as 'ownership' --needs to be updated when i switch to c3g shema
+,c3g.ownership as 'ownership' 
 ,lop.Vcsc_name as 'server'
 from GADATA.c3g.c_controller as c3g
 left join GADATA.C3G.L_operation as lop on lop.controller_id = c3g.id and lop.code = 3

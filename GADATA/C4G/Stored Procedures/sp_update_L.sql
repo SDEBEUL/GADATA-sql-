@@ -58,6 +58,9 @@ Print'--step to normalize the rt_alarm dataset. gets the normalized id. and put 
 INSERT INTO GADATA.C4G.h_alarm
 SELECT 
  R.controller_id
+--REMOVED THIS MESSED UP THE SYSTEM ! makes dup inserts EVERY REFRESH 
+--Added this to make a gets for the aprox Action log TS 
+--,ISNULL(R._timestamp,[C4G].[fn_CorrectC_timestamp](R.controller_id,R.error_timestamp) ) as '_timestamp'
 ,R._timestamp
 ,R.error_timestamp as 'c_timestamp'
 ,R.error_is_alarm as 'error_is_alarm'
@@ -78,9 +81,11 @@ AND
 --this will filter out unique results
 LEFT join GADATA.C4G.h_alarm AS H on   --show also compare the logtekst here.... 
 (
-(R.controller_id  = H.controller_id)
+(R.controller_id  = H.controller_id) 
 AND
-(R.error_timestamp = H.c_timestamp)
+--(R.error_id = H.error_id)
+--AND 
+(R.error_timestamp = h.c_timestamp)
 )
 where (H.id IS NULL)
 
@@ -89,7 +94,7 @@ where (H.id IS NULL)
 ---------------------------------------------------------------------------------------
 Print'--delete in rt_alarm if older than 1 day'
 ---------------------------------------------------------------------------------------
-DELETE FROM gadata.C4G.rt_alarm where GADATA.C4G.rt_alarm.error_timestamp < getdate()-1
+DELETE FROM gadata.C4G.rt_alarm where GADATA.C4G.rt_alarm.error_timestamp BETWEEN GETDATE()-1 and  getdate()
 ---------------------------------------------------------------------------------------
 
 --****************************************************************************************************************--
