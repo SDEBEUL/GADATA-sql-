@@ -1,4 +1,4 @@
-CREATE TABLE [ABB].[L_error] (
+﻿CREATE TABLE [ABB].[L_error] (
     [id]             INT           IDENTITY (1, 1) NOT NULL,
     [error_number]   INT           NULL,
     [error_severity] INT           NULL,
@@ -79,9 +79,3 @@ CREATE UNIQUE NONCLUSTERED INDEX [NCI_Category]
 
 
 GO
-CREATE TRIGGER [ABB].[ABB_L_error_Apply_appl_subgroups] ON [GADATA].[ABB].[L_error] AFTER INSERT 
-AS
-IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
-BEGIN
- EXEC GADATA.abb.sp_UPDATE_abb_APPL_Subgroup
-END

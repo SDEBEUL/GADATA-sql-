@@ -1,4 +1,4 @@
-CREATE TABLE [C4G].[L_robotpositions] (
+﻿CREATE TABLE [C4G].[L_robotpositions] (
     [ID]             INT          IDENTITY (1, 1) NOT NULL,
     [_timestamp]     DATETIME     CONSTRAINT [DF_L_robotpositions] DEFAULT (getdate()) NULL,
     [file_timestamp] DATETIME     NULL,
@@ -50,11 +50,6 @@ CREATE TABLE [C4G].[L_robotpositions] (
 
 
 
-GO
 
-CREATE TRIGGER [C4G].[C4G_L_robotpositions_remove_dup] ON [GADATA].[C4G].[L_robotpositions] for insert, update, delete
-AS
-IF ((SELECT TRIGGER_NESTLEVEL()) < 4)
-BEGIN
- EXEC [C4g].[sp_L_Robotpositions_REMOVE_DUP]
-END
+
+GO

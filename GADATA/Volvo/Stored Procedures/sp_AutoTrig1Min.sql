@@ -10,19 +10,16 @@ EXEC GADATA.volvo.sp_Alog  @rowcount = 0, @Request = '1 Min auto Trig'
 
 -- C3g
 exec GADATA.C3G.sp_update_L
+exec GADATA.C3G.sp_UPDATE_abb_APPL_Subgroup
 exec GADATA.C3G.sp_L_breakdown
 --C4G
+
 exec [C4G].[sp_update_L]
+exec GADATA.C4G.sp_UPDATE_abb_APPL_Subgroup
 exec [C4G].sp_Update_L_breakdown
 exec [C4G].sp_ReClass_L_breakdown
 exec [Volvo].[LiveView]
 
---abb s4 
-exec GADATA.abb.sp_Decode_AE_S4
-exec GADATA.abb.sp_update_L_S4
 
---abb irc5
- exec GADATA.abb.sp_Decode_AE_IRC5
- exec GADATA.abb.sp_update_L_IRC5
 
 END
