@@ -1,4 +1,4 @@
-CREATE TABLE [C3G].[rt_alarm] (
+﻿CREATE TABLE [C3G].[rt_alarm] (
     [id]              INT           IDENTITY (1, 1) NOT NULL,
     [controller_id]   INT           NULL,
     [_timestamp]      DATETIME      NULL,
@@ -65,14 +65,6 @@ GO
 
 GO
 
-
-CREATE TRIGGER [c3g].[Trig_rt_alarm] ON [GADATA].[c3g].[rt_alarm] AFTER INSERT 
-AS
-IF ((SELECT TRIGGER_NESTLEVEL()) < 2)
-BEGIN
- exec GADATA.C3G.sp_update_L
-END
 GO
-DISABLE TRIGGER [C3G].[Trig_rt_alarm]
-    ON [C3G].[rt_alarm];
+
 

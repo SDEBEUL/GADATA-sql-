@@ -4,6 +4,11 @@
     [_timestamp]    DATETIME       NULL,
     [value]         VARCHAR (2048) NULL,
     [variable_id]   INT            NULL,
+    [CloseToSemi]   INT            NULL,
+    [SemiToOpen]    INT            NULL,
+    [Tool_id]       TINYINT        NULL,
     CONSTRAINT [PK_rt_GunCylinder] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 

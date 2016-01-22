@@ -1,44 +1,24 @@
 ﻿
-
-
-
-CREATE VIEW [C3G].[Error]
+CREATE VIEW [Volvo].[ApplSubgroup]
 AS
-SELECT        
-  C.location
-, C.controller_name AS Robotname
-, 'C3G' AS Type
-, 'ERROR' AS Errortype
-, H.C_timestamp AS timestamp
-, L.error_number AS Logcode
-, L.error_severity AS Severity
-, L.error_text AS Logtekst
-, NULL AS Downtime
-, T.Vyear AS Year
-, T.Vweek AS Week
-, T.Vday AS day
-, T.shift
-, ISNULL(C3G.c_Appl.APPL,'NA') AS 'Object'
-, ISNULL(C3G.c_Subgroup.Subgroup, 'NA') as 'Subgroup' 
-, CAST(H.id AS int) AS idx
-FROM            C3G.h_alarm AS H 
-LEFT OUTER JOIN C3G.L_error AS L ON L.id = H.error_id 
-LEFT OUTER JOIN C3G.c_controller AS C ON H.controller_id = C.id 
-LEFT  JOIN C3G.c_Appl ON L.Appl_id = C3G.c_Appl.id 
-LEFT  JOIN C3G.c_Subgroup ON L.Subgroup_id = C3G.c_Subgroup.id 
-LEFT OUTER JOIN VOLVO.L_timeline AS T ON H.c_timestamp BETWEEN T.starttime AND T.endtime
-WHERE  (H.error_is_alarm = 1) AND (L.[error_severity] <> -1) and h.c_timestamp < getdate()
+SELECT DISTINCT * 
+FROM(
+SELECT DISTINCT 
+c_Appl.APPL
+,c_Subgroup.Subgroup
+From GADATA.C4G.c_LogClassRules 
+LEFT JOIN GADATA.C4G.c_Appl on c_Appl.id = c_LogClassRules.Appl_id
+LEFT JOIN GADATA.C4G.c_Subgroup on c_Subgroup.id = c_LogClassRules.Subgroup_id
+UNION
+SELECT DISTINCT 
+c_Appl.APPL
+,c_Subgroup.Subgroup
+From GADATA.ABB.c_LogClassRules 
+LEFT JOIN GADATA.ABB.c_Appl on c_Appl.id = c_LogClassRules.Appl_id
+LEFT JOIN GADATA.ABB.c_Subgroup on c_Subgroup.id = c_LogClassRules.Subgroup_id
+) as x
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'Error';
-
-
-GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'Or = 1350
-         Or = 1350
-      End
-   End
-End
-', @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'Error';
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'ApplSubgroup';
 
 
 GO
@@ -113,52 +93,12 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "rt_alarm (RobotGA)"
+         Begin Table = "x"
             Begin Extent = 
                Top = 6
                Left = 38
-               Bottom = 135
-               Right = 214
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "Robot (RobotGA)"
-            Begin Extent = 
-               Top = 6
-               Left = 252
-               Bottom = 135
-               Right = 422
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "RobotLogText (RobotGA)"
-            Begin Extent = 
-               Top = 6
-               Left = 460
                Bottom = 101
-               Right = 630
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "c_logclass1"
-            Begin Extent = 
-               Top = 6
-               Left = 668
-               Bottom = 135
-               Right = 838
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "T"
-            Begin Extent = 
-               Top = 6
-               Left = 876
-               Bottom = 135
-               Right = 1046
+               Right = 208
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -184,5 +124,10 @@ Begin DesignProperties =
          GroupBy = 1350
          Filter = 1350
          Or = 1350
-         ', @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'Error';
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'ApplSubgroup';
 

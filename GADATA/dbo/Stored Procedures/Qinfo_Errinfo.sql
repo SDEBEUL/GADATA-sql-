@@ -2,6 +2,8 @@
    @Robot as varchar(16) = '99020R01'
   ,@ErrCode as int = null
   ,@ErrID as int = null
+  ,@opt1 as varchar(2000) = null
+  ,@user as varchar(16) = null
 AS
 BEGIN
 

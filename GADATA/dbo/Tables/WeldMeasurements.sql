@@ -8,7 +8,15 @@
     [NbrReweld] SMALLINT CONSTRAINT [DF_WeldMeasurements_NbrReweld] DEFAULT ((0)) NULL,
     [AvgEnergy] REAL     CONSTRAINT [DF_WeldMeasurements_AvgEnergy] DEFAULT ((0)) NULL,
     [StdEnergy] REAL     NULL,
+    [AvgPSF]    REAL     NULL,
+    [StdPSF]    REAL     NULL,
+    [AvgOhm]    REAL     NULL,
+    [StdOhm]    REAL     NULL,
+    [AvgUIP]    REAL     NULL,
+    [StdUIP]    REAL     NULL,
     CONSTRAINT [PK_Splash] PRIMARY KEY CLUSTERED ([ID] ASC),
     CONSTRAINT [FK_WeldMeasurements_Spot] FOREIGN KEY ([SpotId]) REFERENCES [dbo].[Spot] ([ID])
 );
+
+
 

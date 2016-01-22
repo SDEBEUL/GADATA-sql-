@@ -54,16 +54,17 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @MinDowntime as int = 0 ,
    @UsePloeg as bit = 0,
    @UseOwnership as bit = 0,
-   @ServerMessages as bit = 0
+   @ServerMessages as bit = 0,
+   @GetAlerts as bit = 0
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
 --Kindly responde to user if using unfinished stuff
 ---------------------------------------------------------------------------------------
-IF ((@GetC4GSBCU = 1)  Or (@GetTimerWear =1 ))
-BEGIN
-RAISERROR (15600,-1,-1, 'Im sorry ... Have not got this implemented (SDEBEUL)');
-END
+--IF ((@GetC4GSBCU = 1)  Or (@GetTimerWear =1 ))
+--BEGIN
+--RAISERROR (15600,-1,-1, 'Im sorry ... Have not got this implemented (SDEBEUL)');
+--END
 
 
 ---------------------------------------------------------------------------------------
@@ -449,6 +450,24 @@ AND
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
+--C3G Alarm information (error log) VAN HET OUDE SYSTEEM VOORLOPIG TOEGEVOEGD WEGENS PROBLEMEN
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.RobotGA.error AS C3GE
+
+WHERE
+--date time filter
+(C3GE.[timestamp] BETWEEN @StartDate AND @EndDate)
+--robotfilter
+AND
+(C3GE.Robotname LIKE @RobotFilterWild)
+AND
+@GetC4GSBCU = 1 --<== zal fout smijten maar deze was nog vrij in het front 
+
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
 --C3G Qry Breakdowns (einde van storings met storings tijd)
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
@@ -574,13 +593,31 @@ AND
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
---SBCU OUT OF LIMIT
+--ALERTS that are not accepted
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION
-SELECT * FROM GADATA.RobotGA.SBCUoutOfLimit 
+SELECT * FROM GADATA.Volvo.Alerts as a 
 WHERE
+a.Subgroup like '%WGK%'
+AND
 @GetC3gLive = 1
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--ALERTS 
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.Volvo.Alerts as a 
+WHERE 
+--datetime filter
+(a.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(a.Robotname LIKE @RobotFilterWild)
+AND
+@GetAlerts = 1
 ---------------------------------------------------------------------------------------
 
 --***********************************************************************************************************************--

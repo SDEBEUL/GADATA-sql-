@@ -1,44 +1,25 @@
-﻿
-
-
-
-CREATE VIEW [C3G].[Error]
+﻿CREATE VIEW Volvo.LastTipwear
 AS
-SELECT        
-  C.location
-, C.controller_name AS Robotname
-, 'C3G' AS Type
-, 'ERROR' AS Errortype
-, H.C_timestamp AS timestamp
-, L.error_number AS Logcode
-, L.error_severity AS Severity
-, L.error_text AS Logtekst
-, NULL AS Downtime
-, T.Vyear AS Year
-, T.Vweek AS Week
-, T.Vday AS day
-, T.shift
-, ISNULL(C3G.c_Appl.APPL,'NA') AS 'Object'
-, ISNULL(C3G.c_Subgroup.Subgroup, 'NA') as 'Subgroup' 
-, CAST(H.id AS int) AS idx
-FROM            C3G.h_alarm AS H 
-LEFT OUTER JOIN C3G.L_error AS L ON L.id = H.error_id 
-LEFT OUTER JOIN C3G.c_controller AS C ON H.controller_id = C.id 
-LEFT  JOIN C3G.c_Appl ON L.Appl_id = C3G.c_Appl.id 
-LEFT  JOIN C3G.c_Subgroup ON L.Subgroup_id = C3G.c_Subgroup.id 
-LEFT OUTER JOIN VOLVO.L_timeline AS T ON H.c_timestamp BETWEEN T.starttime AND T.endtime
-WHERE  (H.error_is_alarm = 1) AND (L.[error_severity] <> -1) and h.c_timestamp < getdate()
+SELECT TOP (100) PERCENT dbo.WeldingGun.Name, dbo.Timer.Robot, Volvo.Robots.controller_type, Volvo.Robots.location, dbo.TipWear.Date_Time, dbo.TipWear.BodysPerElectrode, 
+                  dbo.TipWear.BodyRemaining
+FROM     dbo.TipWear FULL OUTER JOIN
+                  dbo.WeldingGun ON dbo.TipWear.WeldingGunId = dbo.WeldingGun.ID FULL OUTER JOIN
+                  dbo.Timer ON dbo.Timer.ID = dbo.WeldingGun.TimerID FULL OUTER JOIN
+                  Volvo.Robots ON dbo.Timer.Robot = Volvo.Robots.controller_name
+WHERE  (dbo.TipWear.ID IN
+                      (SELECT MAX(ID) AS Expr1
+                       FROM      dbo.TipWear AS TipWear_1
+                       GROUP BY WeldingGunId))
+ORDER BY dbo.Timer.Robot
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'Error';
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'LastTipwear';
 
 
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'Or = 1350
-         Or = 1350
-      End
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'nd
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'Error';
+', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'LastTipwear';
 
 
 GO
@@ -47,7 +28,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+         Configuration = "(H (1[29] 4[14] 2[48] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -113,52 +94,42 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "rt_alarm (RobotGA)"
+         Begin Table = "TipWear"
             Begin Extent = 
-               Top = 6
-               Left = 38
-               Bottom = 135
-               Right = 214
+               Top = 7
+               Left = 48
+               Bottom = 168
+               Right = 267
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "Robot (RobotGA)"
+         Begin Table = "WeldingGun"
             Begin Extent = 
-               Top = 6
-               Left = 252
-               Bottom = 135
-               Right = 422
+               Top = 7
+               Left = 315
+               Bottom = 168
+               Right = 509
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "RobotLogText (RobotGA)"
+         Begin Table = "Timer"
             Begin Extent = 
-               Top = 6
-               Left = 460
-               Bottom = 101
-               Right = 630
+               Top = 7
+               Left = 557
+               Bottom = 168
+               Right = 751
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "c_logclass1"
+         Begin Table = "Robots (Volvo)"
             Begin Extent = 
-               Top = 6
-               Left = 668
-               Bottom = 135
-               Right = 838
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "T"
-            Begin Extent = 
-               Top = 6
-               Left = 876
-               Bottom = 135
-               Right = 1046
+               Top = 7
+               Left = 799
+               Bottom = 168
+               Right = 1001
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -170,19 +141,32 @@ Begin DesignProperties =
    Begin DataPane = 
       Begin ParameterDefaults = ""
       End
+      Begin ColumnWidths = 9
+         Width = 284
+         Width = 1644
+         Width = 1488
+         Width = 1680
+         Width = 2076
+         Width = 1944
+         Width = 1752
+         Width = 1200
+         Width = 1200
+      End
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
-         Column = 1440
+         Column = 2376
          Alias = 900
-         Table = 1170
+         Table = 1176
          Output = 720
          Append = 1400
          NewValue = 1170
-         SortType = 1350
-         SortOrder = 1410
+         SortType = 1356
+         SortOrder = 1416
          GroupBy = 1350
-         Filter = 1350
+         Filter = 1356
          Or = 1350
-         ', @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'Error';
+         Or = 1350
+         Or = 1350
+      E', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'LastTipwear';
 

@@ -1,0 +1,6 @@
+﻿CREATE TABLE [GLUE].[Users] (
+    [ID]   INT          IDENTITY (1, 1) NOT NULL,
+    [Name] VARCHAR (50) NOT NULL,
+    CONSTRAINT [PK_Users_1] PRIMARY KEY CLUSTERED ([ID] ASC)
+);
+
