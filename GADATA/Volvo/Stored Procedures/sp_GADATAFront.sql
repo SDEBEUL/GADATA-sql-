@@ -788,7 +788,7 @@ SET @rowcountmen = @@rowcount
 DECLARE @RequestString as varchar(255)
 SET @RequestString =
    CONCAT(
-   '[Volvo].[sp_GADATAFront]',
+   'Running: [Volvo].[sp_GADATAFrontHand]',
    ' @StartDate = " '						, @StartDate
      ,' "  ,@EndDate = " '					, @EndDate
      ,' "  ,@RobotFilterWild = " '			, @RobotFilterWild
