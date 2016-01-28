@@ -37,6 +37,7 @@ SELECT
  rt_e.id
 ,rt_e.controller_id
 ,rt_e._timestamp
+,ISNULL(rt_e.c_timestamp,rt_e._timestamp) as 'c_timestamp' --because c_timestamp is not passed for non controller side events (disco/watchdogs)
 ,rt_e.sys_state
 ,ROW_NUMBER() OVER (PARTITION BY rt_e.controller_id ORDER BY rt_e._timestamp DESC) AS 'rnDesc'
 ,ISNULL((lag(_timestamp) OVER (PARTITION BY rt_e.controller_id ORDER BY _timestamp desc)-_timestamp),getdate()-_timestamp) as 'TimeInState'
@@ -60,6 +61,7 @@ if (OBJECT_ID('tempdb..#StartStopEvents') is not null) drop table #StartStopEven
          #SysEventTime.id,
          #SysEventTime.controller_id,
          #SysEventTime._timestamp,
+		 #SysEventTime.c_timestamp,
          #SysEventTime.sys_state,
          #SysEventTime.rnDESC,
          #SysEventTime.TimeInState, 
@@ -165,11 +167,11 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
        SELECT 
          #StartStopEvents.id,
          #StartStopEvents.controller_id,
-         #StartStopEvents._timestamp as '_Eb', 
-		 LStartStopEvents._timestamp as '_Sb',
+         #StartStopEvents.c_timestamp as '_Eb', 
+		 LStartStopEvents.c_timestamp as '_Sb',
          LStartStopEvents.sys_state as 'TriggerState',
 		 LStartStopEvents.TimeInState as 'repst',
-		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY T_a._timestamp ASC) AS TriggerIndx, --index op de mogelijke 'trigger errors' idx 1 is normaal de trigger
+		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY T_a.c_timestamp ASC) AS TriggerIndx, --index op de mogelijke 'trigger errors' idx 1 is normaal de trigger
 		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY H_a.[error_severity] Desc) AS ReclassIndx, --index om makkelijk de zwaarste fout uit een storing te kunnen halen.
 		 T_a.id as 'Terror_id', --Trigger error id 
 		 T_a.[error_number] as 'Terror_number',
@@ -216,7 +218,7 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 		(LStartStopEvents.controller_id = T_a.controller_id) 
 		AND
 		--fout moet zicht voordoen tussen de 3 min voor of + 1 min na de trigger (gebruikt _timestamp = moment van insert)
-		(T_a.C_timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:03:00.00') AND LStartStopEvents._timestamp + '1900-01-01 00:01:00.00')
+		(T_a.C_timestamp BETWEEN (LStartStopEvents.c_timestamp - '1900-01-01 00:03:00.00') AND LStartStopEvents.c_timestamp + '1900-01-01 00:01:00.00')
 		AND
 		(T_a.[error_severity] >= 4) --een trigger fout moet minsten severity 4 zijn
 	      )
@@ -229,7 +231,7 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 		(LStartStopEvents.controller_id = h_a.controller_id) 
 		AND
 		--fout moet zicht voordoen tussen de 3 min voor de trigger en het einde van de breakdown (gebruikt _timestamp = moment van insert)
-		(h_a.C_timestamp BETWEEN (LStartStopEvents._timestamp - '1900-01-01 00:03:00.00') AND #StartStopEvents._timestamp)
+		(h_a.C_timestamp BETWEEN (LStartStopEvents.c_timestamp - '1900-01-01 00:03:00.00') AND #StartStopEvents.c_timestamp)
 	      )
 ---------------------------------------------------------
  )
