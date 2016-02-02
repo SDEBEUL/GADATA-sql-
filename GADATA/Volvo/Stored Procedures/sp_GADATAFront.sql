@@ -18,12 +18,12 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
 --COMAU C4G booleans
    @GetC4GAction as bit = 0,
    @GetC4Gerror as bit = 1,
-   @GetC4GEvents as bit = 0, --moet ik herbekijken. (heeft precalucaltie nodig)
+   @GetC4GEvents as bit = 0, 
    @GetC4GDowntimes as bit = 1,
    @GetC4GDownTBegin as bit = 0,
    @GetC4GCollisions as bit = 0,
    @GetC4GSpeedCheck as bit = 0,
-   @GetC4GSBCU as bit = 0, --TBT
+   @GetC4GSBCU as bit = 0, 
    @GetC4GMod as bit = 0,
    @GetC4GLive as bit = 0,
 --Comau C3G Booleans   
@@ -31,7 +31,7 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @GetC3GEvents as bit = 0, 
    @GetC3GDowntimes as bit = 0, 
    @GetC3GDownTBegin as bit = 0, 
-   @GetC3GSpeedCheck as bit = 0, --TBT
+   @GetC3GSpeedCheck as bit = 0, 
    @GetC3GSBCU as bit = 0, 
    @GetC3GMod as bit = 0,
    @GetC3gLive as bit = 0, 
@@ -47,8 +47,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @GetTimerError as bit = 0,
    @GetTimerWear as bit =0, --tbt
 --blocked pars 
-   @RespT as bit = 0, --tbt
-   @RelvT as bit =0, --tbt
+   @RespT as bit = 0, 
+   @RelvT as bit =0,
 --optional pars
    @MinLogserv as int = 0,
    @MinDowntime as int = 0 ,
@@ -61,9 +61,9 @@ BEGIN
 ---------------------------------------------------------------------------------------
 --Kindly responde to user if using unfinished stuff
 ---------------------------------------------------------------------------------------
---IF ((@GetC4GSBCU = 1)  Or (@GetTimerWear =1 ))
+IF  (@GetTimerWear =1 )
 --BEGIN
---RAISERROR (15600,-1,-1, 'Im sorry ... Have not got this implemented (SDEBEUL)');
+RAISERROR (15600,-1,-1, 'Im sorry ... Have not got this implemented (SDEBEUL)');
 --END
 
 
@@ -397,6 +397,24 @@ AND
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
+--C4G SBCU
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION
+SELECT * FROM GADATA.C4G.sbcu AS C4Gsbcu
+WHERE
+--datetime filter
+(C4Gsbcu.[Timestamp]  BETWEEN @StartDate AND @EndDate)
+AND 
+--Robot name filter 
+(C4Gsbcu.Robotname LIKE @RobotFilterWild)
+AND 
+@GetC4GSBCU = 1
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
 --C4G liveview (action breakdowns)
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
@@ -446,24 +464,6 @@ AND
 --enable bit
 AND
 @GetC3GError = 1
-
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---C3G Alarm information (error log) VAN HET OUDE SYSTEEM VOORLOPIG TOEGEVOEGD WEGENS PROBLEMEN
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-UNION
-SELECT * FROM GADATA.RobotGA.error AS C3GE
-
-WHERE
---date time filter
-(C3GE.[timestamp] BETWEEN @StartDate AND @EndDate)
---robotfilter
-AND
-(C3GE.Robotname LIKE @RobotFilterWild)
-AND
-@GetC4GSBCU = 1 --<== zal fout smijten maar deze was nog vrij in het front 
 
 
 ---------------------------------------------------------------------------------------

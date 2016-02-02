@@ -6,6 +6,8 @@ BEGIN
 exec [C3G].[sp_normalize_GunCylinder]
 --check for new alerts
 exec GADATA.volvo.sp_AlertCheck
+--c4g process sbcu data 
+exec GADATA.C4G.sp_update_ToolLog
 
 --abb s4 
 exec GADATA.abb.sp_Decode_AE_S4

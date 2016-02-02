@@ -49,12 +49,36 @@ FROM GADATA.C4G.rt_toolLog as rt
 ---------------------------------------------------------------------------------------
 Print'--step to normalize the rt_toolog dataset SETUP'
 ---------------------------------------------------------------------------------------
---haal de setup meting eruit en poeft da in apparte table. (enkel toevoegen als ze anders is ...)
+--get setup values and store in a table. (only add if different from last....)
+INSERT INTO GADATA.C4G.L_toollog
+SELECT
+ R.controller_id
+,C4G.fn_GetActiveTool(r.controller_id,r._timestamp+'1900-01-01 00:00:10') as 'Tool_name' --put in a 10s offset on the Ts because can not predict the var that will be read first.
+,R._timestamp
+,R.value as 'fp_tool'
+,R.XmlSplit.value('/Product[1]/Attribute[1]','real') AS 'X'
+,R.XmlSplit.value('/Product[1]/Attribute[2]','real') AS 'Y'
+,R.XmlSplit.value('/Product[1]/Attribute[3]','real') AS 'Z'
+FROM #c4g_toollogsplit as R
+--join to only get new records
+LEFT JOIN GADATA.C4G.L_toollog as l on
+(
+l.controller_id = R.controller_id
+AND
+L.fp_tool = r.value
+)
+where 
+(r.variable_id = 62)
+AND
+(L.id is null) --<= only join new records 
+order by r._timestamp desc 
+---------------------------------------------------------------------------------------
+
 
 ---------------------------------------------------------------------------------------
 Print'--step to normalize the rt_toolog dataset MEASUREMENTS'
 ---------------------------------------------------------------------------------------
---INSERT INTO GADATA.C4G.h_alarm
+INSERT INTO GADATA.C4G.h_toollog
 SELECT --select 'measurement' values
  R.controller_id
 ,C4G.fn_GetActiveTool(r.controller_id,r._timestamp) as 'Tool_name'
@@ -63,20 +87,28 @@ SELECT --select 'measurement' values
 ,R.XmlSplit.value('/Product[1]/Attribute[1]','real') AS 'X'
 ,R.XmlSplit.value('/Product[1]/Attribute[2]','real') AS 'Y'
 ,R.XmlSplit.value('/Product[1]/Attribute[3]','real') AS 'Z'
---hier dan nog join met laatste setup meeting van die tang op Dsetup te doen.
+--INTO GADATA.C4G.h_toollog
 FROM #c4g_toollogsplit as R 
-where r.variable_id = 64
+--join to only get new records
+LEFT JOIN GADATA.C4G.h_toollog as h on
+(
+h.controller_id = R.controller_id
+AND
+h._timestamp = R._timestamp
+)
+where 
+(r.variable_id = 64)
+AND
+(h.id is null) --> only join new records
 order by r._timestamp desc 
 ---------------------------------------------------------------------------------------
 
 
 
-
-
 ---------------------------------------------------------------------------------------
-Print'--delete in rt_toolLog if older than 1 day' --must always keep the last toolname/setup in the log... 
+Print'--delete in rt_toolLog if older than 1 day' --must always keep the last toolname/setup in the log... (you can join the active setup view to check this 
 ---------------------------------------------------------------------------------------
-
+--DELETE GADATA.C4G.rt_toolLog FROM GADATA.C4G.rt_toolLog where variable_id in(62,64)
 ---------------------------------------------------------------------------------------
 
 --****************************************************************************************************************--

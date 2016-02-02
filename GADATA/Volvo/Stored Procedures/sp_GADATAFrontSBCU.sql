@@ -27,11 +27,27 @@ SET @EndDate = GETDATE()
 END
 ---------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------
+--enable c3g and c4g if no data request. (to support front end < 1.16
+---------------------------------------------------------------------------------------
+if ((@GetC3GSBCU = 0) AND (@GetC4GSBCU = 0))
+BEGIN
+SET @GetC3GSBCU = 1
+SET @GetC4GSBCU = 1
+END
+---------------------------------------------------------------------------------------
 
+--c3g
 SELECT * FROM GADATA.RobotGA.sbcuData as s
 where s.tool_timestamp between   @startdate and @EndDate
 AND s.RobotName LIKE @RobotFilterWild
-
+AND @GetC3GSBCU = 1 
+--c4g
+UNION
+SELECT * FROM GADATA.c4g.sbcuData as s
+where s.tool_timestamp between   @startdate and @EndDate
+AND s.RobotName LIKE @RobotFilterWild
+AND @GetC4GSBCU = 1 
 
  ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
