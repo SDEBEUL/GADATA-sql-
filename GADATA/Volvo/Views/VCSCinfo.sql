@@ -1,7 +1,10 @@
 ﻿
 
+
+
 CREATE VIEW [Volvo].[VCSCinfo]
 AS
+--check the heartbeat of VCSC systems
 SELECT      
 'SystemInfo' AS 'Location'
 , x.Vcsc_name AS 'Robotname'
@@ -26,6 +29,56 @@ UNION
 select * from GADATA.C4G.L_operation where code = 6
 ) as x
 where x._timestamp < getdate()-'1900-01-01 00:02:00'
+
+--check if sbcu data is comming in the system 
+UNION
+SELECT * FROM
+(
+SELECT      
+'SystemInfo' AS 'Location'
+, 'it18839vm4_c3gVCSC' AS 'Robotname'
+, 'SERVER' AS 'Type'
+, 'LIVE' AS 'Errortype'
+, getdate() AS 'Timestamp'
+, NULL AS 'Logcode'
+, Null AS 'Severity'
+, 'Timeout of c3gVCSC instance NO SBCU DATA PLEASE CHECK'AS 'Logtekst'
+, DATEDIFF(minute,
+(select top 1  t.tool_timestamp from GADATA.RobotGA.rt_toollog as t where t.tool_timestamp < getdate() order by t.tool_timestamp desc)
+,getdate()) AS 'DOWNTIME'
+, NULL AS 'Year'
+, NULL AS 'Week'
+, NULL AS 'day'
+, NULL AS 'Shift'
+, 'SystemInfo' AS 'Object'
+, 'SystemInfo' as 'Subgroup'
+, Null as 'id'
+) as x where x.DOWNTIME > (60*4)
+
+--check if Tsync is working 
+UNION 
+SELECT * FROM
+(
+SELECT      
+'SystemInfo' AS 'Location'
+, 'it18839vm4_c3gTimeSync' AS 'Robotname'
+, 'SERVER' AS 'Type'
+, 'LIVE' AS 'Errortype'
+, getdate() AS 'Timestamp'
+, NULL AS 'Logcode'
+, Null AS 'Severity'
+, 'Timeout of c3gTsync instance NO timesyncs PLEASE CHECK'AS 'Logtekst'
+, DATEDIFF(minute,
+(select top 1  t._timestamp from GADATA.RobotGA.L_timesync as t where t._timestamp < getdate() order by t._timestamp desc)
+,getdate()) AS 'DOWNTIME'
+, NULL AS 'Year'
+, NULL AS 'Week'
+, NULL AS 'day'
+, NULL AS 'Shift'
+, 'SystemInfo' AS 'Object'
+, 'SystemInfo' as 'Subgroup'
+, Null as 'id'
+) as x where x.DOWNTIME > (60*8)
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'VCSCinfo';
 

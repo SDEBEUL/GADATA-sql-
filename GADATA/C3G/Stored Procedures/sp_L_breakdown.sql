@@ -148,7 +148,7 @@ FROM
 	,H.controller_id
 	,H.sys_state as 'error_id'
 	,H.sys_state as 'error_number'
-	,11 as 'error_severity'
+	,9 as 'error_severity' --changed from 11 to 9 because stuff like drive brake locked is 11..
 	,'Disconnected OR controller watchdog' as 'error_text'
 	FROM GADATA.C3G.rt_sys_event as h 
 	WHERE 
