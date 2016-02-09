@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [RobotGA].[SBCU]
 AS
 SELECT        
@@ -10,7 +11,7 @@ SELECT
 , L.tool_timestamp AS 'timestamp'
 , NULL AS 'Logcode'
 , NULL AS 'Severity'
-, 'Long: ' + isnull(CAST(L.Longcheck as varchar(3)), '/') + '  Update: ' + isnull(CAST(L.TcpUpdate as varchar(3)),'/') + '  Dsetup: ' + LTRIM(Str(L.dsetup, 5, 2)) + '  Dmeas: ' + LTRIM(Str(L.Dmeas, 5, 2)) AS 'Logtekst'
+,'Gun:' + CAST(L.tool_id as varchar(2)) + ' Long: ' + isnull(CAST(L.Longcheck as varchar(3)), '/') + '  Update: ' + isnull(CAST(L.TcpUpdate as varchar(3)),'/') + '  Dsetup: ' + LTRIM(Str(L.dsetup, 5, 2)) + '  Dmeas: ' + LTRIM(Str(L.Dmeas, 5, 2)) AS 'Logtekst'
 , NULL AS 'Downtime'
 , T.Vyear AS 'Year'
 , T.Vweek AS 'Week'

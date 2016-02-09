@@ -137,6 +137,9 @@
     <Folder Include="GLUE\Tables\" />
     <Folder Include="Volvo\Functions\" />
     <Folder Include="GLUE\Stored Procedures\" />
+    <Folder Include="PLC\" />
+    <Folder Include="PLC\Tables\" />
+    <Folder Include="PLC\Views\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\c_controller.sql">
@@ -1355,6 +1358,19 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
+    <Build Include="PLC\Tables\c_workstations.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="PLC\Tables\rt_alarm_siemens.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="PLC\Views\GetLastRecords.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="Security\PLC.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExcelFront\SQLfront_C1.xlsm" />

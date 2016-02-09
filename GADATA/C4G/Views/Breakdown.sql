@@ -3,6 +3,8 @@
 
 
 
+
+
 CREATE VIEW [C4G].[Breakdown]
 AS
 
@@ -10,19 +12,19 @@ SELECT
   c.location AS 'Location'
 , c.controller_name AS 'Robotname'
 , 'C4G' AS 'Type'
-, 'BREAKDOWN' AS Expr1
+, 'BREAKDOWN' AS 'ErrorType'
 , H.EndOfBreakdown AS 'Timestamp'
 , ISNULL(LR.[error_number],L.[error_number]) AS 'Logcode'
-, NULL AS 'Severity'
+, ISNULL(LR.error_severity,L.error_severity) AS 'Severity'
 , ISNULL(('|R: ' + LR.error_text), L.error_text ) AS 'Logtekst'
-, DATEDIFF(MINUTE, H.StartOfBreakdown, H.EndOfBreakdown) AS DOWNTIME
+, DATEDIFF(MINUTE, H.StartOfBreakdown, H.EndOfBreakdown) AS 'DOWNTIME'
 , T.Vyear AS 'Year'
 , T.Vweek AS 'Week'
 , T.Vday AS 'day'
 , T.shift AS 'Shift'
 , ISNULL(LRA.APPL, LA.APPL) AS 'Object'
 , ISNULL(LRS.Subgroup, LS.Subgroup) AS 'Subgroup'
-, H.id
+, H.id as 'Idx'
 
 
 FROM   GADATA.C4G.h_breakdown as H 
