@@ -1,6 +1,7 @@
 ﻿
 
-CREATE PROCEDURE [Volvo].[sp_GADATAFrontHand]
+
+CREATE PROCEDURE [Volvo].[sp_GADATAFrontGun]
 --timeparameters
    @StartDate as DATETIME = null,
    @EndDate as DATETIME = null,
@@ -27,24 +28,12 @@ BEGIN
 SET @EndDate = GETDATE()
 END
 
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---**************DATA FROM GRIPPERS**************--
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
 
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---voorlopig om data om te zetten...
-
-exec GADATA.c4g.sp_Decode_HandMonitor
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-SELECT * FROM GADATA.C4G.HandMonitor as h
-where --h.timestamp between   @startdate and @EndDate AND
- h.Robotname LIKE @RobotFilterWild
- AND h.Time < 3000 --zit nog ergens bug langs controller kant 
-
+SELECT * FROM GADATA.C3G.weldgunCylinder as h
+where 
+h._timestamp between   @startdate and @EndDate 
+AND
+h.controller_name LIKE @RobotFilterWild
 
  ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
@@ -53,6 +42,6 @@ where --h.timestamp between   @startdate and @EndDate AND
 ---------------------------------------------------------------------------------------
 DECLARE @rowcountmen as int 
 SET @rowcountmen = @@rowcount
-EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = 'Running: [Volvo].[sp_GADATAFrontHand]'
+EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = 'Running: [Volvo].[sp_GADATAFrontGun]'
 
 END
