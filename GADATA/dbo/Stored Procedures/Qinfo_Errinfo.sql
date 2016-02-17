@@ -7,13 +7,15 @@
 AS
 BEGIN
 
+
 --voor c3g
 if 'c3g' = (select top 1 controller_type from GADATA.Volvo.Robots where controller_name = @Robot)
 BEGIN
 SELECT TOP 1 
-[Info] as 'INFO:' 
-,[Cause] as 'Cause:' 
-,[Remedy] as 'Remedy:' FROM [GADATA].[RobotGA].[FaultInfo] 
+ GADATA.[dbo].[fn_QinfoFormatString]([Info]) as 'INFO:' 
+,GADATA.[dbo].[fn_QinfoFormatString]([Cause]) as 'Cause:' 
+,GADATA.[dbo].[fn_QinfoFormatString]([Remedy]) as 'Remedy:' 
+FROM [GADATA].[RobotGA].[FaultInfo] 
 WHERE ErrorNbr = @ErrCode
 END
 
@@ -21,9 +23,10 @@ END
 if 'c4g' = (select top 1 controller_type from GADATA.Volvo.Robots where controller_name = @Robot)
 BEGIN
 SELECT TOP 1 
-[Info] as 'INFO:' 
-,[Cause] as 'Cause:' 
-,[Remedy] as 'Remedy:' FROM [GADATA].[RobotGA].[FaultInfo] 
+ GADATA.[dbo].[fn_QinfoFormatString]([Info]) as 'INFO:' 
+,GADATA.[dbo].[fn_QinfoFormatString]([Cause]) as 'Cause:' 
+,GADATA.[dbo].[fn_QinfoFormatString]([Remedy]) as 'Remedy:' 
+FROM [GADATA].[RobotGA].[FaultInfo] 
 WHERE ErrorNbr = @ErrCode
 END
 
