@@ -8,3 +8,11 @@
     CONSTRAINT [PK_L_operation] PRIMARY KEY CLUSTERED ([ID] ASC)
 );
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_robots_L_operation]
+    ON [C3G].[L_operation]([code] ASC, [controller_id] ASC)
+    INCLUDE([Vcsc_name]);
+

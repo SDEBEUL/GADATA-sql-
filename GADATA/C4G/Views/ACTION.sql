@@ -2,6 +2,7 @@
 
 
 
+
 CREATE VIEW [C4G].[ACTION]
 AS
 SELECT        
@@ -9,7 +10,7 @@ C.location
 , C.controller_name AS Robotname
 , 'C4G' AS Type
 , 'ACTION' AS Errortype
-, H._timestamp AS timestamp
+, H.c_timestamp AS timestamp
 , L.error_number AS Logcode
 , L.error_severity AS Severity
 , L.error_text AS Logtekst

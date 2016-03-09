@@ -1,10 +1,30 @@
 ﻿
+
 CREATE VIEW [Volvo].[RobotWeldGunRelation]
 AS
-SELECT        G.ID AS 'WeldgunId', G.Name AS 'WeldgunName', G.ElectrodeNbr, G.VariantID, G.TimerID, R.controller_name, R.controller_type, R.location, R.id AS 'robotid', 
-                         R.[table] AS 'robotSchema'
-FROM            dbo.WeldingGun AS G LEFT OUTER JOIN
-                         Volvo.Robots AS R ON RTRIM(LTRIM(R.controller_name)) = SUBSTRING(ISNULL(REPLACE(RTRIM(LTRIM(G.Name)), 'ws', 'R'), ''), 1, 8)
+SELECT        
+  t.ID AS 'WeldgunId'
+, G.Name AS 'WeldgunName'
+, G.ElectrodeNbr
+, G.VariantID
+, T.ID as 'Timerid'
+, T.Name as 'Timername'
+, T.NptId as 'NptId'
+, npt.Name as 'NptName'
+, T.Robot as 'Robot(Timerside)'
+, R.controller_name as 'Robot'
+, R.controller_type as 'RobotType'
+, R.id AS 'robotid'
+, R.[table] AS 'robotSchema'
+, R.Plant
+, R.Area
+, R.SubArea
+, R.location
+, R.ownership
+FROM GADATA.dbo.WeldingGun AS G
+left join GADATA.dbo.Timer as T on T.ID = G.TimerID
+left join Volvo.Robots AS R ON LTRIM(RTRIM(R.controller_name)) = LTRIM(RTRIM(T.Robot))
+left join GADATA.dbo.NPT as npt on npt.id = t.NptId
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'RobotWeldGunRelation';
 

@@ -1,38 +1,35 @@
-﻿
-
-
-
-
-
-CREATE VIEW [Volvo].[TimerDataChange]
+﻿CREATE VIEW dbo.Weldfault_Analyse
 AS
-SELECT   
-  RWG.location AS 'Location'
-, RWG.Robot AS 'Robotname'
-, 'Timer' AS 'Type'
-, 'DataChange' AS 'Errortype'
-, CONVERT(char(19),TDC.DateTime, 120) AS 'Timestamp'
-, NULL AS 'Logcode'
-, NULL AS 'Severity'
-, 'Par: ' + CAST(TP.[Description] as varchar(35)) + '  Changed: ' + CAST(TDC.oldvalue as varchar(10)) +' -> ' + CAST(TDC.newvalue as varchar(10)) + ' User: ' + 'TU.CDSID'  AS 'Logtekst'
-, NULL AS DOWNTIME
-, T.Vyear AS 'Year'
-, T.Vweek AS 'Week'
-, T.Vday AS 'day'
-, T.shift AS 'Shift'
-, 'Spot' AS 'Object'
-, 'Timer' AS 'Subgroup'
-, TDC.id
-
-From GADATA.dbo.TimerDataChange as TDC
-LEFT JOIN GADATA.Volvo.RobotWeldGunRelation as RWG on RWG.TimerID = TDC.TimerID
-LEFT JOIN GADATA.dbo.TimerParameterName as TP on TP.ID = TDC.ParameterID
-LEFT JOIN GADATA.dbo.users as TU on TDC.UserID = TU.ID
---timeline						 --
-LEFT JOIN
-VOLVO.L_timeline AS T ON TDC.[DateTime] BETWEEN T.starttime AND T.endtime
+SELECT        TOP (100) PERCENT dbo.WeldFaultLog.DateTime, dbo.Timer.Name, dbo.Spot.Program, dbo.Spot.Number, dbo.NPT.Name AS NPT, 
+                         dbo.WeldFaultName.WeldFaultName, dbo.WeldFaultLog.Wear
+FROM            dbo.Timer INNER JOIN
+                         dbo.Spot ON dbo.Timer.ID = dbo.Spot.TimerID INNER JOIN
+                         dbo.NPT ON dbo.Timer.NptId = dbo.NPT.ID INNER JOIN
+                         dbo.WeldFaultLog ON dbo.Spot.ID = dbo.WeldFaultLog.SpotID INNER JOIN
+                         dbo.WeldFaultName ON dbo.WeldFaultLog.WeldFaultID = dbo.WeldFaultName.ID
+WHERE        (dbo.WeldFaultLog.DateTime BETWEEN CONVERT(DATETIME, '2016-01-01 05:15:00', 102) AND CONVERT(DATETIME, '2019-01-01 05:15:00', 102))
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'TimerDataChange';
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'Weldfault_Analyse';
+
+
+GO
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'   Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 4800
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'Weldfault_Analyse';
 
 
 GO
@@ -107,52 +104,52 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "TDC"
+         Begin Table = "Timer"
             Begin Extent = 
                Top = 6
                Left = 38
-               Bottom = 135
+               Bottom = 202
                Right = 208
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "RWG"
+         Begin Table = "Spot"
             Begin Extent = 
                Top = 6
                Left = 246
-               Bottom = 135
-               Right = 421
+               Bottom = 275
+               Right = 445
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "TP"
+         Begin Table = "NPT"
             Begin Extent = 
                Top = 6
-               Left = 459
-               Bottom = 135
-               Right = 629
+               Left = 513
+               Bottom = 251
+               Right = 683
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "TU"
+         Begin Table = "WeldFaultLog"
             Begin Extent = 
-               Top = 6
-               Left = 667
-               Bottom = 135
-               Right = 837
+               Top = 31
+               Left = 802
+               Bottom = 234
+               Right = 975
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "T"
+         Begin Table = "WeldFaultName"
             Begin Extent = 
-               Top = 6
-               Left = 875
-               Bottom = 135
-               Right = 1045
+               Top = 39
+               Left = 1129
+               Bottom = 212
+               Right = 1303
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -164,24 +161,21 @@ Begin DesignProperties =
    Begin DataPane = 
       Begin ParameterDefaults = ""
       End
+      Begin ColumnWidths = 11
+         Width = 284
+         Width = 2535
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 2370
+         Width = 2145
+         Width = 1500
+         Width = 1500
+         Width = 1500
+      End
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
-         Column = 1440
-         Alias = 900
-         Table = 1170
-         Output = 720
-         Append = 1400
-         NewValue = 1170
-         SortType = 1350
-         SortOrder = 1410
-         GroupBy = 1350
-         Filter = 1350
-         Or = 1350
-         Or = 1350
-         Or = 1350
-      End
-   End
-End
-', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'TimerDataChange';
+      ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'Weldfault_Analyse';
 

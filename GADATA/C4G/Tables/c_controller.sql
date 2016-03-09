@@ -22,8 +22,13 @@
     [read_sys]              INT           NULL,
     [generation]            INT           NULL,
     [ownership]             VARCHAR (256) NULL,
+    [Plant]                 VARCHAR (3)   NULL,
+    [Area]                  VARCHAR (25)  NULL,
+    [SubArea]               VARCHAR (25)  NULL,
     CONSTRAINT [PK_c_controller] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 

@@ -3,6 +3,7 @@
 
 
 
+
 CREATE VIEW [Volvo].[Robots]
 AS
 SELECT distinct * FROM
@@ -14,6 +15,9 @@ select
 ,c4g.controller_name
 ,c4g.location
 ,c4g.ownership
+,c4g.Plant
+,c4g.Area
+,C4g.SubArea
 ,lop.Vcsc_name as 'server'
 from GADATA.c4g.c_controller as c4g
 left join GADATA.C4G.L_operation as lop on lop.controller_id = c4g.id and lop.code = 3
@@ -26,6 +30,9 @@ select
 ,c3g.controller_name
 ,c3g.location
 ,c3g.ownership as 'ownership' 
+,c3g.Plant
+,c3g.Area
+,c3g.SubArea
 ,lop.Vcsc_name as 'server'
 from GADATA.c3g.c_controller as c3g
 left join GADATA.C3G.L_operation as lop on lop.controller_id = c3g.id and lop.code = 3
@@ -38,6 +45,9 @@ select
 ,abb.controller_name
 ,abb.location
 ,abb.ownership
+,NULL as 'Plant'
+,NULL as 'Area'
+,NULL as 'SubArea'
 ,Null as 'server'
 from GADATA.ABB.c_controller as abb
 ) as x

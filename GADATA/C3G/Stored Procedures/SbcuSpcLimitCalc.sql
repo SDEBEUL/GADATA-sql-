@@ -21,12 +21,12 @@ SET NOCOUNT ON
 ---------------------------------------------------------------------------------------
 if (@StartDate is null) 
 BEGIN
-SET @StartDate = GETDATE()-100
+SET @StartDate = GETDATE()-40
 END
 
 if (@EndDate is null)
 BEGIN
-SET @EndDate = GETDATE()-80
+SET @EndDate = GETDATE()-10
 END
 --for handeling 'today' clause in dt selectors
 if (@EndDate = '1900-01-01 00:00:00:000')
@@ -40,12 +40,23 @@ END
 ---------------------------------------------------------------------------------------
 if((@show = 1) and (@calc = 0) and (@commit = 0)) 
 BEGIN
-SELECT r.RobotName, ref.* FROM GADATA.RobotGA.SBCUrefernce as ref 
-left join GADATA.RobotGA.Robot as r on r.id = ref.Controller_id
+SELECT 
+wgr.WeldgunName
+,wgr.Robot
+,ref.*
+FROM GADATA.volvo.RobotWeldGunRelation as wgr
+left join GADATA.RobotGA.Robot as r on LTRIM(RTRIM(r.RobotName)) = LTRIM(RTRIM(wgr.Robot))
+left join GADATA.RobotGA.SBCUrefernce as ref on
+ref.Controller_id = r.id
+AND
+ref.tool_id = wgr.ElectrodeNbr
 where  
-r.RobotName LIKE @Robotmask
+wgr.RobotType = 'c3g'
+AND
+wgr.Robot LIKE @Robotmask
 --AND
 --ref.tool_id LIKE @Toolmask
+
 END
 ---------------------------------------------------------------------------------------
 
@@ -91,7 +102,7 @@ END
 if((@show = 0) and (@calc = 0) and (@commit = 1)) 
 BEGIN
 ---------------------------------------------------------------------------------------
---Print 'Delete the target guns that wil be recalculated'
+Print 'Delete the target guns that wil be recalculated'
 ---------------------------------------------------------------------------------------
 --DROP TABLE GADATA.RobotGA.SBCUrefernce
 DELETE GADATA.RobotGA.SBCUrefernce FROM GADATA.RobotGA.SBCUrefernce as ref 
@@ -99,7 +110,7 @@ left join GADATA.RobotGA.Robot as r on r.id = ref.controller_id
 Where r.RobotName LIKE @Robotmask-- AND ref.tool_id LIKE @Toolmask
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
---Print 'calculate new limits'
+Print 'calculate new limits'
 ---------------------------------------------------------------------------------------
 INSERT INTO GADATA.RobotGA.SBCUrefernce
 select 
@@ -112,9 +123,8 @@ select
 ,ROUND(Max(rt.Dsetup),2) as 'Max'
 ,ROUND(Min(rt.Dsetup),2) as 'Min'
 ,ROUND(Stdev(rt.Dsetup),2) as 'Stdev'
-,ROUND(AVG(rt.Dsetup)+(3*Stdev(rt.Dsetup)),2) as 'UCL'
-,ROUND(AVG(rt.Dsetup)-(3*Stdev(rt.Dsetup)),2) as 'LCL'
---INTO GADATA.RobotGA.SBCUrefernce
+,ROUND(AVG(rt.Dsetup)+(4*Stdev(rt.Dsetup)),2) as 'UCL'
+,ROUND(AVG(rt.Dsetup)-(4*Stdev(rt.Dsetup)),2) as 'LCL'
 from GADATA.RobotGA.rt_toollog as rt 
 left join GADATA.RobotGA.Robot as r on r.id = rt.controller_id
 where 

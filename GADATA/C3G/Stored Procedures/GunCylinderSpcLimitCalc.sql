@@ -27,7 +27,7 @@ END
 
 if (@EndDate is null)
 BEGIN
-SET @EndDate = GETDATE()-80
+SET @EndDate = GETDATE()
 END
 --for handeling 'today' clause in dt selectors
 if (@EndDate = '1900-01-01 00:00:00:000')
@@ -41,12 +41,22 @@ END
 ---------------------------------------------------------------------------------------
 if((@show = 1) and (@calc = 0) and (@commit = 0)) 
 BEGIN
-SELECT r.controller_name, ref.* FROM c3g.GunCylinderefernce as ref 
-left join GADATA.C3G.c_controller as r on r.id = ref.Controller_id
+SELECT 
+wgr.WeldgunName
+,wgr.Robot
+,ref.*
+FROM GADATA.volvo.RobotWeldGunRelation as wgr
+left join c3g.GunCylinderefernce as ref on
+ref.Controller_id = wgr.robotid
+AND
+ref.tool_id = wgr.ElectrodeNbr
 where  
-r.controller_name LIKE @Robotmask
+WGR.RobotType = 'c3g'
+AND
+wgr.Robot LIKE @Robotmask
 --AND
 --ref.tool_id LIKE @Toolmask
+
 END
 ---------------------------------------------------------------------------------------
 
@@ -73,10 +83,15 @@ rt.controller_name LIKE @Robotmask
 --AND
 --tool_id LIKE @Toolmask
 AND
+rt.tool_id is not null
+AND
 rt._timestamp between @StartDate and @EndDate
 group by 
  rt.Controller_id
 ,rt.tool_id
+
+
+
 END
 ---------------------------------------------------------------------------------------
 
@@ -110,16 +125,22 @@ select
 ,ROUND(AVG(rt.TotalTime)+(4*Stdev(rt.TotalTime)),2) as 'UCL'
 ,ROUND(AVG(rt.TotalTime)-(4*Stdev(rt.TotalTime)),2) as 'LCL'
 from GADATA.C3G.WeldGunCylinder as rt 
+
 where 
 rt.controller_name LIKE @Robotmask
 --AND
 --tool_id LIKE @Toolmask
 AND
+rt.tool_id is not null
+AND
 rt._timestamp between @StartDate and @EndDate
 group by 
  rt.Controller_id
 ,rt.tool_id
----------------------------------------------------------------------------------------
+
+
+
+---------------------------------------------------------------------------
 SELECT 'c:' + CAST(@@ROWCOUNT as varchar(3)) as 'Feedback' 
 END
 ---------------------------------------------------------------------------------------

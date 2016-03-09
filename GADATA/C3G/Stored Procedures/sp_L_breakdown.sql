@@ -37,7 +37,9 @@ SELECT
  rt_e.id
 ,rt_e.controller_id
 ,rt_e._timestamp
-,ISNULL(rt_e.c_timestamp,rt_e._timestamp) as 'c_timestamp' --because c_timestamp is not passed for non controller side events (disco/watchdogs)
+--**********LEAP DAY BUG ! temporay implement to fix C3G leapday issue. -24 hours on C_timestamp**********--
+--,ISNULL(rt_e.c_timestamp,rt_e._timestamp) as 'c_timestamp' --because c_timestamp is not passed for non controller side events (disco/watchdogs)
+,ISNULL(rt_e.c_timestamp-1,rt_e._timestamp) as 'c_timestamp' --because c_timestamp is not passed for non controller side events (disco/watchdogs)
 ,rt_e.sys_state
 ,ROW_NUMBER() OVER (PARTITION BY rt_e.controller_id ORDER BY rt_e._timestamp DESC) AS 'rnDesc'
 ,ISNULL((lag(_timestamp) OVER (PARTITION BY rt_e.controller_id ORDER BY _timestamp desc)-_timestamp),getdate()-_timestamp) as 'TimeInState'

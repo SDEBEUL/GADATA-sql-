@@ -1,9 +1,10 @@
 ﻿
+
 CREATE VIEW [Volvo].[TimerError]
 AS
 SELECT    
   RWG.location AS 'Location'
-, RWG.controller_name AS 'Robotname'
+, RWG.Robot AS 'Robotname'
 , 'Timer' AS 'Type'
 , 'Terror' AS 'Errortype'
 , CONVERT(char(19),TE.DateTime, 120) AS 'Timestamp'
