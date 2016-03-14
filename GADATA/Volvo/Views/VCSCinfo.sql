@@ -2,6 +2,7 @@
 
 
 
+
 CREATE VIEW [Volvo].[VCSCinfo]
 AS
 --check the heartbeat of VCSC systems
@@ -44,7 +45,7 @@ SELECT
 , Null AS 'Severity'
 , 'Timeout of c3gVCSC instance NO SBCU DATA PLEASE CHECK'AS 'Logtekst'
 , DATEDIFF(minute,
-(select top 1  t.tool_timestamp from GADATA.RobotGA.rt_toollog as t where t.tool_timestamp < getdate() order by t.tool_timestamp desc)
+(select top 1  t.tool_timestamp from GADATA.c3g.rt_toollog as t where t.tool_timestamp < getdate() order by t.tool_timestamp desc)
 ,getdate()) AS 'DOWNTIME'
 , NULL AS 'Year'
 , NULL AS 'Week'

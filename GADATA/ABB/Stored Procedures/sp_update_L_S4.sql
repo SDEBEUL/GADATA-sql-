@@ -133,6 +133,9 @@ AND
 --join remedy_id
 --LEFT OUTER join GADATA.abb.L_Remedy on (L_Remedy.Remedy_text = rt_alarm_s4.Remedy)
 
+--JOIN ERROR NO LOG TABLE ! if the errornumber is in this table the error will NOT be send to the Hystorican
+left join GADATA.abb.c_error_no_log as noLog on nolog.error_code = l_error.error_number
+WHERE nolog.id is null
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------

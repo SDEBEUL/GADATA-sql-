@@ -15,7 +15,7 @@ SELECT TOP 1
  GADATA.[dbo].[fn_QinfoFormatString]([Info]) as 'INFO:' 
 ,GADATA.[dbo].[fn_QinfoFormatString]([Cause]) as 'Cause:' 
 ,GADATA.[dbo].[fn_QinfoFormatString]([Remedy]) as 'Remedy:' 
-FROM [GADATA].[RobotGA].[FaultInfo] 
+FROM [GADATA].[Volvo].[FaultInfo] 
 WHERE ErrorNbr = @ErrCode
 END
 
@@ -26,7 +26,7 @@ SELECT TOP 1
  GADATA.[dbo].[fn_QinfoFormatString]([Info]) as 'INFO:' 
 ,GADATA.[dbo].[fn_QinfoFormatString]([Cause]) as 'Cause:' 
 ,GADATA.[dbo].[fn_QinfoFormatString]([Remedy]) as 'Remedy:' 
-FROM [GADATA].[RobotGA].[FaultInfo] 
+FROM [GADATA].[Volvo].[FaultInfo] 
 WHERE ErrorNbr = @ErrCode
 END
 

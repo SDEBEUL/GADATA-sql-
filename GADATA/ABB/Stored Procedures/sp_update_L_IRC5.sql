@@ -132,6 +132,10 @@ AND
  join GADATA.abb.L_Cause on (l_cause.cause_text = rt_alarm_IRC5.cause)
 --join remedy_id
  join GADATA.abb.L_Remedy on (L_Remedy.Remedy_text = rt_alarm_IRC5.Remedy)
+
+--JOIN ERROR NO LOG TABLE ! if the errornumber is in this table the error will NOT be send to the Hystorican
+left join GADATA.abb.c_error_no_log as noLog on nolog.error_code = l_error.error_number
+WHERE nolog.id is null
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------

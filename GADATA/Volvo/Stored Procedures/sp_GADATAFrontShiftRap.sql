@@ -182,7 +182,8 @@ AND
 c4gw.subgroup not like 'Manual%'
 AND
 c4gw.subgroup not like 'Rack%'
-
+AND 
+c4gw.Subgroup not like 'Cube%'
 GROUP BY 
  c4gW.location 
 ,c4gW.Robotname
@@ -259,7 +260,7 @@ SELECT
 , a.Robotname 
 , a.ErrorType
 , a.timestamp
-, a.Logtekst +ISNULL(' |info: ' +CAST(ia.User_Comment as varchar(600)),'') as 'Logtekst'
+, a.Logtekst +ISNULL(' |info: ' +CAST(REPLACE(ia.User_Comment,'***************************',' => ') as varchar(600)),'') as 'Logtekst'
 , a.Dowtime
 , NULL as 'count'
 , a.Object

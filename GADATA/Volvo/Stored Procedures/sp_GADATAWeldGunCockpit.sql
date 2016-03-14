@@ -50,7 +50,7 @@ select
  sbcu.RobotName
 ,sbcu.tool_id
 ,sbcu.tool_timestamp as 'Timestamp'
-from GADATA.RobotGA.SBCUData as sbcu 
+from GADATA.c3g.SBCUData as sbcu 
 where 
 sbcu.tool_timestamp between   @startdate and @EndDate 
 AND 
@@ -120,7 +120,7 @@ SELECT
 ,NULL as 'MidairRef'
 
 FROM #Timeref 
-left join gadata.robotga.sbcudata as sbcu on 
+left join gadata.c3g.sbcudata as sbcu on 
 sbcu.tool_timestamp = #Timeref.Timestamp
 AND 
 sbcu.Longcheck = 1
@@ -147,7 +147,7 @@ SELECT
 ,NULL
 
 FROM #Timeref 
-left join gadata.robotga.sbcudata as sbcu on 
+left join gadata.c3g.sbcudata as sbcu on 
 sbcu.tool_timestamp = #Timeref.Timestamp
 AND 
 sbcu.Longcheck = 0

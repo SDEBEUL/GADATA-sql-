@@ -45,9 +45,8 @@ wgr.WeldgunName
 ,wgr.Robot
 ,ref.*
 FROM GADATA.volvo.RobotWeldGunRelation as wgr
-left join GADATA.RobotGA.Robot as r on LTRIM(RTRIM(r.RobotName)) = LTRIM(RTRIM(wgr.Robot))
-left join GADATA.RobotGA.SBCUrefernce as ref on
-ref.Controller_id = r.id
+left join GADATA.c3g.SBCUrefernce as ref on
+ref.Controller_id = wgr.robotid
 AND
 ref.tool_id = wgr.ElectrodeNbr
 where  
@@ -78,10 +77,10 @@ select
 ,ROUND(Stdev(rt.Dsetup),2) as 'Stdev'
 ,ROUND(AVG(rt.Dsetup)+(4*Stdev(rt.Dsetup)),2) as 'UCL'
 ,ROUND(AVG(rt.Dsetup)-(4*Stdev(rt.Dsetup)),2) as 'LCL'
-from GADATA.RobotGA.rt_toollog as rt 
-left join GADATA.RobotGA.Robot as r on r.id = rt.controller_id
+from GADATA.c3g.rt_toollog as rt 
+left join GADATA.c3g.c_controller as r on r.id = rt.controller_id
 where 
-RobotName LIKE @Robotmask
+r.controller_name LIKE @Robotmask
 --AND
 --tool_id LIKE @Toolmask
 AND 
@@ -105,14 +104,14 @@ BEGIN
 Print 'Delete the target guns that wil be recalculated'
 ---------------------------------------------------------------------------------------
 --DROP TABLE GADATA.RobotGA.SBCUrefernce
-DELETE GADATA.RobotGA.SBCUrefernce FROM GADATA.RobotGA.SBCUrefernce as ref 
-left join GADATA.RobotGA.Robot as r on r.id = ref.controller_id
-Where r.RobotName LIKE @Robotmask-- AND ref.tool_id LIKE @Toolmask
+DELETE GADATA.c3g.SBCUrefernce FROM GADATA.c3g.SBCUrefernce as ref 
+left join GADATA.c3g.c_controller as r on r.id = ref.controller_id
+Where r.controller_name LIKE @Robotmask-- AND ref.tool_id LIKE @Toolmask
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 Print 'calculate new limits'
 ---------------------------------------------------------------------------------------
-INSERT INTO GADATA.RobotGA.SBCUrefernce
+INSERT INTO GADATA.c3g.SBCUrefernce
 select 
  r.ID as 'Controller_id'
 ,rt.tool_id
@@ -125,10 +124,10 @@ select
 ,ROUND(Stdev(rt.Dsetup),2) as 'Stdev'
 ,ROUND(AVG(rt.Dsetup)+(4*Stdev(rt.Dsetup)),2) as 'UCL'
 ,ROUND(AVG(rt.Dsetup)-(4*Stdev(rt.Dsetup)),2) as 'LCL'
-from GADATA.RobotGA.rt_toollog as rt 
-left join GADATA.RobotGA.Robot as r on r.id = rt.controller_id
+from GADATA.c3g.rt_toollog as rt 
+left join GADATA.c3g.c_controller as r on r.id = rt.controller_id
 where 
-RobotName LIKE @Robotmask
+controller_name LIKE @Robotmask
 --AND
 --tool_id LIKE @Toolmask
 AND 

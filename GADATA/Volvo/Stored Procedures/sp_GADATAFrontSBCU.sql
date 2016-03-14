@@ -38,7 +38,7 @@ END
 ---------------------------------------------------------------------------------------
 
 --c3g
-SELECT * FROM GADATA.RobotGA.sbcuData as s
+SELECT * FROM GADATA.c3g.sbcuData as s
 where s.tool_timestamp between   @startdate and @EndDate
 AND s.RobotName LIKE @RobotFilterWild
 AND @GetC3GSBCU = 1 

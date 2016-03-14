@@ -41,7 +41,7 @@ SELECT
 ,x.Controller_Type as 'controller_type'
 ,x.Controller_ID 
 , 0 as 'AlertStatus' 
-FROM GADATA.RobotGA.SBCUoutOfLimit as x
+FROM GADATA.c3g.SBCUoutOfLimit as x
 --to only join NEW alerts 
 Left join GADATA.volvo.ia_Alert as alert on
 (

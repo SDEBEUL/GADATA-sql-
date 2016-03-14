@@ -1,4 +1,4 @@
-﻿CREATE TABLE [RobotGA].[SBCUrefernce] (
+﻿CREATE TABLE [C3G].[SBCUrefernce] (
     [Controller_id] INT        NULL,
     [tool_id]       TINYINT    NULL,
     [Longcheck]     BIT        NULL,

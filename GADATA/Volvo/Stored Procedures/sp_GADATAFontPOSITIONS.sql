@@ -33,7 +33,7 @@ SELECT * FROM
 (
 --c3g pos
 SELECT 
-       r.RobotName
+       r.controller_name as 'RobotName'
 	  ,r.location
 	  ,[_timestamp] as 'Detection Time'
       ,[file_timestamp] as 'Save Time'
@@ -48,15 +48,15 @@ SELECT
       ,ROUND([ax7],2) as 'ax7'
       ,ROUND([ax8],2) as 'ax8'
       ,[Cnfg]
-	  ,ROW_NUMBER() OVER (PARTITION BY r.robotname, l.pos ORDER BY l._timestamp DESC) AS rnDESC
-	  ,ROW_NUMBER() OVER (PARTITION BY r.robotname, l.pos ORDER BY l._timestamp ASC) AS ModCount
-  FROM [GADATA].[RobotGA].[L_robotpositions] as l 
-  left join GADATA.RobotGA.Robot as r on r.id = l.controller_id
+	  ,ROW_NUMBER() OVER (PARTITION BY r.controller_name, l.pos ORDER BY l._timestamp DESC) AS rnDESC
+	  ,ROW_NUMBER() OVER (PARTITION BY r.controller_name, l.pos ORDER BY l._timestamp ASC) AS ModCount
+  FROM [GADATA].c3g.[L_robotpositions] as l 
+  left join GADATA.c3g.c_controller as r on r.id = l.controller_id
 
   WHERE 
   r.location LIKE @LocationFilterWild
   AND 
-  r.RobotName LIKE @RobotFilterWild
+  r.controller_name LIKE @RobotFilterWild
   ) as x 
   where x.rnDESC = 1 OR x.[Save Time] BETWEEN @StartDate AND @EndDate
 --c4g pos 

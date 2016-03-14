@@ -21,7 +21,7 @@ SET DATEFIRST 1
 ---------------------------------------------------------------------------------------
 if ((@StartDate is null) OR (@StartDate = '1900-01-01 00:00:00:000'))
 BEGIN
-SET @StartDate = GETDATE()-'1900-01-01 12:00:00'
+SET @StartDate = GETDATE()-'1900-01-01 23:00:00'
 END
 
 if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))
@@ -174,7 +174,8 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
          LStartStopEvents.sys_state as 'TriggerState',
 		 LStartStopEvents.TimeInState as 'repst',
 		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY T_a.c_timestamp ASC) AS TriggerIndx, --index op de mogelijke 'trigger errors' idx 1 is normaal de trigger
-		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY H_a.[error_severity] Desc) AS ReclassIndx, --index om makkelijk de zwaarste fout uit een storing te kunnen halen.
+		 --aan deze index een sorteer functie op dt toegevoegd. er werd soms onlogisch Relass gemaakt. (test SDB 16w10d04)
+		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY H_a.c_timestamp, H_a.[error_severity] Desc) AS ReclassIndx, --index om makkelijk de zwaarste fout uit een storing te kunnen halen.
 		 T_a.id as 'Terror_id', --Trigger error id 
 		 T_a.[error_number] as 'Terror_number',
 		 --T_a.error_text as 'Terror_text',

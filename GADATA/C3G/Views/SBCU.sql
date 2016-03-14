@@ -1,38 +1,28 @@
 ﻿
-
-CREATE VIEW [C3G].[LongShortSbcu(temp)]
+CREATE VIEW [C3G].[SBCU]
 AS
-With SbcuIndex as (
-SELECT 
-rt.* 
-,ROW_NUMBER() OVER (PARTITION BY rt.controller_id, rt.tool_id ORDER BY rt.tool_timestamp DESC) AS rnDESC
-FROM GADATA.c3g.rt_toollog as rt
-)
-
-select
- RobotName = c.controller_name+'-'+CONVERT(varchar(1),si.tool_id)
-,si.tool_timestamp as 'ShortcheckTime'
-,lsi.tool_timestamp as 'LongCheckTime'
-,Tbm = DATEDIFF(hour, lsi.tool_timestamp, si.tool_timestamp)
-,si.tool_id
-,si.Dsetup as 'ShortD'
-,lsi.Dsetup  as 'LongD'
-,DeltaD = abs(lsi.Dsetup - si.Dsetup)
-from SbcuIndex as SI
-JOIN SbcuIndex as Lsi on
-si.controller_id = lsi.controller_id
-and
-si.tool_id = lsi.tool_id
-and 
-si.Longcheck = 0
-and 
-lsi.Longcheck = 1
-and 
-si.rnDESC = lsi.rnDESC - 1
-
-LEFT JOIN GADATA.c3g.c_controller as c on si.controller_id = c.id
+SELECT        
+  c.location AS 'Location'
+, c.controller_name AS 'Robotname'
+, 'C3G' AS 'Type'
+, 'SBCU' AS 'Errortype'
+, L.tool_timestamp AS 'timestamp'
+, NULL AS 'Logcode'
+, NULL AS 'Severity'
+,'Gun:' + CAST(L.tool_id as varchar(2)) + ' Long: ' + isnull(CAST(L.Longcheck as varchar(3)), '/') + '  Update: ' + isnull(CAST(L.TcpUpdate as varchar(3)),'/') + '  Dsetup: ' + LTRIM(Str(L.dsetup, 5, 2)) + '  Dmeas: ' + LTRIM(Str(L.Dmeas, 5, 2)) AS 'Logtekst'
+, NULL AS 'Downtime'
+, T.Vyear AS 'Year'
+, T.Vweek AS 'Week'
+, T.Vday AS 'day'
+, T.shift AS 'Shift'
+, 'SBCU' AS 'Object'
+, 'SBCU' As 'Subgroup'
+, CAST(L.id AS int) AS 'idx'
+FROM    c3g.rt_toollog as L 
+LEFT JOIN c3g.c_controller as c ON L.controller_id = c.ID 
+LEFT  JOIN VOLVO.L_timeline AS T ON L.tool_timestamp BETWEEN T.starttime AND T.endtime
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'LongShortSbcu(temp)';
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'SBCU';
 
 
 GO
@@ -41,7 +31,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[31] 4[19] 2[32] 3) )"
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -107,32 +97,12 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "SI"
+         Begin Table = "c_Appl (ABB)"
             Begin Extent = 
                Top = 6
                Left = 38
-               Bottom = 67
+               Bottom = 101
                Right = 208
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "Lsi"
-            Begin Extent = 
-               Top = 6
-               Left = 246
-               Bottom = 67
-               Right = 416
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "Robot (RobotGA)"
-            Begin Extent = 
-               Top = 6
-               Left = 454
-               Bottom = 135
-               Right = 624
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -163,5 +133,5 @@ Begin DesignProperties =
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'LongShortSbcu(temp)';
+', @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'SBCU';
 

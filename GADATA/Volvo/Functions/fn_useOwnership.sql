@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE FUNCTION [Volvo].[fn_useOwnership] 
 	(
 		@InLocation varchar(256),
@@ -16,5 +17,5 @@ return @Inlocation
 END
  
 -- return Ownership for location
-RETURN (SELECT top 1 ISNULL(Robots.ownership,@InLocation) FROM GADATA.Volvo.Robots WHERE Robots.controller_name = @InController_name)
+RETURN ISNULL((SELECT top 1 Robots.ownership FROM GADATA.Volvo.Robots WHERE Robots.controller_name = @InController_name),@InLocation)
 END
