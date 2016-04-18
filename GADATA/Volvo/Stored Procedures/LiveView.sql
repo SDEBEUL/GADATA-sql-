@@ -337,8 +337,21 @@ WHERE
   OR
  (SysBreakDwnIndx = 1  AND (_timestamp > getdate()-'1900-01-01 00:04:00:000') ) --laatste event of not geen 5 min aan het draaien 
 
- 
- 
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--COAMU C4G warnings (een bepaald aantal warnings op een object en alarm geven)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION 
+select * from GADATA.C4G.WARNING as w where w.Downtime > 5
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--COAMU C3G warnings (een bepaald aantal warnings op een object en alarm geven)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+UNION 
+select * from GADATA.C3G.WARNING as w where w.Downtime > 5
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
@@ -347,14 +360,14 @@ WHERE
 ---------------------------------------------------------------------------------------
 UNION
 SELECT DISTINCT  
-              NULL AS 'Location',
+              'IT15582_vm1' AS 'Location',
 			  'ABB OPC' AS 'Robot',
               x.type AS 'Type',
 			  'LIVE' as 'Errortype',
               convert(char(19),(getdate()+'1900-01-02 00:00:0.00'),120) AS 'Timestamp',
               NULL AS 'Logcode',
               20 AS 'Severity',
-			  'ABB OPC WARNING type: ' + x.type + '  NO DATA FROM 5 min Last message: ' + convert(char(19),x.LastMessage,120) AS 'Logtekst',
+			  'ABB OPC WARNING type: ' + x.type + '  NO DATA (30min) Last message: ' + convert(char(19),x.LastMessage,120) AS 'Logtekst',
 			  NULL AS 'DT',
               NULL AS 'Year',
 			  NULL AS 'Week',
@@ -371,7 +384,7 @@ SELECT DISTINCT
 from GADATA.abb.LastCommList as comm
 ) as x 
 where x.rnDESC = 1 
-and x.LastMessage < (getdate() - '1900-01-01 00:05:0.00')
+and x.LastMessage < (getdate() - '1900-01-01 00:30:00')
 ---------------------------------------------------------------------------------------
 
 ) as x 

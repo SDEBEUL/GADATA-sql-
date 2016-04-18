@@ -16,3 +16,11 @@
     CONSTRAINT [PK_rt_toollog] PRIMARY KEY CLUSTERED ([ID] ASC)
 );
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_c3g_rt_toollog__tool_timesamp__longcheck]
+    ON [C3G].[rt_toollog]([tool_timestamp] ASC, [Longcheck] ASC)
+    INCLUDE([tool_id], [controller_id]);
+

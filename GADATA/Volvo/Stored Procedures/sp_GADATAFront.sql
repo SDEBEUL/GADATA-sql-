@@ -584,7 +584,7 @@ AND
 ISNULL(S4E.[Object],'') LIKE @ApplFilterWild AND ISNULL(S4E.Subgroup,'') LIKE @SubgroupFilterWild
 AND
 --Exclude Gatestops 
-((@ExcludeGateStops = 1 AND (ISNULL(S4E.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
+((@ExcludeGateStops = 1 AND (ISNULL(S4E.subgroup,'') NOT LIKE '%GateStop%')) OR @ExcludeGateStops =0)
 AND 
 @GetS4Error = 1
 ---------------------------------------------------------------------------------------
@@ -646,7 +646,7 @@ AND
 ISNULL(IRC5E.[Object],'') LIKE @ApplFilterWild AND ISNULL(IRC5E.Subgroup,'') LIKE @SubgroupFilterWild
 AND 
 --Exclude Gatestops 
-((@ExcludeGateStops = 1 AND (ISNULL(IRC5E.subgroup,'') NOT LIKE '%Gate/Hold%')) OR @ExcludeGateStops =0)
+((@ExcludeGateStops = 1 AND (ISNULL(IRC5E.subgroup,'') NOT LIKE '%GateStop%')) OR @ExcludeGateStops =0)
 AND
 @GetIRC5Error = 1
 ---------------------------------------------------------------------------------------

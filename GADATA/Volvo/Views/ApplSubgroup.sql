@@ -1,17 +1,18 @@
 ﻿
+
 CREATE VIEW [Volvo].[ApplSubgroup]
 AS
 SELECT DISTINCT * 
 FROM(
 SELECT DISTINCT 
-c_Appl.APPL
+ISNULL(c_Appl.APPL,'N/A') as 'APPL'
 ,c_Subgroup.Subgroup
 From GADATA.C4G.c_LogClassRules 
 LEFT JOIN GADATA.C4G.c_Appl on c_Appl.id = c_LogClassRules.Appl_id
 LEFT JOIN GADATA.C4G.c_Subgroup on c_Subgroup.id = c_LogClassRules.Subgroup_id
 UNION
 SELECT DISTINCT 
-c_Appl.APPL
+ISNULL(c_Appl.APPL,'N/A')  as 'APPL'
 ,c_Subgroup.Subgroup
 From GADATA.ABB.c_LogClassRules 
 LEFT JOIN GADATA.ABB.c_Appl on c_Appl.id = c_LogClassRules.Appl_id

@@ -80,6 +80,7 @@ Print'--step to normalize the rt_alarm dataset. gets the normalized id. and put 
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('#GLUE_rt_alarm_normalized') is not null) drop table #GLUE_rt_alarm_normalized
 SELECT 
+R.ID,
  L1.ID as 'controller_id'
 ,R.Str1 as 'c_status'
 ,R.DateTime as 'DatumTijd'
@@ -151,7 +152,7 @@ Print'--delete rt data where logtype =1'
 ---------------------------------------------------------------------------------------
 
 DELETE FROM [GLUE].[rt_data]
-      WHERE LogType=1
+      WHERE (LogType=1) AND ( ([GLUE].[rt_data].ID ) <= (select max(ID) from #GLUE_rt_alarm_normalized) )
 
 --****************************************************************************************************************--
 END

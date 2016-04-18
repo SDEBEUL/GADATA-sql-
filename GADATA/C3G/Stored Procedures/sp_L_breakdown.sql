@@ -10,12 +10,10 @@ BEGIN
 ---------------------------------------------------------------------------------------
 print 'Running: [C3G].[sp_L_breakdown]'
 ---------------------------------------------------------------------------------------
-
 ---------------------------------------------------------------------------------------
 --set first day of the week to monday (german std)
 ---------------------------------------------------------------------------------------
 SET DATEFIRST 1
-
 ---------------------------------------------------------------------------------------
 --Set default values of start and end date
 ---------------------------------------------------------------------------------------
@@ -28,7 +26,6 @@ if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))
 BEGIN
 SET @EndDate = GETDATE()
 END
-
 ---------------------------------------------------------------------------------------
 print'Joining events to get TIS "time in state"'
 ---------------------------------------------------------------------------------------
@@ -38,7 +35,6 @@ SELECT
 ,rt_e.controller_id
 ,rt_e._timestamp
 --**********LEAP DAY BUG ! temporay implement to fix C3G leapday issue. -24 hours on C_timestamp**********--
---,ISNULL(rt_e.c_timestamp,rt_e._timestamp) as 'c_timestamp' --because c_timestamp is not passed for non controller side events (disco/watchdogs)
 ,ISNULL(rt_e.c_timestamp-1,rt_e._timestamp) as 'c_timestamp' --because c_timestamp is not passed for non controller side events (disco/watchdogs)
 ,rt_e.sys_state
 ,ROW_NUMBER() OVER (PARTITION BY rt_e.controller_id ORDER BY rt_e._timestamp DESC) AS 'rnDesc'
@@ -47,15 +43,9 @@ SELECT
 INTO #SysEventTime
 FROM GADATA.C3G.rt_sys_event as rt_e
 WHERE rt_e._timestamp  BETWEEN @StartDate AND @EndDate
----------------------------------------------------------------------------------------
 --SELECT TOP 30 *,info = GADATA.c3g.fn_decodeSysstate(sys_state) FROM #SysEventTime  order by _timestamp desc 
 ---------------------------------------------------------------------------------------
-
---------------------------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------------------------
-print'Calculation of Start and stop events. (breakdown tags)'
---------------------------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------------------------
+print'Calculation of Start and stop events. (breakdown tags / windows)'
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#StartStopEvents') is not null) drop table #StartStopEvents
        (
@@ -72,9 +62,8 @@ if (OBJECT_ID('tempdb..#StartStopEvents') is not null) drop table #StartStopEven
        into #StartStopEvents
        FROM #SysEventTime
     JOIN    #SysEventTime AS LSysEventTime 
-    
        ON     (
-       --start events (overgang van Robstate 0->1) 
+       --start events (change from Robstate 0->1) 
               (#SysEventTime.controller_id = LSysEventTime.controller_id) 
               AND
               (#SysEventTime.rnDESC = (LSysEventTime.rnDESC-1))
@@ -83,10 +72,9 @@ if (OBJECT_ID('tempdb..#StartStopEvents') is not null) drop table #StartStopEven
 			  AND
 			  (LSyseventTime.robotState = 0)
               )
-  
        OR
               (
-       --stop events (overgang Van Robstate 1->0)
+       --stop events (change from  Robstate 1->0)
               (#SysEventTime.controller_id = LSysEventTime.controller_id) 
               AND
               (#SysEventTime.rnDESC = (LSysEventTime.rnDESC-1))
@@ -95,9 +83,7 @@ if (OBJECT_ID('tempdb..#StartStopEvents') is not null) drop table #StartStopEven
 			  AND
 			  (LSyseventTime.robotState = 1)
               )  
-
 	    OR
-
 			 (
 		--stop event (robot is currently down) 
 		     (#SysEventTime.controller_id = LSysEventTime.controller_id) 
@@ -109,10 +95,7 @@ if (OBJECT_ID('tempdb..#StartStopEvents') is not null) drop table #StartStopEven
 			 (#SysEventTime.robotState = 0)
 			 )
        )
----------------------------------------------------------------------------------------
 --SELECT TOP 10 *,info = GADATA.c4g.fn_decodeSysstate(sys_state) FROM #StartStopEvents order by _timestamp desc 
-
-
 ---------------------------------------------------------------------------------------
 print'Preselect and join H_alarm with L_error.'
 --also join rt_sys_events 0 and 1 (disconnect and controller side block) give this a servity of 11
@@ -160,8 +143,6 @@ FROM
 ) as x
 )	
 ---------------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------------
 print'join start event with his stop event and join al the errors in that timeslot (make index on these errors)'
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
@@ -173,15 +154,19 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 		 LStartStopEvents.c_timestamp as '_Sb',
          LStartStopEvents.sys_state as 'TriggerState',
 		 LStartStopEvents.TimeInState as 'repst',
-		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY T_a.c_timestamp ASC) AS TriggerIndx, --index op de mogelijke 'trigger errors' idx 1 is normaal de trigger
+		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY T_a.c_timestamp ASC) AS TriggerIndx, 
+		 --index op de mogelijke 'trigger errors' idx 1 is normaal de trigger
 		 --aan deze index een sorteer functie op dt toegevoegd. er werd soms onlogisch Relass gemaakt. (test SDB 16w10d04)
-		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY H_a.c_timestamp, H_a.[error_severity] Desc) AS ReclassIndx, --index om makkelijk de zwaarste fout uit een storing te kunnen halen.
+		 ROW_NUMBER() OVER (PARTITION BY #StartStopEvents.id ORDER BY H_a.c_timestamp, H_a.[error_severity] Desc) AS ReclassIndx, 
+		 --index om makkelijk de zwaarste fout uit een storing te kunnen halen.
 		 T_a.id as 'Terror_id', --Trigger error id 
 		 T_a.[error_number] as 'Terror_number',
-		 --T_a.error_text as 'Terror_text',
+		 T_a.[error_severity] as 'Terror_serverity',
+		 T_a.error_text as 'Terror_text',
 		 H_a.id as 'Rerror_id', --Reclassification error id 
 		 H_a.[error_number] as 'Rerror_number',
-		 --H_a.error_text as 'Rerror_text',
+		 H_a.[error_severity] as 'Herror_serverity',
+		 H_a.error_text as 'Rerror_text',
 		 #StartStopEvents.robotState as 'BreakdownFinishedBit', --als deze bit 0 is is de storing nog bezig 
 		 #StartStopEvents.sys_state  as 'ActiveState' --only for use in ongoing breakdowns (current state of the system)
        INTO #SysBreakDwn
@@ -238,13 +223,10 @@ if (OBJECT_ID('tempdb..#SysBreakDwn') is not null) drop table #SysBreakDwn
 	      )
 ---------------------------------------------------------
  )
----------------------------------------------------------------------------------------
 --select * from #SysBreakDwn
---------------------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
 Print'Output qry (and check for new items in hystorian) FOR FINISED BREAKDOWNS' 
---------------------------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
 INSERT into GADATA.C3G.h_breakdown 
 SELECT    
          #SysBreakDwn.controller_id as 'controller_id',
@@ -276,9 +258,10 @@ LEFT JOIN #SysBreakDwn as LSysBreakDwn
  (LSysBreakDwn.ReclassIndx = 1) --Koppel de beste reclasificatie (hoogste serv)
  AND
  (ISNULL(#SysBreakDwn.Terror_number,0) <> LSysBreakDwn.Rerror_number) --Reclass kan niet zelfde fout zijn als trigger 
+ AND
+ (ISNULL(#SysBreakDwn.Terror_serverity,0) <= LSysBreakDwn.Herror_serverity) --Reclass must be higer serv than trigger
  )
 ----------------------------------------------------------------
-
 --join the history to filter new records
 LEFT JOIN GADATA.C3G.h_breakdown as H on
 (
@@ -286,7 +269,6 @@ H.controller_id = #SysBreakDwn.controller_id
 AND
 H.Trig_id = #SysBreakDwn.id
 )
-
 WHERE
 --Only Root cause errors  
 ISNULL(#SysBreakDwn.TriggerIndx,0) <= 1 
@@ -296,6 +278,7 @@ AND
 AND
 --only ad new records
 (H.id IS NULL)
+
 
 ORDER BY EndOfBreakdown DESC 
 --------------------------------------------------------------------------------------------------------------------------------------------
@@ -313,13 +296,13 @@ EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = @RequestString
 ---------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
 Print'Output qry (and check for new items in hystorian) FOR ONGOINING BREAKDOWNS' 
---------------------------------------------------------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
 --first clear the 'rt_breakdown' table
 DELETE GADATA.C3G.rt_breakdown FROM GADATA.C3G.rt_breakdown
---------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
 INSERT INTO GADATA.C3G.rt_breakdown
 SELECT    
          #SysBreakDwn.controller_id as 'controller_id',
@@ -352,6 +335,8 @@ LEFT JOIN #SysBreakDwn as LSysBreakDwn
  (LSysBreakDwn.ReclassIndx = 1) --Koppel de beste reclasificatie (hoogste serv)
  AND
  (ISNULL(#SysBreakDwn.Terror_number,0) <> LSysBreakDwn.Rerror_number) --Reclass kan niet zelfde fout zijn als trigger 
+ AND
+ (ISNULL(#SysBreakDwn.Terror_serverity,0) <= LSysBreakDwn.Herror_serverity) --Reclass must be higer serv than trigger
  )
 ----------------------------------------------------------------
 WHERE
@@ -360,9 +345,5 @@ ISNULL(#SysBreakDwn.TriggerIndx,0) <= 1
 --Only Breakdown that are still bussy 
 AND
 #SysBreakDwn.BreakdownFinishedBit = 0
-
---ORDER BY EndOfBreakdown DESC 
-
-
 
 END

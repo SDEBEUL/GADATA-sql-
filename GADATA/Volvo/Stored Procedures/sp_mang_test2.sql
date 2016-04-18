@@ -14,8 +14,7 @@ SET DATEFIRST 1
 ---------------------------------------------------------------------------------------
 
 SET @EndDate = getdate()
-SET @StartDate = '2015-05-01 00:00:00.000' -- getdate()-80
-SET @StartDate = '2016-01-01 00:00:00.000' -- getdate()-80
+SET @StartDate = '2015-11-01 00:00:00.000' -- getdate()-80
 ---------------------------------------------------------------------------------------
 --first we need to build a preselect tabel that contains the nuber of robot or appl insances per zone.
 --this is 
@@ -59,24 +58,28 @@ on y.location = x.location
 -------------------------------------------------------------------------------------------------------------------------------
 SELECT 
  x.Plant
-,x.Area
+,x.Area as 'zone'
 ,x.Location
 ,x.RobotsInZone
 ,x.Year
 ,x.QUARTER
+,datepart(month,x.StartOfBreakdown) as 'month'
 ,x.Week
 ,min(x.StartOfBreakdown) as 'dtRef'
-,ROUND((SUM(CAST(x.DownTs as float))/60),2) as 'SumOfDtM'  
-,ROUND((SUM(CAST(x.DownTs as float))/60) / x.RobotsInZone,2) As 'SumofDtM/CountRobotInZone'
+,ROUND((SUM(CAST(x.DownTs as float))),2) as 'SumOfDtM'  
+,ROUND((SUM(CAST(x.DownTs as float))) / x.RobotsInZone,2) As 'SumofDtM/CountRobotInZone'
 ,Count(x.Downts) as 'CountOfDt'
-,ROUND((Avg(CAST(x.downts as float))/60),2) as 'AvgofDtM'
-,ROUND((SUM(CAST(x.ResponseT as float))/60 ),2)as 'SumOfRespM'  
-,ROUND((SUM(CAST(x.ResponseT as float))/60) / x.RobotsInZone,2) As 'SumofRespM/CountRobotInZone'
-,ROUND((Avg(CAST(x.ResponseT as float))/60),2) as 'AvgofRespM'
-,ROUND((SUM(CAST(x.ReolveT as float))/60),2) as 'SumOfResoM'  
-,ROUND((SUM(CAST(x.ReolveT as float))/60) / x.RobotsInZone,2) As 'SumofResoM/CountRobotInZone'
-,ROUND((Avg(CAST(x.ReolveT as float))/60),2) as 'AvgofResoM'
+,ROUND(Count(CAST(x.Downts as float)) / x.RobotsInZone,2) as 'CountofDt/CountRobotInZone' 
+,ROUND((Avg(CAST(x.downts as float))),2) as 'AvgofDtM'
+,ROUND((SUM(CAST(x.ResponseT as float)) ),2)as 'SumOfRespM'  
+,ROUND((SUM(CAST(x.ResponseT as float))) / x.RobotsInZone,2) As 'SumofRespM/CountRobotInZone'
+,ROUND((Avg(CAST(x.ResponseT as float))),2) as 'AvgofRespM'
+,ROUND((SUM(CAST(x.ReolveT as float))),2) as 'SumOfResoM'  
+,ROUND((SUM(CAST(x.ReolveT as float))) / x.RobotsInZone,2) As 'SumofResoM/CountRobotInZone'
+,ROUND((Avg(CAST(x.ReolveT as float))),2) as 'AvgofResoM'
 FROM (
+
+--SELECT * FROM(
 ---------------------------------------------------------------------------------------
 --c4g 
 ---------------------------------------------------------------------------------------
@@ -92,7 +95,7 @@ SELECT
 , DATEDIFF(SECOND,'1900-01-01 00:00:00.00',H.Rt) as 'ResponseT' --response en resolve tijden direct meenemen om LDB content te houden.... 
 , DATEDIFF(SECOND,(H.StartOfBreakdown +  H.Rt),H.EndOfBreakdown) as 'ReolveT'
 , h.StartOfBreakdown
-
+, l.error_text
 FROM   GADATA.C4G.h_breakdown as H 
 INNER JOIN #tCountedRobots as C ON H.controller_id = c.id and c.generation = 4
 --join L_error (normal cause)
@@ -118,8 +121,12 @@ AND
 ((H.EndOfBreakdown - H.StartOfBreakdown) < '1900-01-01 03:00:00.00') --storingen meer dan X uur eraf. (ook weekend probs)
 AND
 (H.StartOfBreakdown BETWEEN  @StartDate and @EndDate)
+AND
+(H.StartOfBreakdown < H.EndOfBreakdown)
 AND 
 (c.location  LIKE '%%') --locatie moet gekend zijn 
+AND 
+(c.Area is not null)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -138,7 +145,7 @@ SELECT
 , DATEDIFF(SECOND,'1900-01-01 00:00:00.00',H.Rt) as 'ResponseT' --response en resolve tijden direct meenemen om LDB content te houden.... 
 , DATEDIFF(SECOND,(H.StartOfBreakdown +  H.Rt),H.EndOfBreakdown) as 'ReolveT'
 , h.StartOfBreakdown
-
+, L.error_text
 FROM   GADATA.C3G.h_breakdown as H 
 INNER JOIN #tCountedRobots as C ON H.controller_id = c.id and c.generation = 3
 --join L_error (normal cause)
@@ -164,16 +171,23 @@ AND
 AND
 (T.ploeg NOT LIKE 'WE') --niet in weekend
 AND
+(LA.APPL NOT LIKE 'Database%')
+AND
 ((H.EndOfBreakdown - H.StartOfBreakdown) < '1900-01-01 03:00:00.00') --storingen meer dan X uur eraf. (ook weekend probs)
 AND
 (H.StartOfBreakdown BETWEEN  @StartDate and @EndDate)
+AND
+(H.StartOfBreakdown < H.EndOfBreakdown)
 AND 
 (c.location  LIKE '%%') --locatie moet gekend zijn 
+AND 
+(c.Area is not null)
 ---------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------
 ) as x 
 
 WHERE x.week not in(53) -- domme week 53 
+
 
 GROUP BY 
   x.plant
@@ -183,5 +197,5 @@ GROUP BY
 , x.year 
 , x.QUARTER
 , x.week 
-
+,datepart(month,x.StartOfBreakdown)
 END

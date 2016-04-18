@@ -37,6 +37,12 @@ SET @Robot = (SELECT TOP 1 '%' + rws.Robot + '%' from GADATA.volvo.RobotWeldGunR
 SET @Tool = (SELECT TOP 1 '%Tool: ' + CAST(rws.ElectrodeNbr as varchar(2)) + '%' from GADATA.volvo.RobotWeldGunRelation as rws where rws.WeldgunName LIKE @Weldgunname)
 END
 ---------------------------------------------------------------------------------------
+--get the timer id 
+DECLARE @timerid as int 
+DECLARE @ElectrodeNbr as int
+SET @timerid = (SELECT TOP 1 rwg.Timerid from GADATA.volvo.RobotWeldGunRelation as rwg where rwg.Robot like @Robot)
+SET @ElectrodeNbr = (SELECT TOP 1 rws.ElectrodeNbr  from GADATA.volvo.RobotWeldGunRelation as rws where rws.WeldgunName LIKE @Weldgunname)
+--
 
 ---------------------------------------------------------------------------------------
 --dit is echt iets kaka... ik wil dus voor al de verschillende 'data' bronnen
@@ -79,28 +85,23 @@ where
 midair.timestamp between   @startdate and @EndDate 
 AND
 midair.Robotname LIKE @Robot
-/*
+AND
+midair.Tool LIKE @Tool
+
 UNION
 select
- wgr.Robot
-,'Tool: ' + cast(wgr.ElectrodeNbr as varchar(2)) 
-,TE.DateTime
-from GADATA.dbo.TimerErrorLog as TE
-left join GADATA.volvo.RobotWeldGunRelation as WGR on WGR.Timerid = TE.TimerID
-
-join GADATA.dbo.TimerErrorText as Lt 
-on 
-LT.ID =TE.ErrorID
-AND 
-LT.ErrorText LIKE 'Electrode changed ElectrodeNbr%'
-AND 
-LTRIM(RTRIM(REPLACE(LT.ErrorText,'Electrode changed ElectrodeNbr',''))) LIKE LTRIM(RTRIM(WGR.ElectrodeNbr))
+@Robot as 'robotname'
+,'Tool: ' + cast(TC.ElectrodeNbr as varchar(2)) 
+,TC.DateTime
+from [GADATA].[dbo].[WearBeforeChange] as TC
 
 where 
-TE.DateTime between   @startdate and @EndDate 
+TC.DateTime between   @startdate and @EndDate 
 AND
-wgr.Robot LIKE @Robot
-*/
+TC.TimerID = @timerid
+AND
+TC.ElectrodeNbr = @ElectrodeNbr
+
 ) as x 
 
 
@@ -204,8 +205,32 @@ AND
 midair.timestamp between   @startdate and @EndDate 
 AND
 midair.Robotname LIKE @Robot
---AND
---midair. = @Tool
+AND
+midair.tool like @Tool
+
+UNION
+SELECT 
+ #Timeref.RobotName
+,#Timeref.tool_id
+,#Timeref.Timestamp
+,'Tipchange' as 'TYPE'
+,NULL
+,NULL
+,NULL
+,NULL
+,NULL
+,NULL
+,NULL
+,tc.wear as 'ResisRef'
+FROM #Timeref 
+LEFT JOIN [GADATA].[dbo].[WearBeforeChange] as TC ON
+TC.DateTime = #Timeref.Timestamp
+AND
+TC.DateTime between   @startdate and @EndDate 
+AND
+TC.TimerID LIKE @timerid
+AND
+tc.ElectrodeNbr like @ElectrodeNbr
  ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 --Activity log (logs the execution of the Query to a table)

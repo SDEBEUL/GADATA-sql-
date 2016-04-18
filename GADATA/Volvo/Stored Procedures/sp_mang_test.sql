@@ -14,17 +14,20 @@ SET DATEFIRST 1
 ---------------------------------------------------------------------------------------
 
 SET @EndDate = getdate()
-SET @StartDate = '2015-05-01 00:00:00.000' -- getdate()-80
+SET @StartDate = '2014-01-01 00:00:00.000' -- getdate()-80
 
 ---------------------------------------------------------------------------------------
 --c4g 
 ---------------------------------------------------------------------------------------
 SELECT 
   c.location AS 'Location'
+, c.Area as 'zone'
+, c.ownership as 'ownership'
 , c.controller_name AS 'Robotname'
 , LA.APPL AS 'Object'
 , LS.Subgroup AS 'Subgroup'
 , T.Vyear AS 'Year'
+, datepart(MONTH,h.EndOfBreakdown) as 'Month'
 , T.Vweek AS 'Week'
 , T.Vday AS 'day'
 , T.ploeg AS 'Ploeg'
@@ -62,12 +65,16 @@ AND
 (LS.subgroup NOT LIKE '%Water%') --koelwaterfouten eraf. (opstart)
 AND
 (T.ploeg NOT LIKE 'WE') --niet in weekend
-AND
-((H.EndOfBreakdown - H.StartOfBreakdown) < '1900-01-01 03:00:00.00') --storingen meer dan X uur eraf. (ook weekend probs)
+--AND
+--((H.EndOfBreakdown - H.StartOfBreakdown) < '1900-01-01 03:00:00.00') --storingen meer dan X uur eraf. (ook weekend probs)
 AND
 (H.StartOfBreakdown BETWEEN  @StartDate and @EndDate)
+AND
+(H.StartOfBreakdown < H.EndOfBreakdown)
 AND 
 (c.location  LIKE '%%') --locatie moet gekend zijn 
+AND 
+(c.Area is not null)
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -76,10 +83,13 @@ AND
 UNION
 SELECT 
   c.location AS 'Location'
+, c.Area as 'zone'
+, c.ownership as 'ownership'
 , c.controller_name AS 'Robotname'
 , LA.APPL AS 'Object'
 , LS.Subgroup AS 'Subgroup'
 , T.Vyear AS 'Year'
+, datepart(MONTH,h.EndOfBreakdown) as 'Month'
 , T.Vweek AS 'Week'
 , T.Vday AS 'day'
 , T.ploeg AS 'Ploeg'
@@ -116,16 +126,22 @@ where
 (LS.subgroup NOT LIKE '%Gate/Hold%') --geen gatestops (enkel rootcause storingen gebruiken)
 AND
 (LS.subgroup NOT LIKE '%Water%') --koelwaterfouten eraf. (opstart)
-AND
-(LA.APPL NOT LIKE '%N/A%') --niet gekende objecten weg
+--AND
+--(LA.APPL NOT LIKE '%N/A%') --niet gekende objecten weg
 AND
 (T.ploeg NOT LIKE 'WE') --niet in weekend
 AND
-((H.EndOfBreakdown - H.StartOfBreakdown) < '1900-01-01 03:00:00.00') --storingen meer dan X uur eraf. (ook weekend probs)
+(LA.APPL NOT LIKE 'Database%')
+--AND
+--((H.EndOfBreakdown - H.StartOfBreakdown) < '1900-01-01 03:00:00.00') --storingen meer dan X uur eraf. (ook weekend probs)
 AND
 (H.StartOfBreakdown BETWEEN  @StartDate and @EndDate)
+AND
+(H.StartOfBreakdown < H.EndOfBreakdown)
 AND 
 (c.location  LIKE '%%') --locatie moet gekend zijn 
+AND 
+(c.Area is not null)
 ---------------------------------------------------------------------------------------
 
 
