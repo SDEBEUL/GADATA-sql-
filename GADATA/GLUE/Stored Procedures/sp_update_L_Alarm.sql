@@ -1,4 +1,5 @@
-﻿CREATE PROCEDURE [GLUE].[sp_update_L_Alarm]
+﻿
+CREATE PROCEDURE [GLUE].[sp_update_L_Alarm]
 
 AS
 --USE GADATA
@@ -109,8 +110,9 @@ LTRIM(RTRIM(R.Location)) = LTRIM(RTRIM(L1.Name))
 join GADATA.glue.Signal as L2 on
 LTRIM(RTRIM(R.Str5)) = LTRIM(RTRIM(L2.SignalName))
 
-where  R.LogType=1
+left OUTER join GADATA.GLUE.overbodige_alarm_fouten4 as OVB on LTRIM(RTRIM(OVB.Name))=LTRIM(RTRIM(L.Description))
 
+where OVB.ID IS NULL AND R.LogType=1
 ---------------------------------------------------------------------------------------
 
 --Select top 10000 * from #GLUE_rt_alarm_normalized

@@ -1,4 +1,7 @@
 ﻿
+
+
+
 CREATE PROCEDURE [GLUE].[sp_update_L_Operator]
 
 AS
@@ -123,7 +126,9 @@ LTRIM(RTRIM(R.Str4)) = LTRIM(RTRIM(L2.Description))
 join GADATA.glue.Signal as L3 on
 LTRIM(RTRIM(R.Str7)) = LTRIM(RTRIM(L3.SignalName))
 
-where R.LogType=2
+left OUTER join GADATA.GLUE.overbodige_operator_fouten4 as OVB on OVB.Name=L2.Description
+
+where OVB.ID IS NULL AND R.LogType=2
 
 ---------------------------------------------------------------------------------------
 
