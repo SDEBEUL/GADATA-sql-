@@ -4,6 +4,9 @@
     [update_rate]   INT           NULL,
     [status_handle] INT           NULL,
     [statement]     VARCHAR (304) NULL,
+    [keycode]       INT           NULL,
     CONSTRAINT [PK_c_statement] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 

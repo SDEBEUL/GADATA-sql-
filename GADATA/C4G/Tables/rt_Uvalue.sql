@@ -5,9 +5,11 @@
     [value]         VARCHAR (2048) NULL,
     [variable_id]   INT            NULL,
     CONSTRAINT [PK_rt_Uvalue] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_rt_Uvalue_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id]),
+    CONSTRAINT [FK_rt_Uvalue_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller2] ([id]),
     CONSTRAINT [FK_rt_Uvalue_c_variable] FOREIGN KEY ([variable_id]) REFERENCES [C4G].[c_variable] ([id])
 );
+
+
 
 
 

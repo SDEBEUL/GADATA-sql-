@@ -25,8 +25,20 @@
     [Plant]                 VARCHAR (3)   NULL,
     [Area]                  VARCHAR (25)  NULL,
     [SubArea]               VARCHAR (25)  NULL,
-    CONSTRAINT [PK_c_controller] PRIMARY KEY CLUSTERED ([id] ASC)
+    [event_mask]            INT           NULL,
+    [record_mask]           INT           NULL,
+    [error_trigger_mask]    INT           NULL,
+    [prog_info_ign_mask]    INT           NULL,
+    [production_monitor]    INT           NULL,
+    [poll_clock]            INT           NULL,
+    [rt_flags]              INT           NULL,
+    [description]           VARCHAR (256) NULL,
+    [swversion]             VARCHAR (50)  NULL,
+    [keycode]               INT           NULL,
+    CONSTRAINT [PK_c_controller1] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 

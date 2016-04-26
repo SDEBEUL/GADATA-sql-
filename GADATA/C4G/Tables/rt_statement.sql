@@ -6,10 +6,12 @@
     [status]        INT           NULL,
     [status_text]   VARCHAR (256) NULL,
     CONSTRAINT [PK_rt_statement] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_rt_statement_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id]),
-    CONSTRAINT [FK_rt_statement_c_controller1] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id]),
+    CONSTRAINT [FK_rt_statement_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller2] ([id]),
+    CONSTRAINT [FK_rt_statement_c_controller1] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller2] ([id]),
     CONSTRAINT [FK_rt_statement_c_statement] FOREIGN KEY ([statement_id]) REFERENCES [C4G].[c_statement] ([id])
 );
+
+
 
 
 

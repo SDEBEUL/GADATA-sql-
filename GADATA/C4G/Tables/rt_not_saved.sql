@@ -5,6 +5,8 @@
     [program]       VARCHAR (32) NULL,
     [modified]      BIT          NULL,
     CONSTRAINT [PK_rt_not_saved] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_rt_not_saved_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id])
+    CONSTRAINT [FK_rt_not_saved_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller2] ([id])
 );
+
+
 

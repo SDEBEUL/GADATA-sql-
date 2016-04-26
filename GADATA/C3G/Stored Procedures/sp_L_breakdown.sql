@@ -140,6 +140,7 @@ FROM
 	H._timestamp  BETWEEN @StartDate AND @EndDate 
 	AND 
 	H.sys_state in(0,1)
+--DISCO point change -1
 ) as x
 )	
 ---------------------------------------------------------------------------------------

@@ -58,6 +58,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @GetAlerts as bit = 0
 AS
 BEGIN
+
+
 ---------------------------------------------------------------------------------------
 --Kindly responde to user if using unfinished stuff
 ---------------------------------------------------------------------------------------
@@ -66,13 +68,11 @@ IF  (@GetTimerWear =1 )
 RAISERROR (15600,-1,-1, 'Im sorry ... Have not got this implemented (SDEBEUL)');
 --END
 
-
 ---------------------------------------------------------------------------------------
 --set first day of the week to monday (german std)
 ---------------------------------------------------------------------------------------
 SET DATEFIRST 1
 ---------------------------------------------------------------------------------------
-
 
 ---------------------------------------------------------------------------------------
 --Set default values of start and end date
@@ -811,19 +811,13 @@ SET @rowcountmen = @@rowcount
 DECLARE @RequestString as varchar(255)
 SET @RequestString =
    CONCAT(
-   'Running: [Volvo].[sp_GADATAFrontHand]',
+   'Running: [Volvo].[sp_GADATAFront]',
    ' @StartDate = " '						, @StartDate
      ,' "  ,@EndDate = " '					, @EndDate
      ,' "  ,@RobotFilterWild = " '			, @RobotFilterWild
-     ,' "  ,@LocationFilterWild = " '		, @LocationFilterWild 
-     ,' "  ,@GetC4GAction = " '				, @GetC4GAction   
-     ,' "  ,@GetC4Gerror = " '				, @GetC4Gerror 
-     ,' "  ,@GetC4GEvents = " '				, @GetC4GEvents 
-     ,' "  ,@GetC4GDowntimes = " '			, @GetC4GDowntimes  
-     ,' "  ,@GetC4GDownTBegin = " '			, @GetC4GDownTBegin  
-     ,' "  ,@GetC3GError = " '				, @GetC3GError 
-     ,' "  ,@ExcludeGateStops = " '			, @ExcludeGateStops  
-     ,' "  ,@MinLogserv = " '				, @MinLogserv ,' "'
+     ,' "  ,@LocationFilterWild = " '		, @LocationFilterWild
+	 ,' "  ,@GetC4gLive = " '				, @GetC4gLive 
+     ,' "  ,@GetC3gLive = " '				, @GetC3gLive ,' "'
 	)
 EXEC GADATA.volvo.sp_Alog @rowcount = @rowcountmen, @Request = @RequestString
 

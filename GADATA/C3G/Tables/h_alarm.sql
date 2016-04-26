@@ -7,9 +7,11 @@
     [error_id]       INT      NULL,
     [is_realtime]    BIT      NULL,
     CONSTRAINT [PK_h_alarm] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_h_alarm_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C3G].[c_controller] ([id]),
+    CONSTRAINT [FK_h_alarm_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C3G].[c_controller2] ([id]),
     CONSTRAINT [FK_h_alarm_L_error] FOREIGN KEY ([error_id]) REFERENCES [C3G].[L_error] ([id])
 );
+
+
 
 
 

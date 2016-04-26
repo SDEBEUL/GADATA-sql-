@@ -5,7 +5,9 @@
     [value]         VARCHAR (2048) NULL,
     [variable_id]   INT            NULL,
     CONSTRAINT [PK_rt_value] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_rt_value_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C3G].[c_controller] ([id]),
+    CONSTRAINT [FK_rt_value_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C3G].[c_controller2] ([id]),
     CONSTRAINT [FK_rt_value_c_variable] FOREIGN KEY ([variable_id]) REFERENCES [C3G].[c_variable] ([id])
 );
+
+
 
