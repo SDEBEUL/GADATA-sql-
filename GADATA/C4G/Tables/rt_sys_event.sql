@@ -5,8 +5,10 @@
     [sys_state]     INT      NULL,
     [c_timestamp]   DATETIME NULL,
     CONSTRAINT [PK_rt_sys_event] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_rt_sys_event_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller2] ([id])
+    CONSTRAINT [FK_rt_sys_event_c_controller1] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id])
 );
+
+
 
 
 

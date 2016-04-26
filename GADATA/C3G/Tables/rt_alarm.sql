@@ -9,8 +9,10 @@
     [error_text]      VARCHAR (256) NULL,
     [error_is_alarm]  BIT           NULL,
     CONSTRAINT [PK_rt_alarm] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_rt_alarm_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C3G].[c_controller2] ([id])
+    CONSTRAINT [FK_rt_alarm_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C3G].[c_controller] ([id])
 );
+
+
 
 
 

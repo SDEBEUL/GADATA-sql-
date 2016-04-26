@@ -8,9 +8,10 @@
     [file_size]       INT           NULL,
     [status]          INT           NULL,
     [entries]         INT           NULL,
-    CONSTRAINT [PK_rt_file] PRIMARY KEY CLUSTERED ([id] ASC),
-    CONSTRAINT [FK_rt_file_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller2] ([id])
+    CONSTRAINT [PK_rt_file] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 

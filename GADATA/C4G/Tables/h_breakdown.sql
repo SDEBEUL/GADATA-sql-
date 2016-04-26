@@ -7,8 +7,11 @@
     [Trig_id]          INT      NOT NULL,
     [Rt]               DATETIME NULL,
     [error_id]         INT      NULL,
-    [RC_error_id]      INT      NULL
+    [RC_error_id]      INT      NULL,
+    CONSTRAINT [FK_h_breakdown_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id])
 );
+
+
 
 
 
