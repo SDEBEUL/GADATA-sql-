@@ -8,12 +8,13 @@
 
 
 
+
 CREATE VIEW [GLUE].[Operator_layoutRD3_versie_Sam]
 AS
 
 SELECT 
 c.location
-,glue.Controller.Name as Robotname
+,CONCAT(LEFT(Q.Name,5),'R',RIGHT(Q.Name,2)) as Robotname
 ,'T2000' as Type
 ,'ACTION' as Errortype
 , H.c_timestamp as Timestamp
@@ -29,7 +30,7 @@ c.location
 , H.ID as idx
 FROM glue.h_operator as H
 
-join glue.Controller  on (H.Controller_id  = glue.Controller.ID)
+join glue.Controller as Q  on (H.Controller_id  = Q.ID)
 
 join glue.OperatorActionInfo as F on (H.OperatorActionInfo_id  = F.ID)
 
@@ -40,4 +41,4 @@ VOLVO.L_timeline AS T ON
 H.c_timestamp BETWEEN T.starttime AND T.endtime
 --join 'Rs breakdown' breakdowns where no gatestop was detected
 
-left join glue.c_controller as c on c.controller_name=glue.Controller.Name
+left join glue.c_controller as c on c.controller_name=Q.Name

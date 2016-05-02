@@ -4,6 +4,7 @@
 
 
 
+
 CREATE FUNCTION [C3G].[fn_ShortSysstate] 
 	(
 		@Sysstate int
@@ -16,8 +17,8 @@ BEGIN
 
 	
 --Connection ---------------------------------------------------------
---=0 connection lost to robot
-IF (@sysstate = 0)
+--=-1 connection lost to robot
+IF (@sysstate = -1)
 BEGIN
   SET @SysstateString =  'Disconnected '
   return @SysstateString 

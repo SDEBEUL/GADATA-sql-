@@ -4,7 +4,7 @@
     [name]           VARCHAR (256) NULL,
     [update_rate]    INT           NULL,
     [in_sys_state]   INT           NULL,
-    [_update]        BIT           NULL,
+    [_update]        INT           NULL,
     [rt_table]       VARCHAR (256) NULL,
     [rt_field]       VARCHAR (256) NULL,
     [svr_vs_clnt]    INT           NULL,
@@ -17,6 +17,12 @@
     [trigger_mask]   INT           NULL,
     [trigger_value]  INT           NULL,
     [trigger_desc]   VARCHAR (256) NULL,
+    [usage]          INT           NULL,
+    [rt_flags]       INT           NULL,
+    [description]    VARCHAR (256) NULL,
+    [keycode]        INT           NULL,
     CONSTRAINT [PK_c_variable] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 

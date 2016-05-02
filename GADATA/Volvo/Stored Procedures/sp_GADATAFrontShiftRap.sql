@@ -335,4 +335,26 @@ SELECT
 ORDER BY rap.timestamp desc
 
 
+--***********************************************************************************************************************--
+--Datalog
+--***********************************************************************************************************************--
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--Activity log (logs the execution of the Query to a table)
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+DECLARE @rowcountmen as int 
+SET @rowcountmen = @@rowcount
+DECLARE @RequestString as varchar(255)
+SET @RequestString =
+   CONCAT(
+   'Running:[Volvo].[sp_GADATAFrontShiftRap]'
+   ,'   |@EndDate = ' , CAST(@EndDate as varchar(20)) 
+   ,'   |@minDowntime = ' , CAST(@minDowntime as varchar(5)) 
+   ,'   |@minCountOfDowtime = ' , CAST(@minCountOfDowtime as varchar(5))
+   ,'   |@minCountofWarning = ' , CAST(@minCountofWarning as varchar(5)) 
+   )
+EXEC GADATA.volvo.sp_Alog @rowcount = @rowcountmen, @Request = @RequestString
+
 END

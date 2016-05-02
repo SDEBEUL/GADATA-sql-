@@ -13,10 +13,10 @@ BEGIN
 	SET @SysstateString = ''
 
 	
---1 connection 
-IF (@sysstate  = 0)
+-- -1 disconnected 
+IF (@sysstate  = -1)
 BEGIN
-  SET @SysstateString =  'DISCONNECTED '
+  SET @SysstateString =  'Disconnected '
   return @SysstateString 
 END
 --1 connection 

@@ -8,6 +8,9 @@
     [description]   VARCHAR (256) NULL,
     [reply_table]   VARCHAR (256) NULL,
     [request_data]  VARCHAR (256) NULL,
+    [sdata]         VARCHAR (256) NULL,
     CONSTRAINT [PK_ia_command] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 

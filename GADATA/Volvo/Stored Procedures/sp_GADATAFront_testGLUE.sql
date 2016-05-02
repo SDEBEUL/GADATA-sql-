@@ -5,6 +5,7 @@
 
 
 
+
 CREATE PROCEDURE [Volvo].[sp_GADATAFront_testGLUE]
 --timeparameters
    @StartDate as DATETIME = null,
@@ -711,7 +712,7 @@ AND
 
 
 UNION
-SELECT * FROM GADATA.GLUE.Alarm_layoutRD3 AS GL_A
+SELECT * FROM GADATA.GLUE.Alarm_layoutRD3_versie_Sam AS GL_A
 WHERE
 (GL_A.[Timestamp]  BETWEEN @StartDate AND @EndDate)
 AND 
@@ -721,7 +722,7 @@ AND
 
 UNION
 
-SELECT * FROM GADATA.GLUE.Operator_layoutRD3 AS GL_O
+SELECT * FROM GADATA.GLUE.Operator_layoutRD3_versie_Sam AS GL_O
 WHERE
 (GL_O.[Timestamp]  BETWEEN @StartDate AND @EndDate)
 AND 

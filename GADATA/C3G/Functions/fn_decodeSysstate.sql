@@ -12,8 +12,8 @@ BEGIN
 
 	
 --Connection ---------------------------------------------------------
---=0 connection lost to robot
-IF (@sysstate = 0)
+--=-1 connection lost to robot
+IF (@sysstate = -1)
 BEGIN
   SET @SysstateString =  'Disconnected '
   return @SysstateString 

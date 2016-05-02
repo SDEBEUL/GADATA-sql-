@@ -1,10 +1,12 @@
 ﻿
+
+
 CREATE VIEW [GLUE].[Alarm_layoutRD3_versie_Sam]
 AS
 
 SELECT 
 c.location
-,glue.Controller.Name as Robotname
+,CONCAT(LEFT(Q.Name,5),'R',RIGHT(Q.Name,2)) as Robotname
 ,'T2000' as Type
 ,'ERROR' as Errortype
 , H.c_timestamp as Timestamp
@@ -20,7 +22,7 @@ c.location
 , H.ID as idx
 FROM glue.h_alarm as H
 
-join glue.Controller  on (H.Controller_id  = glue.Controller.ID)
+join glue.Controller as Q  on (H.Controller_id  = Q.ID)
 
 join glue.FaultInfo as F on (H.FaultText_id  = F.ID)
 
@@ -33,7 +35,7 @@ VOLVO.L_timeline AS T ON
 H.c_timestamp BETWEEN T.starttime AND T.endtime
 --join 'Rs breakdown' breakdowns where no gatestop was detected
 
-left join glue.c_controller as c on c.controller_name=glue.Controller.Name
+left join glue.c_controller as c on c.controller_name=Q.Name
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'GLUE', @level1type = N'VIEW', @level1name = N'Alarm_layoutRD3_versie_Sam';
 

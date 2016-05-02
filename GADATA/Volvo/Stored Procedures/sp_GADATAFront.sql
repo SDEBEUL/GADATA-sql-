@@ -59,6 +59,7 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
 AS
 BEGIN
 
+--RAISERROR (15600,-1,-1, '*******Im sorry Working on it .....********(SDEBEUL)');
 
 ---------------------------------------------------------------------------------------
 --Kindly responde to user if using unfinished stuff

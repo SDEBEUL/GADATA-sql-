@@ -25,8 +25,6 @@ SET @EndDate = GETDATE()
 END
 
 ---------------------------------------------------------------------------------------
-
-
 ---------------------------------------------------------------------------------------
 print 'Check for new C3G sbcu Alerts'
 ---------------------------------------------------------------------------------------
@@ -95,5 +93,47 @@ where
 AND
 alert.id IS NULL --<== only insert NEW ALERTS
 ---------------------------------------------------------------------------------------
+
+
+/*
+---------------------------------------------------------------------------------------
+print 'Check for new c4g RECORDER Alerts'
+---------------------------------------------------------------------------------------
+INSERT INTO GADATA.volvo.ia_Alert (_timestamp,[Type],controller_name,reference_id,[description],Detect_timestamp,controller_type,controller_id,AlertStatus)
+SELECT 
+ rt_criteria_run._timestamp as '_timestamp'
+,'REC' as 'TYPE'
+,c_controller.controller_name as 'controller_name'
+,rt_criteria_run.id as 'reference_id'
+,'RECORDER=> ' + ISNULL(c_criteria_setup.description,'N/A') + ' < triggerd for modelcode: ' + ISNULL(CAST(rt_rec_group.model_code as varchar(20)),'N/A')  as 'description'
+,getdate() as 'Detect_timestamp'
+,'BB' as 'controller_type'
+,c_controller.id as 'Controller_ID' 
+, 0 as 'AlertStatus' 
+from GADATA.C4G.rt_criteria_run
+left join GADATA.C4G.c_criteria_teach on c_criteria_teach.id = rt_criteria_run.c_criteria_teach_id
+left join GADATA.C4G.rt_rec_group on rt_rec_group.id = rt_criteria_run.rt_rec_group_id
+left join GADATA.C4G.c_criteria_setup on c_criteria_setup.id = c_criteria_teach.c_criteria_setup_id
+left join GADATA.C4G.c_controller on c_controller.id = rt_rec_group.controller_id
+
+--to only join NEW alerts 
+Left join GADATA.volvo.ia_Alert as alert on
+(
+(c_controller.controller_name = alert.controller_name)
+AND
+(alert.[Type] LIKE 'REC')
+AND
+(
+(rt_criteria_run.id = alert.reference_id) --<== this specific trigger already exicsts
+OR
+(alert.AlertStatus < 2 ) -- there already is an unconfirmed alert active 
+)
+)
+where
+(rt_criteria_run._timestamp BETWEEN @StartDate AND @EndDate)
+AND
+alert.id IS NULL --<== only insert NEW ALERTS
+---------------------------------------------------------------------------------------
+*/
 
 END
