@@ -1,27 +1,12 @@
-﻿
-CREATE VIEW [Volvo].[Timeline]
+﻿CREATE VIEW dbo.Tipwear_View
 AS
-SELECT      
-'Timeline' AS 'Location'
-, 'Timeline' AS 'Robotname'
-, 'Ti' AS 'Type'
-, 'Ti' AS 'Errortype'
-, T.starttime AS 'Timestamp'
-, NULL AS 'Logcode'
-, Null AS 'Severity'
-, 'Begin of Shift Ploeg:'+ T.PLOEG AS 'Logtekst'
-,NULL AS 'DOWNTIME'
-, T.Vyear AS 'Year'
-, T.Vweek AS 'Week'
-, T.Vday AS 'day'
-, T.shift AS 'Shift'
-, T.PLOEG AS 'Ploeg'
-, 'Timeline' AS 'Object'
-, 'Timeline' as 'Subgroup'
-, Null as 'id'
-FROM VOLVO.L_timeline AS T
+SELECT dbo.TipWear.Date_Time, dbo.TipWear.BodysPerElectrode, dbo.TipWear.BodyRemaining, dbo.WeldingGun.Name, dbo.WeldingGun.ElectrodeNbr, dbo.Timer.Name AS Expr1, 
+                  dbo.Timer.Robot, dbo.TipWear.WeldingGunId
+FROM     dbo.TipWear INNER JOIN
+                  dbo.WeldingGun ON dbo.TipWear.WeldingGunId = dbo.WeldingGun.ID INNER JOIN
+                  dbo.Timer ON dbo.WeldingGun.TimerID = dbo.Timer.ID
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Timeline';
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'Tipwear_View';
 
 
 GO
@@ -30,7 +15,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+         Configuration = "(H (1[28] 4[34] 2[17] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -96,6 +81,36 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
+         Begin Table = "TipWear"
+            Begin Extent = 
+               Top = 7
+               Left = 48
+               Bottom = 195
+               Right = 267
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "WeldingGun"
+            Begin Extent = 
+               Top = 7
+               Left = 557
+               Bottom = 168
+               Right = 751
+            End
+            DisplayFlags = 280
+            TopColumn = 1
+         End
+         Begin Table = "Timer"
+            Begin Extent = 
+               Top = 11
+               Left = 847
+               Bottom = 172
+               Right = 1041
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
       End
    End
    Begin SQLPane = 
@@ -105,35 +120,33 @@ Begin DesignProperties =
       End
       Begin ColumnWidths = 9
          Width = 284
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 4365
+         Width = 2052
+         Width = 1200
+         Width = 1200
+         Width = 1200
+         Width = 1200
+         Width = 1848
+         Width = 1200
+         Width = 1200
       End
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
          Column = 1440
          Alias = 900
-         Table = 1170
+         Table = 1176
          Output = 720
          Append = 1400
          NewValue = 1170
-         SortType = 1350
-         SortOrder = 1410
+         SortType = 1356
+         SortOrder = 1416
          GroupBy = 1350
-         Filter = 1350
+         Filter = 1356
          Or = 1350
          Or = 1350
          Or = 1350
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Timeline';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'Tipwear_View';
 

@@ -7,6 +7,7 @@ CREATE PROCEDURE [C3G].[SbcuSpcLimitCalc]
    @EndDate as varchar(32) = null,
    @Robotmask as varchar(32) = '%',
    @Toolmask as varchar(32) = '%',
+   @Weldgunname as varchar(32) = NULL,
    @Show as bit = 0,
    @Commit as bit = 0,
    @Calc as bit = 0
@@ -36,6 +37,17 @@ END
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
+--If gunname defined use gunname to get robot and toolid 
+---------------------------------------------------------------------------------------
+if (@Weldgunname is not null)
+BEGIN
+SET @Robotmask = (SELECT TOP 1 '%' + rws.Robot + '%' from GADATA.volvo.RobotWeldGunRelation as rws where rws.WeldgunName LIKE @Weldgunname)
+SET @Toolmask = (SELECT TOP 1 '%' + CAST(rws.ElectrodeNbr as varchar(2)) + '%' from GADATA.volvo.RobotWeldGunRelation as rws where rws.WeldgunName LIKE @Weldgunname)
+END
+
+---------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
 --clause to show current values
 ---------------------------------------------------------------------------------------
 if((@show = 1) and (@calc = 0) and (@commit = 0)) 
@@ -53,8 +65,8 @@ where
 wgr.RobotType = 'c3g'
 AND
 wgr.Robot LIKE @Robotmask
---AND
---ref.tool_id LIKE @Toolmask
+AND
+ref.tool_id LIKE @Toolmask
 
 END
 ---------------------------------------------------------------------------------------
@@ -81,8 +93,8 @@ from GADATA.c3g.rt_toollog as rt
 left join GADATA.c3g.c_controller as r on r.id = rt.controller_id
 where 
 r.controller_name LIKE @Robotmask
---AND
---tool_id LIKE @Toolmask
+AND
+tool_id LIKE @Toolmask
 AND 
 Longcheck in (0,1) --only do this with the new logtype system.  
 AND
@@ -128,8 +140,8 @@ from GADATA.c3g.rt_toollog as rt
 left join GADATA.c3g.c_controller as r on r.id = rt.controller_id
 where 
 controller_name LIKE @Robotmask
---AND
---tool_id LIKE @Toolmask
+AND
+tool_id LIKE @Toolmask
 AND 
 Longcheck in (0,1) --only do this with the new logtype system.  
 AND

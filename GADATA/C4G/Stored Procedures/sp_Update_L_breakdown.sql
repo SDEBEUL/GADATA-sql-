@@ -7,7 +7,7 @@
    @RobotFilterMaskEnd as varchar(10) = '99999R99%',
    @OrderbyRobot as bit = null,
    @CalcBreakDowntags as bit = 0,
-   @controller_id as int = 13
+   @controller_id as int = 122
 AS
 BEGIN
 
@@ -35,7 +35,7 @@ if (OBJECT_ID('tempdb..#SysEventIdx') is not null) drop table #SysEventIdx
 				ROW_NUMBER() OVER (PARTITION BY rt_sys_event.controller_id ORDER BY rt_sys_event._timestamp DESC) AS rnDESC
 	        INTO #SysEventIdx
 			FROM  GADATA.C4G.rt_sys_event  AS rt_sys_event
-			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
+			WHERE rt_sys_event._timestamp  BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE()) 
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ if (OBJECT_ID('tempdb..#SysEventTime') is not null) drop table #SysEventTime
        ) as x
        )
 ---------------------------------------------------------------------------------------
---SELECT TOP 10 *,ifno = GADATA.C4G.fn_decodeSysstate(sys_state) FROM #SysEventTime where controller_id =  @controller_id order by _timestamp desc 
+--SELECT TOP 10 *,info = GADATA.C4G.fn_decodeSysstate(sys_state) FROM #SysEventTime where controller_id =  @controller_id order by _timestamp desc 
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
@@ -265,9 +265,9 @@ SELECT
 			  BD.Trig_state,
 			  BD.Trig_id,
 			  BD.Rt,
-			  --BD.error_text,
-              --BD.error_number,
-			  --BD.error_serverty,
+			  --BD.error_text, --
+              --BD.error_number, --
+			  --BD.error_serverty, --
 			  BD.error_id,
 			  Null
 
@@ -279,13 +279,14 @@ H.controller_id = bd.controller_id
 AND
 H.Trig_id = bd.Trig_id
 )
+
 WHERE 
 --only add to table if a cause was detected 
 BD.error_id is not null
 --only ad new records
 AND
 (H.id IS NULL)
-
+--bd.controller_id like @controller_id
 --ORDER BY   _timestamp DESC 
 
 

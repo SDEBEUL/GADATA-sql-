@@ -4,6 +4,7 @@
 
 
 
+
 CREATE VIEW [Volvo].[Robots]
 AS
 SELECT distinct * FROM
@@ -21,6 +22,7 @@ select
 ,lop.Vcsc_name as 'server'
 from GADATA.c4g.c_controller as c4g
 left join GADATA.C4G.L_operation as lop on lop.controller_id = c4g.id and lop.code = 3
+WHERE controller_name not like '%REC' --added this because elsde CBM controllers clones show in front end
 
 UNION
 select

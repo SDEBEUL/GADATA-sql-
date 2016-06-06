@@ -10,4 +10,6 @@ EXEC GADATA.volvo.sp_Alog  @rowcount = 0, @Request = '1 Hour auto Trig'
 --comau robotpostions
 exec [C4g].[sp_L_Robotpositions_REMOVE_DUP]
 exec [C3G].[sp_L_Robotpositions_REMOVE_DUP] 
+--gc current logger cleanup 
+exec [dbo].[sp_Danfloss_currentlog_REMOVE_DUP]
 END

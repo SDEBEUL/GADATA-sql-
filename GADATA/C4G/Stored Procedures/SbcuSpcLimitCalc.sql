@@ -2,7 +2,7 @@
 
 
 
-CREATE PROCEDURE [C3G].[GunCylinderSpcLimitCalc]
+CREATE PROCEDURE [C4G].[SbcuSpcLimitCalc]
 
    @StartDate as varchar(32) = null,
    @EndDate as varchar(32) = null,
@@ -23,12 +23,12 @@ SET NOCOUNT ON
 ---------------------------------------------------------------------------------------
 if (@StartDate is null) 
 BEGIN
-SET @StartDate = GETDATE()-100
+SET @StartDate = GETDATE()-40
 END
 
 if (@EndDate is null)
 BEGIN
-SET @EndDate = GETDATE()
+SET @EndDate = GETDATE()-10
 END
 --for handeling 'today' clause in dt selectors
 if (@EndDate = '1900-01-01 00:00:00:000')
@@ -48,7 +48,6 @@ END
 
 ---------------------------------------------------------------------------------------
 
-
 ---------------------------------------------------------------------------------------
 --clause to show current values
 ---------------------------------------------------------------------------------------
@@ -59,12 +58,12 @@ wgr.WeldgunName
 ,wgr.Robot
 ,ref.*
 FROM GADATA.volvo.RobotWeldGunRelation as wgr
-left join c3g.GunCylinderefernce as ref on
+left join GADATA.c4g.SBCUrefernce as ref on
 ref.Controller_id = wgr.robotid
 AND
 ref.tool_id = wgr.ElectrodeNbr
 where  
-WGR.RobotType = 'c3g'
+wgr.RobotType = 'c4g'
 AND
 wgr.Robot LIKE @Robotmask
 AND
@@ -80,31 +79,28 @@ if((@show = 0) and (@calc = 1) and (@commit = 0))
 BEGIN
 ---------------------------------------------------------------------------------------
 select 
- rt.controller_id as 'Controller_id'
+ r.ID as 'Controller_id'
 ,rt.tool_id
-,Min(_timestamp) as 'SampleStart'
-,Count(_timestamp) as 'nDataPoints'
-,ROUND(AVG(rt.TotalTime),2) as 'avg'
-,ROUND(Max(rt.TotalTime),2) as 'Max'
-,ROUND(Min(rt.TotalTime),2) as 'Min'
-,ROUND(Stdev(rt.TotalTime),2) as 'Stdev'
-,ROUND(AVG(rt.TotalTime)+(4*Stdev(rt.TotalTime)),2) as 'UCL'
-,ROUND(AVG(rt.TotalTime)-(4*Stdev(rt.TotalTime)),2) as 'LCL'
-from GADATA.C3G.WeldGunCylinder as rt 
+, 1 as 'Longcheck'
+,Min(tool_timestamp) as 'SampleStart'
+,Count(tool_timestamp) as 'nDataPoints'
+,ROUND(AVG(rt.Dsetup),2) as 'avg'
+,ROUND(Max(rt.Dsetup),2) as 'Max'
+,ROUND(Min(rt.Dsetup),2) as 'Min'
+,ROUND(Stdev(rt.Dsetup),2) as 'Stdev'
+,ROUND(AVG(rt.Dsetup)+(4*Stdev(rt.Dsetup)),2) as 'UCL'
+,ROUND(AVG(rt.Dsetup)-(4*Stdev(rt.Dsetup)),2) as 'LCL'
+from GADATA.c4g.SBCUData as rt 
+left join GADATA.c4g.c_controller as r on r.controller_name = rt.RobotName
 where 
-rt.controller_name LIKE @Robotmask
+r.controller_name LIKE @Robotmask
 AND
 tool_id LIKE @Toolmask
 AND
-rt.tool_id is not null
-AND
-rt._timestamp between @StartDate and @EndDate
+tool_timestamp between @StartDate and @EndDate
 group by 
- rt.Controller_id
+ r.ID
 ,rt.tool_id
-
-
-
 END
 ---------------------------------------------------------------------------------------
 
@@ -115,45 +111,41 @@ END
 if((@show = 0) and (@calc = 0) and (@commit = 1)) 
 BEGIN
 ---------------------------------------------------------------------------------------
---Print 'Delete the target guns that wil be recalculated'
+Print 'Delete the target guns that wil be recalculated'
 ---------------------------------------------------------------------------------------
 --DROP TABLE GADATA.RobotGA.SBCUrefernce
-DELETE c3g.GunCylinderefernce FROM c3g.GunCylinderefernce as ref 
-left join GADATA.C3G.c_controller r on r.id = ref.controller_id
+DELETE GADATA.c3g.SBCUrefernce FROM GADATA.c3g.SBCUrefernce as ref 
+left join GADATA.c3g.c_controller as r on r.id = ref.controller_id
 Where r.controller_name LIKE @Robotmask-- AND ref.tool_id LIKE @Toolmask
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
---Print 'calculate new limits'
+Print 'calculate new limits'
 ---------------------------------------------------------------------------------------
-INSERT INTO c3g.GunCylinderefernce
+INSERT INTO GADATA.c4g.SBCUrefernce
 select 
- rt.controller_id as 'Controller_id'
+ r.ID as 'Controller_id'
 ,rt.tool_id
-,Min(_timestamp) as 'SampleStart'
-,Count(_timestamp) as 'nDataPoints'
-,ROUND(AVG(rt.TotalTime),2) as 'avg'
-,ROUND(Max(rt.TotalTime),2) as 'Max'
-,ROUND(Min(rt.TotalTime),2) as 'Min'
-,ROUND(Stdev(rt.TotalTime),2) as 'Stdev'
-,ROUND(AVG(rt.TotalTime)+(4*Stdev(rt.TotalTime)),2) as 'UCL'
-,ROUND(AVG(rt.TotalTime)-(4*Stdev(rt.TotalTime)),2) as 'LCL'
-from GADATA.C3G.WeldGunCylinder as rt 
-
+,1 as 'Longcheck'
+,Min(tool_timestamp) as 'SampleStart'
+,Count(tool_timestamp) as 'nDataPoints'
+,ROUND(AVG(rt.Dsetup),2) as 'avg'
+,ROUND(Max(rt.Dsetup),2) as 'Max'
+,ROUND(Min(rt.Dsetup),2) as 'Min'
+,ROUND(Stdev(rt.Dsetup),2) as 'Stdev'
+,ROUND(AVG(rt.Dsetup)+(4*Stdev(rt.Dsetup)),2) as 'UCL'
+,ROUND(AVG(rt.Dsetup)-(4*Stdev(rt.Dsetup)),2) as 'LCL'
+from GADATA.c4g.SBCUData as rt 
+left join GADATA.c4g.c_controller as r on r.controller_name = rt.RobotName
 where 
-rt.controller_name LIKE @Robotmask
+controller_name LIKE @Robotmask
 AND
 tool_id LIKE @Toolmask
 AND
-rt.tool_id is not null
-AND
-rt._timestamp between @StartDate and @EndDate
+tool_timestamp between @StartDate and @EndDate
 group by 
- rt.Controller_id
+ r.ID
 ,rt.tool_id
-
-
-
----------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
 SELECT 'c:' + CAST(@@ROWCOUNT as varchar(3)) as 'Feedback' 
 END
 ---------------------------------------------------------------------------------------

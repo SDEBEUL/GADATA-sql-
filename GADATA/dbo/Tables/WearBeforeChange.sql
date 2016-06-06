@@ -8,3 +8,16 @@
     CONSTRAINT [FK_WearBeforeChange_Timer] FOREIGN KEY ([TimerID]) REFERENCES [dbo].[Timer] ([ID])
 );
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_wearbeforrechange]
+    ON [dbo].[WearBeforeChange]([DateTime] ASC)
+    INCLUDE([TimerID], [ElectrodeNbr], [wear]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_timerid_electroNbr]
+    ON [dbo].[WearBeforeChange]([TimerID] ASC, [ElectrodeNbr] ASC, [DateTime] ASC);
+

@@ -44,6 +44,7 @@ rt.*
 ,CONVERT(XML,'<Product><Attribute>' + REPLACE(GADATA.abb.fnStripLowAscii(REPLACE(rt.value,'<','')),',', '</Attribute><Attribute>') + '</Attribute></Product>') AS XmlSplit  
 INTO #c4g_toollogsplit 
 FROM GADATA.C4G.rt_toolLog as rt 
+WHERE rt.value not like '%*%' -- capture uninit values
 ---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------

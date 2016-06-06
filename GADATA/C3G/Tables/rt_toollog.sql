@@ -19,8 +19,16 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [nci_c3g_rt_toollog__tool_timesamp__longcheck]
     ON [C3G].[rt_toollog]([tool_timestamp] ASC, [Longcheck] ASC)
     INCLUDE([tool_id], [controller_id]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_tool_id_Dsetup_controller_id]
+    ON [C3G].[rt_toollog]([Longcheck] ASC, [tool_timestamp] ASC)
+    INCLUDE([tool_id], [Dsetup], [controller_id]);
 

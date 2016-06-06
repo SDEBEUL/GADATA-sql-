@@ -1,27 +1,23 @@
-﻿
-CREATE VIEW [Volvo].[Timeline]
+﻿CREATE VIEW dbo.PSF_P3
 AS
-SELECT      
-'Timeline' AS 'Location'
-, 'Timeline' AS 'Robotname'
-, 'Ti' AS 'Type'
-, 'Ti' AS 'Errortype'
-, T.starttime AS 'Timestamp'
-, NULL AS 'Logcode'
-, Null AS 'Severity'
-, 'Begin of Shift Ploeg:'+ T.PLOEG AS 'Logtekst'
-,NULL AS 'DOWNTIME'
-, T.Vyear AS 'Year'
-, T.Vweek AS 'Week'
-, T.Vday AS 'day'
-, T.shift AS 'Shift'
-, T.PLOEG AS 'Ploeg'
-, 'Timeline' AS 'Object'
-, 'Timeline' as 'Subgroup'
-, Null as 'id'
-FROM VOLVO.L_timeline AS T
+SELECT        TOP (100) PERCENT dbo.NPT.Name AS NPT, dbo.Timer.Name AS Timer, dbo.WeldMeasurements.Date, dbo.WeldMeasurements.Shift, 
+                         dbo.Spot.Number AS Spotnummer, dbo.WeldMeasurements.AvgPSF, CONVERT(DECIMAL(5, 1), 100 * CAST(dbo.WeldMeasurements.NbrReweld AS decimal(10, 5)) 
+                         / CAST(dbo.WeldMeasurements.NbrWeld AS decimal(10, 5))) AS PsfReweld, dbo.WeldMeasurements.NbrReweld, dbo.WeldMeasurements.NbrWeld, 
+                         dbo.Spot.Program, dbo.WeldMeasurements.StdPSF
+FROM            dbo.WeldMeasurements INNER JOIN
+                         dbo.Spot ON dbo.WeldMeasurements.SpotId = dbo.Spot.ID INNER JOIN
+                         dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID INNER JOIN
+                         dbo.NPT ON dbo.Timer.NptId = dbo.NPT.ID
+WHERE        (NOT (dbo.WeldMeasurements.AvgPSF IS NULL)) AND (dbo.WeldMeasurements.AvgPSF <> 0) AND (dbo.WeldMeasurements.Date >= CONVERT(DATETIME, 
+                         '2016-01-01 00:00:00', 102))
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Timeline';
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'PSF_P3';
+
+
+GO
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'd
+End
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'PSF_P3';
 
 
 GO
@@ -96,6 +92,46 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
+         Begin Table = "WeldMeasurements"
+            Begin Extent = 
+               Top = 0
+               Left = 74
+               Bottom = 309
+               Right = 244
+            End
+            DisplayFlags = 280
+            TopColumn = 1
+         End
+         Begin Table = "Spot"
+            Begin Extent = 
+               Top = 4
+               Left = 318
+               Bottom = 254
+               Right = 517
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Timer"
+            Begin Extent = 
+               Top = 8
+               Left = 561
+               Bottom = 196
+               Right = 731
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "NPT"
+            Begin Extent = 
+               Top = 6
+               Left = 796
+               Bottom = 244
+               Right = 966
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
       End
    End
    Begin SQLPane = 
@@ -112,7 +148,7 @@ Begin DesignProperties =
          Width = 1500
          Width = 1500
          Width = 1500
-         Width = 4365
+         Width = 1500
       End
    End
    Begin CriteriaPane = 
@@ -131,9 +167,5 @@ Begin DesignProperties =
          Or = 1350
          Or = 1350
       End
-   End
-End
-', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Timeline';
-
-
+   En', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'PSF_P3';
 

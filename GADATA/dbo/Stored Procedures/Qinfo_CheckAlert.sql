@@ -21,11 +21,11 @@ if (@ErrCode = 1)
 BEGIN
 UPDATE GADATA.volvo.ia_Alert
 SET 
- ia_alert.Accept_user = @user
-,ia_alert.Accept_timestamp = GETDATE()
+ ia_alert.Accept_user = ISNULL(ia_alert.accept_user,@user)
+,ia_alert.Accept_timestamp = ISNULL(ia_alert.accept_timestamp,GETDATE())
 ,ia_alert.AlertStatus = 1
 FROM GADATA.volvo.ia_Alert
-where ia_Alert.id = @ErrID AND ia_Alert.Accept_user is null
+where ia_Alert.id = @ErrID 
 END
 
 --complete the alert
@@ -33,11 +33,11 @@ if (@ErrCode = 2)
 BEGIN
 UPDATE GADATA.volvo.ia_Alert
 SET 
- ia_alert.Fix_user = @user
-,ia_alert.Fix_timestamp = GETDATE()
+ ia_alert.Fix_user = ISNULL(ia_alert.fix_user,@user)
+,ia_alert.Fix_timestamp = ISNULL(ia_alert.fix_timestamp,GETDATE())
 ,ia_alert.AlertStatus = 2
 FROM GADATA.volvo.ia_Alert
-where ia_Alert.id = @ErrID AND ia_Alert.Fix_user is null
+where ia_Alert.id = @ErrID 
 END
 
 --close the alert
@@ -45,11 +45,11 @@ if (@ErrCode = 3)
 BEGIN
 UPDATE GADATA.volvo.ia_Alert
 SET 
- ia_alert.Close_user = @user
-,ia_alert.Close_timestamp = GETDATE()
-,ia_alert.AlertStatus = 2
+ ia_alert.Close_user = isnull(ia_alert.close_user,@user)
+,ia_alert.Close_timestamp = isnull(ia_alert.Close_timestamp,getdate())
+,ia_alert.AlertStatus = 3
 FROM GADATA.volvo.ia_Alert
-where ia_Alert.id = @ErrID AND ia_Alert.Close_user is null
+where ia_Alert.id = @ErrID  
 END
 
 --edit comment 

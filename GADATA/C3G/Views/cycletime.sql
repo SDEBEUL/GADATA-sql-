@@ -1,27 +1,11 @@
-﻿
-CREATE VIEW [Volvo].[Timeline]
+﻿CREATE VIEW C3G.cycletime
 AS
-SELECT      
-'Timeline' AS 'Location'
-, 'Timeline' AS 'Robotname'
-, 'Ti' AS 'Type'
-, 'Ti' AS 'Errortype'
-, T.starttime AS 'Timestamp'
-, NULL AS 'Logcode'
-, Null AS 'Severity'
-, 'Begin of Shift Ploeg:'+ T.PLOEG AS 'Logtekst'
-,NULL AS 'DOWNTIME'
-, T.Vyear AS 'Year'
-, T.Vweek AS 'Week'
-, T.Vday AS 'day'
-, T.shift AS 'Shift'
-, T.PLOEG AS 'Ploeg'
-, 'Timeline' AS 'Object'
-, 'Timeline' as 'Subgroup'
-, Null as 'id'
-FROM VOLVO.L_timeline AS T
+SELECT        c.location, c.controller_name, rt._timestamp, rt.plcOrder, rt.segment, rt._timeMS
+FROM            C3G.rt_CycleTime AS rt LEFT OUTER JOIN
+                         C3G.c_controller AS c ON c.id = rt.controller_id
+WHERE        (rt._timeMS IS NOT NULL) AND (rt.plcOrder NOT IN (0, 1))
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Timeline';
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'cycletime';
 
 
 GO
@@ -96,23 +80,32 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
+         Begin Table = "rt"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 135
+               Right = 208
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "c"
+            Begin Extent = 
+               Top = 6
+               Left = 246
+               Bottom = 135
+               Right = 442
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
       End
    End
    Begin SQLPane = 
    End
    Begin DataPane = 
       Begin ParameterDefaults = ""
-      End
-      Begin ColumnWidths = 9
-         Width = 284
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 4365
       End
    End
    Begin CriteriaPane = 
@@ -133,7 +126,5 @@ Begin DesignProperties =
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Timeline';
-
-
+', @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'cycletime';
 

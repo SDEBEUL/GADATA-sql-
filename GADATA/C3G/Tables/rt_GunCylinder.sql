@@ -15,3 +15,17 @@
 
 
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_controller_id_variable_id__timestamp]
+    ON [C3G].[rt_GunCylinder]([controller_id] ASC, [variable_id] ASC, [_timestamp] ASC)
+    INCLUDE([value], [CloseToSemi], [SemiToOpen], [Tool_id]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [NCI_controller_id_value_Tool_id]
+    ON [C3G].[rt_GunCylinder]([variable_id] ASC, [_timestamp] ASC)
+    INCLUDE([controller_id], [value], [Tool_id]);
+
