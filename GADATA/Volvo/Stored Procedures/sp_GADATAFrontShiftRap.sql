@@ -71,6 +71,8 @@ FROM GADATA.C4G.Breakdown as c4gb
 WHERE 
 --target
 c4gb.timestamp between @startdate and @endDate
+AND 
+c4gb.Location LIKE @LocationFilterWild
 AND
 c4gb.downtime < (8*60) -- just filter out bullshit 
 --filter
@@ -112,6 +114,8 @@ FROM GADATA.c3g.Breakdown as c3gb
 WHERE 
 --target
 c3gb.timestamp between @startdate and @endDate
+AND 
+c3gb.Location LIKE @LocationFilterWild
 --filter
 AND 
 (
@@ -168,6 +172,8 @@ WHERE
 --target
 c4gW.timestamp between @startdate and @endDate
 AND 
+c4gW.Location LIKE @LocationFilterWild
+AND 
 c4gw.Severity < 4 --enkel warnings 
 --filter
 AND
@@ -222,6 +228,8 @@ FROM GADATA.C3G.Error as c3gW
 WHERE 
 --target
 c3gW.timestamp between @startdate and @endDate
+AND
+c3gW.Location LIKE @LocationFilterWild
 AND 
 c3gw.Severity < 4 --enkel warnings 
 --filter
@@ -269,6 +277,8 @@ SELECT
 FROM GADATA.volvo.Alerts as a 
 left join GADATA.volvo.ia_Alert as ia on ia.id = a.idx
 where a.timestamp between @startdate and @endDate
+AND
+a.Location LIKE @LocationFilterWild
 --************************************************************************************--
 
 --************************************************************************************--
@@ -290,6 +300,8 @@ FROM GADATA.volvo.Alerts as a
 left join GADATA.volvo.ia_Alert as ia on ia.id = a.idx
 where 
 a.timestamp < @startdate 
+AND
+a.Location LIKE @LocationFilterWild
 AND
 a.Subgroup LIKE '%OKREQ%' 
 --************************************************************************************--

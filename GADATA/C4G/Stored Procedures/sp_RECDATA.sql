@@ -6,7 +6,7 @@ CREATE PROCEDURE [C4G].[sp_RECDATA]
    @EndDate as DATETIME = null,
 --Filterparameters.
    @Robot as varchar(25) = '%',
-   @ProgN as varchar(25) = '21%'
+   @ProgN as varchar(25) = '%'
 AS
 BEGIN
 
@@ -15,7 +15,7 @@ BEGIN
 ---------------------------------------------------------------------------------------
 if ((@StartDate is null) OR (@StartDate = '1900-01-01 00:00:00:000'))
 BEGIN
-SET @StartDate = GETDATE()-40
+SET @StartDate = GETDATE()-14
 END
 
 if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))

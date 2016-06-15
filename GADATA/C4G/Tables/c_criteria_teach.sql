@@ -16,6 +16,7 @@
     [teach_sd_when2]      REAL     NULL,
     [teach_when3]         REAL     NULL,
     [teach_sd_when3]      REAL     NULL,
+    [isDeleted]           INT      NULL,
     [run_mode]            INT      NULL,
     [keycode]             INT      NULL,
     [_timestamp]          DATETIME NULL,
@@ -23,4 +24,6 @@
     CONSTRAINT [FK_c_criteria_teach_c_controller_id] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id]),
     CONSTRAINT [FK_c_criteria_teach_c_criteria_setup_id] FOREIGN KEY ([c_criteria_setup_id]) REFERENCES [C4G].[c_criteria_setup] ([id])
 );
+
+
 

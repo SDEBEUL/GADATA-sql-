@@ -2,6 +2,7 @@
     [id]                      INT           IDENTITY (1, 1) NOT NULL,
     [axes_mask]               INT           NULL,
     [shift_mask]              INT           NULL,
+    [model_code]              INT           NULL,
     [c_rec_variable_id_if1]   INT           NULL,
     [kpi_if1]                 INT           NULL,
     [operator_if1]            INT           NULL,
@@ -43,4 +44,6 @@
     CONSTRAINT [FK_c_criteria_setup_c_rec_variable_when2] FOREIGN KEY ([c_rec_variable_id_when2]) REFERENCES [C4G].[c_rec_variable] ([id]),
     CONSTRAINT [FK_c_criteria_setup_c_rec_variable_when3] FOREIGN KEY ([c_rec_variable_id_when3]) REFERENCES [C4G].[c_rec_variable] ([id])
 );
+
+
 

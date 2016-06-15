@@ -7,7 +7,7 @@
     [status]            INT      NULL,
     [_Min]              REAL     NULL,
     [_Max]              REAL     NULL,
-    [range]             REAL     NULL,
+    [_Range]            REAL     NULL,
     [_Sum]              REAL     NULL,
     [_Sum_Abs]          REAL     NULL,
     [_Delta_Sum]        REAL     NULL,
@@ -18,7 +18,7 @@
     [_Delta_Area_Abs]   REAL     NULL,
     [_Length]           REAL     NULL,
     [_Area]             REAL     NULL,
-    [_AreaSquared]      REAL     NULL,
+    [_Area_Abs]         REAL     NULL,
     [_SDev]             REAL     NULL,
     [_Variance]         REAL     NULL,
     [_Inversions]       INT      NULL,
@@ -40,11 +40,18 @@
     [controller_id]     INT      NULL,
     [idle_time]         INT      NULL,
     [active_time]       INT      NULL,
+    [_RMS]              REAL     NULL,
+    [_When_Min]         INT      NULL,
+    [_When_Max]         INT      NULL,
+    [_When_Delta_Min]   INT      NULL,
+    [_When_Delta_Max]   INT      NULL,
     CONSTRAINT [PK_rt_rec_data] PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_rt_rec_data_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id]),
     CONSTRAINT [FK_rt_rec_data_c_rec_variable] FOREIGN KEY ([c_rec_variable_id]) REFERENCES [C4G].[c_rec_variable] ([id]),
     CONSTRAINT [FK_rt_rec_data_rt_rec_group] FOREIGN KEY ([rt_rec_group_id]) REFERENCES [C4G].[rt_rec_group] ([id])
 );
+
+
 
 
 
