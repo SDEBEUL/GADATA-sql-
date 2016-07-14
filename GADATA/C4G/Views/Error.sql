@@ -1,21 +1,13 @@
 ﻿
-
-
-
-
-
-
-
-
-
-/*only ERRORPOST
--------------------------------------------------------------------------------------  */
 CREATE VIEW [C4G].[Error]
 AS
 SELECT        
 C.location
 , C.controller_name AS Robotname
-, 'C4G' AS Type, 'ERROR' AS Errortype
+, 'C4G' AS Type
+,CASE when l.error_severity = 2 THEN 'WARNING' 
+ ELSE 'ERROR' 
+ END AS Errortype
 , ISNULL(H._timestamp, H.c_timestamp) AS timestamp
 , L.error_number AS Logcode
 , L.error_severity AS Severity

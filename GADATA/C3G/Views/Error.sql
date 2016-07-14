@@ -2,13 +2,17 @@
 
 
 
+
+
 CREATE VIEW [C3G].[Error]
 AS
 SELECT        
   C.location
 , C.controller_name AS Robotname
 , 'C3G' AS Type
-, 'ERROR' AS Errortype
+,CASE when l.error_severity = 2 THEN 'WARNING' 
+ ELSE 'ERROR' 
+ END AS Errortype
 , H.C_timestamp AS timestamp
 , L.error_number AS Logcode
 , L.error_severity AS Severity

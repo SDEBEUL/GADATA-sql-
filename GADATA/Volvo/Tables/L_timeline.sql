@@ -7,8 +7,12 @@
     [Vday]         INT         NULL,
     [shift]        VARCHAR (2) NULL,
     [Noproduction] BIT         NULL,
-    [PLOEG]        VARCHAR (2) NOT NULL
+    [PLOEG]        VARCHAR (2) NOT NULL,
+    [id]           INT         IDENTITY (1, 1) NOT NULL,
+    CONSTRAINT [PK_L_timeline] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 

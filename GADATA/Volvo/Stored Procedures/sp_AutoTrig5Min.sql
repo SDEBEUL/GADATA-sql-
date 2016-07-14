@@ -4,6 +4,14 @@
 
 
 
+
+
+
+
+
+
+
+
 CREATE PROCEDURE [Volvo].[sp_AutoTrig5Min]
 AS
 BEGIN
@@ -17,6 +25,7 @@ exec [C3G].[sp_rt_toollog_REMOVE_DUP]
 exec GADATA.volvo.sp_AlertCheck
 --c4g process sbcu data 
 --exec GADATA.C4G.sp_update_ToolLog
+
 exec gadata.[C3G].[sp_normalize_CycleTime]
 --abb s4 
 exec GADATA.abb.sp_Decode_AE_S4
@@ -34,6 +43,7 @@ EXEC GADATA.GLUE.sp_update_L_Operator
 EXEC GADATA.GLUE.sp_vultijd
 EXEC GADATA.GLUE.sp_vultijd2
 EXEC GADATA.GLUE.sp_vultijd_viewer
+EXEC GADATA.GLUE.sp_vultijd_gemiddelde
 --end
 
 Print 'Test for [Volvo].[sp_AutoTrig5Min]'

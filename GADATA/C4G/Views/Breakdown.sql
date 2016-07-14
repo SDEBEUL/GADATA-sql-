@@ -2,9 +2,6 @@
 
 
 
-
-
-
 CREATE VIEW [C4G].[Breakdown]
 AS
 
@@ -24,7 +21,7 @@ SELECT
 , T.shift AS 'Shift'
 , ISNULL(LRA.APPL, LA.APPL) AS 'Object'
 , ISNULL(LRS.Subgroup, LS.Subgroup) AS 'Subgroup'
-, H.id as 'Idx'
+, CAST(H.id AS int) AS idx
 
 
 FROM   GADATA.C4G.h_breakdown as H 

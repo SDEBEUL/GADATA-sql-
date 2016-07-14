@@ -11,7 +11,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFrontShiftRap]
 --tuning parmas
    @minDowntime as int = 20,
    @minCountOfDowtime as int = 3,
-   @minCountofWarning as int = 4
+   @minCountofWarning as int = 4,
+   @USER as varchar(20) = null
 
 AS
 BEGIN
@@ -48,6 +49,7 @@ SELECT
 ,rap.Count
 ,rap.Object
 ,rap.Subgroup 
+,rap.IDX
 FROM
 (
 --************************************************************************************--
@@ -65,6 +67,7 @@ SELECT
 , count(c4gb.downtime) AS 'Count'
 , c4gb.Object
 , c4gb.Subgroup
+, min(c4gb.idx) as 'idx'
 
 FROM GADATA.C4G.Breakdown as c4gb
 
@@ -108,6 +111,7 @@ SELECT
 , count(c3gb.downtime) AS 'Count'
 , c3gb.Object
 , c3gb.Subgroup
+, min(c3gb.idx) as 'idx'
 
 FROM GADATA.c3g.Breakdown as c3gb
 
@@ -166,6 +170,7 @@ SELECT
 , count(c4gW.Logcode) AS 'Count'
 , c4gW.Object
 , c4gW.Subgroup
+, min(c4gw.idx) as 'idx'
 
 FROM GADATA.C4G.Error as c4gW
 WHERE 
@@ -223,6 +228,7 @@ SELECT
 , count(c3gW.Logcode) AS 'Count'
 , c3gW.Object
 , c3gW.Subgroup
+, min(c3gw.idx) as 'idx'
 
 FROM GADATA.C3G.Error as c3gW
 WHERE 
@@ -273,6 +279,7 @@ SELECT
 , NULL as 'count'
 , a.Object
 , a.Subgroup
+, a.idx
 
 FROM GADATA.volvo.Alerts as a 
 left join GADATA.volvo.ia_Alert as ia on ia.id = a.idx
@@ -295,7 +302,7 @@ SELECT
 , NULL as 'count'
 , a.Object
 , a.Subgroup
-
+, a.idx
 FROM GADATA.volvo.Alerts as a 
 left join GADATA.volvo.ia_Alert as ia on ia.id = a.idx
 where 
@@ -304,7 +311,64 @@ AND
 a.Location LIKE @LocationFilterWild
 AND
 a.Subgroup LIKE '%OKREQ%' 
+AND 
+GADATA.volvo.fn_getuserlevel(@user ) < 0
 --************************************************************************************--
+
+--************************************************************************************--
+--shiftbook (binnen dt range)
+--************************************************************************************--
+UNION
+SELECT 
+  sb.location 
+, sb.Robotname 
+, sb.ErrorType
+, sb.timestamp
+, sb.Logtekst 
+ + ISNULL(' |info: ' + CAST(REPLACE(sb2.userComment,'***************************','=>') as varchar(8000)),'')  
+ + ISNULL(char(10) + ' |WO: ' + CAST(sb2.wo as varchar(10)),'') as 'Logtekst'
+, sb.Downtime
+, NULL as 'count'
+, sb.Object
+, sb.Subgroup
+, sb.idx
+FROM Gadata.volvo.Shiftbook as sb 
+left join GADATA.volvo.hShiftbook sb2 on sb2.id = sb.idx
+where 
+sb.timestamp between @StartDate and @EndDate 
+AND
+sb.Location LIKE @LocationFilterWild
+AND 
+GADATA.volvo.fn_getuserlevel(@user) > 0
+--************************************************************************************--
+
+--************************************************************************************--
+--shiftbook (open buiten dt range)
+--************************************************************************************--
+UNION
+SELECT 
+  sb.location 
+, sb.Robotname 
+, sb.ErrorType
+, sb.timestamp
+, sb.Logtekst + ISNULL(' |info: ' + CAST(REPLACE(sb2.userComment,'***************************','=>') as varchar(8000)),'')  as 'Logtekst'
+, sb.Downtime
+, NULL as 'count'
+, sb.Object
+, sb.Subgroup
+, sb.idx
+FROM Gadata.volvo.Shiftbook as sb 
+left join GADATA.volvo.hShiftbook as sb2 on sb2.id = sb.idx
+where 
+sb.timestamp < @StartDate
+AND
+sb.Location LIKE @LocationFilterWild
+AND 
+sb.Subgroup not like '%COMP%'
+AND
+GADATA.volvo.fn_getuserlevel(@user ) > 0
+--************************************************************************************--
+
 
 --************************************************************************************--
 --timeline
@@ -320,7 +384,7 @@ SELECT
 , t.id as 'count'
 , t.Object
 , t.Subgroup
-
+, null as 'idx'
 FROM GADATA.volvo.Timeline as t where t.timestamp between @startdate and @endDate
 --************************************************************************************--
 
@@ -330,7 +394,7 @@ FROM GADATA.volvo.Timeline as t where t.timestamp between @startdate and @endDat
 UNION
 SELECT 
  'Ruleinfo' as 'location'
-,'Ruleinfo' as 'Robotname'
+, ISNULL((select nickname from gadata.volvo.users where cds = @USER),'Ruleinfo') as 'Robotname'
 ,'Ruleinfo' as 'ErrorType'
 , GETDATE()+'1900-01-02 00:00:00' as 'timestamp'
 , '@minDowntime = ' + CAST(@minDowntime as varchar(5)) +
@@ -341,6 +405,7 @@ SELECT
 ,  NULL as 'Count'
 , 'Ruleinfo' as 'Object'
 , 'Ruleinfo' as 'Subgroup'
+, null as 'idx'
 --************************************************************************************--
 ) as rap 
 --set sort
