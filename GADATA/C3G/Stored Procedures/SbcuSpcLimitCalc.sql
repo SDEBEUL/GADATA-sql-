@@ -118,7 +118,7 @@ Print 'Delete the target guns that wil be recalculated'
 --DROP TABLE GADATA.RobotGA.SBCUrefernce
 DELETE GADATA.c3g.SBCUrefernce FROM GADATA.c3g.SBCUrefernce as ref 
 left join GADATA.c3g.c_controller as r on r.id = ref.controller_id
-Where r.controller_name LIKE @Robotmask-- AND ref.tool_id LIKE @Toolmask
+Where r.controller_name LIKE @Robotmask AND ref.tool_id LIKE @Toolmask
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 Print 'calculate new limits'

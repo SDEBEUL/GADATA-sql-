@@ -120,7 +120,7 @@ BEGIN
 --DROP TABLE GADATA.RobotGA.SBCUrefernce
 DELETE c3g.GunCylinderefernce FROM c3g.GunCylinderefernce as ref 
 left join GADATA.C3G.c_controller r on r.id = ref.controller_id
-Where r.controller_name LIKE @Robotmask-- AND ref.tool_id LIKE @Toolmask
+Where r.controller_name LIKE @Robotmask AND ref.tool_id LIKE @Toolmask
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 --Print 'calculate new limits'

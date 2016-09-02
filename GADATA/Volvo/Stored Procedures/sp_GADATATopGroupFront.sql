@@ -25,6 +25,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATATopGroupFront]
    @MinDowntime as int = 0 ,
    @UsePloeg as bit = 0,
    @UseOwnership as bit = 0
+--gives the right permission when a low level user only has execution rights
+with execute as owner
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
@@ -211,3 +213,8 @@ output.Location, output.Robotname, output.Object
 ORDER BY Linestops DESC 
 --***********************************************************************************************************************--
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[Volvo].[sp_GADATATopGroupFront] TO [db_frontendUser]
+    AS [GADATA];
+

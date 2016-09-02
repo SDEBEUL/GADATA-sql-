@@ -5,6 +5,7 @@
 
 
 
+
 CREATE VIEW [Volvo].[Robots]
 AS
 SELECT distinct * FROM
@@ -156,4 +157,16 @@ Begin DesignProperties =
    End
 End
 ', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Robots';
+
+
+GO
+GRANT SELECT
+    ON OBJECT::[Volvo].[Robots] TO [db_frontendUser]
+    AS [GADATA];
+
+
+GO
+GRANT CONTROL
+    ON OBJECT::[Volvo].[Robots] TO [db_frontendUser]
+    AS [GADATA];
 

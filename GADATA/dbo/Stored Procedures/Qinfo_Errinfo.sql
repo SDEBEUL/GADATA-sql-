@@ -5,6 +5,8 @@
   ,@opt1 as varchar(2000) = null
   ,@user as varchar(16) = null
   ,@INFO as varchar(2000) = null
+--gives the right permission when a low level user only has execution rights
+with execute as owner
 AS
 BEGIN
 
@@ -53,3 +55,8 @@ select getdate()
 END
 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[dbo].[Qinfo_Errinfo] TO [db_frontendUser]
+    AS [dbo];
+

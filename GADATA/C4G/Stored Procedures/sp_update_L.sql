@@ -94,7 +94,7 @@ where (H.id IS NULL)
 ---------------------------------------------------------------------------------------
 Print'--delete in rt_alarm if older than 1 day'
 ---------------------------------------------------------------------------------------
-DELETE FROM gadata.C4G.rt_alarm where GADATA.C4G.rt_alarm.error_timestamp BETWEEN GETDATE()-1 and  getdate()
+DELETE FROM gadata.C4G.rt_alarm where GADATA.C4G.rt_alarm.error_timestamp BETWEEN  '1900-01-01 00:00:00' and GETDATE()-1
 ---------------------------------------------------------------------------------------
 
 --****************************************************************************************************************--

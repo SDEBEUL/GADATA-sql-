@@ -1,23 +1,29 @@
-﻿CREATE VIEW dbo.PSF_P3
+﻿/*AND (dbo.NPT.Name = 'NPT01')*/
+CREATE VIEW dbo.PSF_P3
 AS
 SELECT        TOP (100) PERCENT dbo.NPT.Name AS NPT, dbo.Timer.Name AS Timer, dbo.WeldMeasurements.Date, dbo.WeldMeasurements.Shift, 
                          dbo.Spot.Number AS Spotnummer, dbo.WeldMeasurements.AvgPSF, CONVERT(DECIMAL(5, 1), 100 * CAST(dbo.WeldMeasurements.NbrReweld AS decimal(10, 5)) 
-                         / CAST(dbo.WeldMeasurements.NbrWeld AS decimal(10, 5))) AS PsfReweld, dbo.WeldMeasurements.NbrReweld, dbo.WeldMeasurements.NbrWeld, 
-                         dbo.Spot.Program, dbo.WeldMeasurements.StdPSF
+                         / CAST(dbo.WeldMeasurements.NbrWeld AS decimal(10, 5))) AS PsfReweld, dbo.WeldMeasurements.NbrReweld, dbo.WeldMeasurements.NbrWeld
 FROM            dbo.WeldMeasurements INNER JOIN
                          dbo.Spot ON dbo.WeldMeasurements.SpotId = dbo.Spot.ID INNER JOIN
                          dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID INNER JOIN
                          dbo.NPT ON dbo.Timer.NptId = dbo.NPT.ID
-WHERE        (NOT (dbo.WeldMeasurements.AvgPSF IS NULL)) AND (dbo.WeldMeasurements.AvgPSF <> 0) AND (dbo.WeldMeasurements.Date >= CONVERT(DATETIME, 
-                         '2016-01-01 00:00:00', 102))
+WHERE        (dbo.WeldMeasurements.Date >= CONVERT(DATETIME, '2016-01-01 00:00:00', 102)) AND (NOT (dbo.WeldMeasurements.AvgPSF IS NULL)) AND 
+                         (dbo.WeldMeasurements.AvgPSF <> 0)
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'PSF_P3';
 
 
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'd
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'     Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
 End
 ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'PSF_P3';
+
+
 
 
 GO
@@ -26,7 +32,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+         Configuration = "(H (1[16] 4[16] 2[21] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -139,8 +145,11 @@ Begin DesignProperties =
    Begin DataPane = 
       Begin ParameterDefaults = ""
       End
-      Begin ColumnWidths = 9
+      Begin ColumnWidths = 12
          Width = 284
+         Width = 1500
+         Width = 1500
+         Width = 1500
          Width = 1500
          Width = 1500
          Width = 1500
@@ -153,8 +162,8 @@ Begin DesignProperties =
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
-         Column = 1440
-         Alias = 900
+         Column = 13095
+         Alias = 3105
          Table = 1170
          Output = 720
          Append = 1400
@@ -163,9 +172,7 @@ Begin DesignProperties =
          SortOrder = 1410
          GroupBy = 1350
          Filter = 1350
-         Or = 1350
-         Or = 1350
-         Or = 1350
-      End
-   En', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'PSF_P3';
+    ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'PSF_P3';
+
+
 

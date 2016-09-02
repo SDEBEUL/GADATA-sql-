@@ -55,6 +55,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFront]
    @GetAlerts as bit = 0,
    @USER as varchar(20) = null,
    @Shiftbook as bit = 0 
+--gives the right permission when a low level user only has execution rights
+with execute as owner
 AS
 BEGIN
 
@@ -845,3 +847,8 @@ SET @RequestString =
 EXEC GADATA.volvo.sp_Alog @rowcount = @rowcountmen, @Request = @RequestString
 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[Volvo].[sp_GADATAFront] TO [db_frontendUser]
+    AS [GADATA];
+

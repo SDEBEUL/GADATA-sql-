@@ -1,6 +1,4 @@
 ﻿
-
-
 CREATE PROCEDURE [dbo].[Qinfo_Shiftbook]
     @Robot as varchar(16) = null
    ,@BreakdownID as int = null
@@ -10,9 +8,11 @@ CREATE PROCEDURE [dbo].[Qinfo_Shiftbook]
    ,@CI as int = null
    ,@STATE as varchar(16) = null
    ,@userDescription as varchar(1000) = null
-   ,@userComment as varchar(8000) = null
+   ,@userComment as varchar(max) = null
    ,@Runmode as int = 0 
    --1= edit mode. (shiftbook form) 2= view mode 3= independant add  5 delete @shiftbookid 6 accept
+--gives the right permission when a low level user only has execution rights
+with execute as owner
 AS
 BEGIN
 DECLARE @Redirect as bit 
@@ -69,6 +69,12 @@ END
  --view mode 
 if @Runmode in(2,4)
 BEGIN
+--lookup the breakdown id if 0 and shiftbookid is know 
+if ((@BreakdownID = 0) AND (@ShiftbookID <> 0))
+BEGIN
+set @BreakdownID = (select top 1 h.Breakdown_id from GADATA.volvo.hShiftbook as h where h.id = @ShiftbookID)
+END 
+
 	SELECT 
 		 ISNULL(r.controller_name,isnull(sb.IndependantLocation,'ERROR')) as 'Robot'
 		,ISNULL(sb.controller_id,'') as 'Controller_id'
@@ -144,3 +150,8 @@ FROM gadata.volvo.hShiftbook where id = @shiftbookID
 END
 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[dbo].[Qinfo_Shiftbook] TO [db_frontendUser]
+    AS [dbo];
+

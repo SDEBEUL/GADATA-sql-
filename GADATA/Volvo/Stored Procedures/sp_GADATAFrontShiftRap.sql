@@ -13,6 +13,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFrontShiftRap]
    @minCountOfDowtime as int = 3,
    @minCountofWarning as int = 4,
    @USER as varchar(20) = null
+--gives the right permission when a low level user only has execution rights
+with execute as owner
 
 AS
 BEGIN
@@ -435,3 +437,8 @@ SET @RequestString =
 EXEC GADATA.volvo.sp_Alog @rowcount = @rowcountmen, @Request = @RequestString
 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[Volvo].[sp_GADATAFrontShiftRap] TO [db_frontendUser]
+    AS [GADATA];
+

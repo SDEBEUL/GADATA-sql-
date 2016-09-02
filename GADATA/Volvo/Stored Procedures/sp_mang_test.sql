@@ -13,8 +13,16 @@ BEGIN
 SET DATEFIRST 1
 ---------------------------------------------------------------------------------------
 
-SET @EndDate = getdate()
-SET @StartDate = '2014-01-01 00:00:00.000' -- getdate()-80
+if ((@StartDate is null) OR (@StartDate = '1900-01-01 00:00:00:000'))
+BEGIN
+SET @StartDate = GETDATE()-360
+END
+
+if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))
+BEGIN
+SET @EndDate = GETDATE()
+END
+
 
 ---------------------------------------------------------------------------------------
 --c4g 

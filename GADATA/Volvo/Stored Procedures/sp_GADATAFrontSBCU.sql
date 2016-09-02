@@ -10,6 +10,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATAFrontSBCU]
    @GetC4GSBCU as bit = 0, --TBT
 --Comau C3G Booleans   
    @GetC3GSBCU as bit = 0 
+--gives the right permission when a low level user only has execution rights
+with execute as owner
 AS
 BEGIN
 
@@ -58,3 +60,8 @@ DECLARE @rowcountmen as int
 SET @rowcountmen = @@rowcount
 EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = 'Running: [Volvo].[sp_GADATAFrontSBCU]'
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[Volvo].[sp_GADATAFrontSBCU] TO [db_frontendUser]
+    AS [GADATA];
+

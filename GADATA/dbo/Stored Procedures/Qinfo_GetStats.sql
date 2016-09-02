@@ -4,6 +4,8 @@
    ,@ErrID as int = null
    ,@opt1 as varchar(2000) = null
    ,@user as varchar(16) = null
+--gives the right permission when a low level user only has execution rights
+with execute as owner
 AS
 BEGIN
 
@@ -105,3 +107,8 @@ SELECT
 END
 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[dbo].[Qinfo_GetStats] TO [db_frontendUser]
+    AS [dbo];
+

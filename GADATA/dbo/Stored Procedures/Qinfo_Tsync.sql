@@ -4,6 +4,8 @@
    ,@ErrID as int = null
    ,@opt1 as varchar(2000) = null
    ,@user as varchar(16) = null
+--gives the right permission when a low level user only has execution rights
+with execute as owner
 AS
 BEGIN
 DECLARE @robType varchar(20)
@@ -40,3 +42,8 @@ SELECT
 ,'For This Errid: ' = @ErrID
 ,'Controllertime for this error: ' = (SELECT TOP 1 c_timestamp FROM GADATA.C4G.h_alarm where id = @ErrID) 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[dbo].[Qinfo_Tsync] TO [db_frontendUser]
+    AS [dbo];
+

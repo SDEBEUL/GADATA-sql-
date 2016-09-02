@@ -10,6 +10,8 @@ CREATE PROCEDURE [Volvo].[sp_GADATAWeldGunCockpit]
    @Robot as varchar(25) = '57050r03%',
    @Tool as varchar(25) = 'Tool: 1',
    @Weldgunname as varchar(25) = null
+--gives the right permission when a low level user only has execution rights
+with execute as owner
 AS
 BEGIN
 
@@ -241,3 +243,8 @@ SET @rowcountmen = @@rowcount
 EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = 'Running: [Volvo].[sp_GADATAWeldGunCockpit]'
 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[Volvo].[sp_GADATAWeldGunCockpit] TO [db_frontendUser]
+    AS [GADATA];
+

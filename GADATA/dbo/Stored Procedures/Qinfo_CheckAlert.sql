@@ -5,6 +5,8 @@ CREATE PROCEDURE [dbo].[Qinfo_CheckAlert]
    ,@ErrID as int = null
    ,@opt1 as varchar(2000) = null
    ,@user as varchar(16) = null
+--gives the right permission when a low level user only has execution rights
+with execute as owner
 AS
 BEGIN
 --we will use this sp to manage the alert table from the front end system.
@@ -79,3 +81,8 @@ SELECT TOP 1
 FROM GADATA.volvo.ia_Alert as a where a.id = @ErrID
 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[dbo].[Qinfo_CheckAlert] TO [db_frontendUser]
+    AS [dbo];
+

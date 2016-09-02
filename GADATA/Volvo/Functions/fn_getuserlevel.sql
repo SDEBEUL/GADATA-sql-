@@ -15,3 +15,8 @@ SET @usercount = (SELECT count(u.cds) from GADATA.volvo.Users as u where @user l
 
 RETURN (SELECT min(u.Ulevel) from GADATA.volvo.Users as u where @user like '%'+u.cds+'%' )
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[Volvo].[fn_getuserlevel] TO [db_frontendUser]
+    AS [GADATA];
+
