@@ -24,6 +24,8 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [nci_h_breakdown]
     ON [C3G].[h_breakdown]([controller_id] ASC)

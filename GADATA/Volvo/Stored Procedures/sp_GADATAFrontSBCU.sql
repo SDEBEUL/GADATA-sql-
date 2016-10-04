@@ -65,3 +65,5 @@ GRANT EXECUTE
     ON OBJECT::[Volvo].[sp_GADATAFrontSBCU] TO [db_frontendUser]
     AS [GADATA];
 
+
+

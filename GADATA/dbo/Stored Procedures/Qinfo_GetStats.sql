@@ -112,3 +112,5 @@ GRANT EXECUTE
     ON OBJECT::[dbo].[Qinfo_GetStats] TO [db_frontendUser]
     AS [dbo];
 
+
+

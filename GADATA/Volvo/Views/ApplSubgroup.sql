@@ -138,3 +138,5 @@ GRANT SELECT
     ON OBJECT::[Volvo].[ApplSubgroup] TO [db_frontendUser]
     AS [GADATA];
 
+
+

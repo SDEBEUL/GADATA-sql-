@@ -22,6 +22,8 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [nci_h_alarm]
     ON [C3G].[h_alarm]([controller_id] ASC, [_timestamp] ASC)

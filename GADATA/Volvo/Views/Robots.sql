@@ -165,8 +165,12 @@ GRANT SELECT
     AS [GADATA];
 
 
+
+
 GO
 GRANT CONTROL
     ON OBJECT::[Volvo].[Robots] TO [db_frontendUser]
     AS [GADATA];
+
+
 

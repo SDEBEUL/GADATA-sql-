@@ -1969,6 +1969,62 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
+    <Build Include="GLUE\Tables\vultijden_backup3.sql" />
+    <Build Include="GLUE\Tables\rt_data.sql" />
+    <Build Include="GLUE\Tables\education_filling_times.sql" />
+    <Build Include="GLUE\Tables\education.sql" />
+    <Build Include="dbo\Tables\TimerParameters.sql" />
+    <Build Include="dbo\Tables\SpotParameterFilter.sql" />
+    <Build Include="dbo\Tables\PlateMaterial.sql" />
+    <Build Include="dbo\Tables\PlateCoating.sql" />
+    <Build Include="dbo\Tables\_ULOGVersion.sql" />
+    <Build Include="C3G\Tables\L_error.sql" />
+    <Build Include="ABB\Tables\H_breakdown.sql" />
+    <Build Include="Volvo\Views\Alerts.sql" />
+    <Build Include="Volvo\Views\ActualProduction.sql" />
+    <Build Include="QUISS\Views\QUISSdata.sql" />
+    <Build Include="PLC\Views\GetLastRecords.sql" />
+    <Build Include="GLUE\Views\vultijd.sql" />
+    <Build Include="GLUE\Views\OperatorView2.sql" />
+    <Build Include="GLUE\Views\ALARMVIEW_AND_OPERATORVIEW.sql" />
+    <Build Include="GLUE\Views\Alarm_layoutRD3.sql" />
+    <Build Include="dbo\Views\WeldtimeSpotsSetup.sql" />
+    <Build Include="dbo\Views\WeldFaultProtocol.sql" />
+    <Build Include="dbo\Views\Weldfault_WM_change.sql" />
+    <Build Include="dbo\Views\WEAR_WHEN_CHANGED_TEST.sql" />
+    <Build Include="dbo\Views\TipDressParameters.sql" />
+    <Build Include="dbo\Views\SpotDataChange_WM.sql" />
+    <Build Include="dbo\Views\Spatters_Zone_Y413.sql" />
+    <Build Include="dbo\Views\spatters.sql" />
+    <Build Include="dbo\Views\Qstopcomponent_analyse.sql" />
+    <Build Include="dbo\Views\PSF_test.sql" />
+    <Build Include="dbo\Views\MidairRef.sql" />
+    <Build Include="dbo\Views\BatteryLow.sql" />
+    <Build Include="dbo\Views\ALARM__AND OPERATORVIEW.sql" />
+    <Build Include="dbo\Views\87000 tipwear data.sql" />
+    <Build Include="C4G\Views\WARNING.sql" />
+    <Build Include="C4G\Views\SLOWspeed.sql" />
+    <Build Include="C4G\Views\not_saved.sql" />
+    <Build Include="C4G\Views\HandMonitor.sql" />
+    <Build Include="C4G\Views\Gen_ovr.sql" />
+    <Build Include="C4G\Views\ActiveState.sql" />
+    <Build Include="C3G\Views\WeldGunCylinderOutOfLimit.sql" />
+    <Build Include="C3G\Views\WeldGunCylinder.sql" />
+    <Build Include="C3G\Views\WARNING.sql" />
+    <Build Include="C3G\Views\Uptime.sql" />
+    <Build Include="C3G\Views\SysState.sql" />
+    <Build Include="C3G\Views\SBCUoutOfLimit.sql" />
+    <Build Include="C3G\Views\SBCUData.sql" />
+    <Build Include="C3G\Views\mod.sql" />
+    <Build Include="C3G\Views\Live.sql" />
+    <Build Include="C3G\Views\LastBreakDownEnd.sql" />
+    <Build Include="C3G\Views\BreakdownStart.sql" />
+    <Build Include="C3G\Views\Breakdown.sql" />
+    <Build Include="C3G\Views\ActiveState.sql" />
+    <Build Include="ABB\Views\Breakdown.sql" />
+    <Build Include="Security\db_frontendUser.sql" />
+    <Build Include="Security\GADATAui.sql" />
+    <Build Include="Volvo\Stored Procedures\sp_sendmail .sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExcelFront\SQLfront_C1.xlsm" />

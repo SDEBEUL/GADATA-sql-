@@ -25,7 +25,10 @@ if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))
 BEGIN
 SET @EndDate = GETDATE()
 END
+if ((@StartDate is null) OR (@StartDate = '1900-01-01 00:00:00:000'))
+BEGIN
 SET @startdate = @enddate -'1900-01-02 8:00:00' -- will force 3 last shifts and the active on.
+END
 --********************************************************--
 /*use the selected daterange and ajust so that it matched the
 begin en endpoint of a shift.
@@ -441,4 +444,6 @@ GO
 GRANT EXECUTE
     ON OBJECT::[Volvo].[sp_GADATAFrontShiftRap] TO [db_frontendUser]
     AS [GADATA];
+
+
 

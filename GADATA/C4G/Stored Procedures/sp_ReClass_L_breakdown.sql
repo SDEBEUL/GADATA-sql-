@@ -75,6 +75,8 @@ SELECT
 	(Err._timestamp BETWEEN HB.StartOfBreakdown AND (HB.EndOfBreakdown)) 
 	AND
 	(Err.[error_severity] > 2)
+	AND
+	(Hb.error_id <> Err.error_id) --added for GB
 	)
   OR 
 	(
@@ -86,7 +88,8 @@ SELECT
    where  
    Hb.EndOfBreakdown BETWEEN ISNULL(@StartDate,GETDATE()-1) AND ISNULL(@EndDate,GETDATE())
    AND 
-   Hb.error_id IN(1173,9585,6319,1008,4165) --only reclas gatestops (and dsa error upon drive on ..)
+   Hb.error_id IN(1173,9585,6319,1008,4165,21958,22070) --only reclas gatestops (and dsa error upon drive on ..)
+   --added last 2 for GB
    AND 
    Err.error_id is not null --mag enkel door als er iets beter gevonden is.
 ) 
