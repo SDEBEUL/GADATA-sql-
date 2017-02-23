@@ -6,7 +6,7 @@ CREATE PROCEDURE [C4G].[sp_RECDATA]
    @EndDate as DATETIME = null,
 --Filterparameters.
    @Robot as varchar(25) = '%',
-   @ProgN as varchar(25) = '3%'
+   @ProgN as varchar(25) = '%'
 AS
 BEGIN
 
@@ -39,7 +39,7 @@ left join GADATA.C4G.c_controller as c on c.id = rt_rec_group.controller_id
 left join GADATA.C4G.c_rec_variable on c_rec_variable.id = rt_rec_data.c_rec_variable_id
 left join GADATA.volvo.L_timeline as t on rt_rec_group._timestamp between t.starttime and t.endtime
 WHERE 
-rt_rec_data.axis <> 0
+rt_rec_data.axis = 1
 AND
 rt_rec_group._timestamp between @StartDate and @EndDate
 AND

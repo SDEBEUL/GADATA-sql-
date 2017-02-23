@@ -121,7 +121,9 @@ SELECT
 ,NULL as 'CylinderLCL'
 ,NULL as 'MidairRes'
 ,NULL as 'MidairRef'
-
+,sbcu.Toolx as 'ToolX'
+,sbcu.Tooly as 'ToolY'
+,sbcu.ToolZ as 'ToolZ'
 FROM #Timeref 
 left join gadata.c3g.sbcudata as sbcu on 
 sbcu.tool_timestamp = #Timeref.Timestamp
@@ -148,6 +150,9 @@ SELECT
 ,NULL
 ,NULL
 ,NULL
+,sbcu.Toolx as 'ToolX'
+,sbcu.Tooly as 'ToolY'
+,sbcu.ToolZ as 'ToolZ'
 
 FROM #Timeref 
 left join gadata.c3g.sbcudata as sbcu on 
@@ -175,6 +180,9 @@ SELECT
 ,Cylinder.LCL
 ,NULL
 ,NULL
+,NULL
+,NULL
+,NULL
 
 FROM #Timeref 
 left join gadata.c3g.WeldGunCylinder as Cylinder on 
@@ -200,6 +208,9 @@ SELECT
 ,NULL
 ,midair.ResisActual
 ,midair.ResisRef
+,NULL
+,NULL
+,NULL
 FROM #Timeref 
 left join gadata.dbo.MidairRef as midair on 
 midair.timestamp = #Timeref.Timestamp
@@ -224,6 +235,9 @@ SELECT
 ,NULL
 ,NULL
 ,tc.wear as 'ResisRef'
+,NULL
+,NULL
+,NULL
 FROM #Timeref 
 LEFT JOIN [GADATA].[dbo].[WearBeforeChange] as TC ON
 TC.DateTime = #Timeref.Timestamp

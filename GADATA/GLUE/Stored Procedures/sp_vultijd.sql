@@ -78,7 +78,7 @@ LTRIM(RTRIM(R.controller)) = LTRIM(RTRIM(L.Name))
 
 ---------------------------------------------------------------------------------------
 
-Select top 10000 * from #vultijden_normalized
+--Select top 10000 * from #vultijden_normalized
 --order by [Signal_id] desc
 
 

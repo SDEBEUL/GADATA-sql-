@@ -9,7 +9,7 @@ FROM            dbo.WeldMeasurements INNER JOIN
                          dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID INNER JOIN
                          dbo.NPT ON dbo.Timer.NptId = dbo.NPT.ID
 WHERE        (dbo.WeldMeasurements.Date >= CONVERT(DATETIME, '2016-01-01 00:00:00', 102)) AND (NOT (dbo.WeldMeasurements.AvgPSF IS NULL)) AND 
-                         (dbo.WeldMeasurements.AvgPSF <> 0)
+                         (dbo.WeldMeasurements.AvgPSF <> 0) AND (dbo.Spot.Number <> '9013')
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'PSF_P3';
 
@@ -32,7 +32,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[16] 4[16] 2[21] 3) )"
+         Configuration = "(H (1[16] 4[25] 2[29] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -173,6 +173,8 @@ Begin DesignProperties =
          GroupBy = 1350
          Filter = 1350
     ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'PSF_P3';
+
+
 
 
 

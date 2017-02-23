@@ -1,5 +1,7 @@
 ﻿
 
+
+
 CREATE PROCEDURE [QUISS].[sp_QUISS_data]
 
 AS
@@ -25,7 +27,6 @@ print '--***********************************************************************
 Print'--add new controllers to table'
 ---------------------------------------------------------------------------------------
 
-Select * from  GADATA.QUISS.data
 INSERT INTO GADATA.QUISS.Controller
 SELECT  distinct      /*DISTINCT = De afzonderlijke locaties selecteren*/
  R1.Controller as 'Controller'  
@@ -66,7 +67,7 @@ R1.foutdirectory as 'foutdirectory'
 From GADATA.QUISS.data as R1
 
 Left join GADATA.QUISS.foutdirectory as L1 on /* All the matching rows from both tables + non matching rows from rt_data (the left table) als er een nieuwe controller in rt_table staat, zal dit command ze in controller ook toevoegen*/
-LTRIM(RTRIM(R1.Stuk)) = LTRIM(RTRIM(L1.Name)) /* LTRIM and RTRIM linkse en rechtse spaties verwijderen/ invoegen in L1 naam*/
+LTRIM(RTRIM(R1.foutdirectory)) = LTRIM(RTRIM(L1.Name)) /* LTRIM and RTRIM linkse en rechtse spaties verwijderen/ invoegen in L1 naam*/
 
 where 
 (L1.id IS NULL)
@@ -148,12 +149,7 @@ AND
 where (H.id IS NULL)  /*als in de lijn nog niets ingevuld is*/
 
 
--- delete rt data where logtype =1
----------------------------------------------------------------------------------------
-Print'--delete rt data where logtype =2'
----------------------------------------------------------------------------------------
-
-DELETE FROM [QUISS].[data] /*als data eraan toegevoegd, verwijder deze terug */
+DELETE FROM [QUISS].[data]  /*als data eraan toegevoegd, verwijder deze terug */
 
 --****************************************************************************************************************--
 END

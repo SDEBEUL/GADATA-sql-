@@ -10,3 +10,11 @@
 
 
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_lop1]
+    ON [C4G].[L_operation]([code] ASC)
+    INCLUDE([Vcsc_name], [controller_id]);
+

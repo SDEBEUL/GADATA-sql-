@@ -4,6 +4,7 @@
 
 
 
+
 CREATE VIEW [C3G].[Error]
 AS
 SELECT        
@@ -31,7 +32,7 @@ LEFT OUTER JOIN C3G.c_controller AS C ON H.controller_id = C.id
 LEFT  JOIN C3G.c_Appl ON L.Appl_id = C3G.c_Appl.id 
 LEFT  JOIN C3G.c_Subgroup ON L.Subgroup_id = C3G.c_Subgroup.id 
 LEFT OUTER JOIN VOLVO.L_timeline AS T ON H.c_timestamp BETWEEN T.starttime AND T.endtime
-WHERE  (H.error_is_alarm = 1) AND (L.[error_severity] <> -1) and h.c_timestamp < getdate()
+WHERE   (L.[error_severity] <> -1) and h.c_timestamp < getdate()
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'Error';
 

@@ -1,4 +1,4 @@
-﻿CREATE TABLE [C4G].[L_error] (
+CREATE TABLE [C4G].[L_error] (
     [id]             INT           IDENTITY (1, 1) NOT NULL,
     [error_number]   INT           NULL,
     [error_severity] INT           NULL,
@@ -9,6 +9,8 @@
     CONSTRAINT [FK_L_error_c_Appl] FOREIGN KEY ([Appl_id]) REFERENCES [C4G].[c_Appl] ([id]),
     CONSTRAINT [FK_L_error_c_Subgroup] FOREIGN KEY ([Subgroup_id]) REFERENCES [C4G].[c_Subgroup] ([id])
 );
+
+
 
 
 
@@ -77,3 +79,13 @@ CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_L_error_ID]
 
 
 GO
+CREATE NONCLUSTERED INDEX [nci_Le_2]
+    ON [C4G].[L_error]([error_number] ASC, [error_severity] ASC, [error_text] ASC)
+    INCLUDE([id]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_Le_1]
+    ON [C4G].[L_error]([error_number] ASC, [error_severity] ASC, [error_text] ASC)
+    INCLUDE([id]);
+
