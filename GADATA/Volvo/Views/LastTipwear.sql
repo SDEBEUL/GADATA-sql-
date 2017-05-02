@@ -1,15 +1,28 @@
-﻿CREATE VIEW Volvo.LastTipwear
+﻿/* 
+SELECT        TOP (100) PERCENT dbo.WeldingGun.Name, dbo.Timer.Robot, Volvo.Robots.controller_type, Volvo.Robots.location, dbo.TipWear.Date_Time, 
+                         dbo.TipWear.BodysPerElectrode, dbo.TipWear.BodyRemaining
+FROM            dbo.TipWear FULL OUTER JOIN
+                         dbo.WeldingGun ON dbo.TipWear.WeldingGunId = dbo.WeldingGun.ID FULL OUTER JOIN
+                         dbo.Timer ON dbo.Timer.ID = dbo.WeldingGun.TimerID FULL OUTER JOIN
+                         Volvo.Robots ON dbo.Timer.Robot = Volvo.Robots.controller_name
+WHERE        (dbo.TipWear.ID IN
+                             (SELECT        MAX(ID) AS Expr1
+                               FROM            dbo.TipWear AS TipWear_1
+                               GROUP BY WeldingGunId))
+ORDER BY dbo.Timer.Robot
+*/
+CREATE VIEW Volvo.LastTipwear
 AS
-SELECT TOP (100) PERCENT dbo.WeldingGun.Name, dbo.Timer.Robot, Volvo.Robots.controller_type, Volvo.Robots.location, dbo.TipWear.Date_Time, dbo.TipWear.BodysPerElectrode, 
-                  dbo.TipWear.BodyRemaining
-FROM     dbo.TipWear FULL OUTER JOIN
-                  dbo.WeldingGun ON dbo.TipWear.WeldingGunId = dbo.WeldingGun.ID FULL OUTER JOIN
-                  dbo.Timer ON dbo.Timer.ID = dbo.WeldingGun.TimerID FULL OUTER JOIN
-                  Volvo.Robots ON dbo.Timer.Robot = Volvo.Robots.controller_name
-WHERE  (dbo.TipWear.ID IN
-                      (SELECT MAX(ID) AS Expr1
-                       FROM      dbo.TipWear AS TipWear_1
-                       GROUP BY WeldingGunId))
+SELECT        TOP (100) PERCENT dbo.WeldingGun.Name, dbo.Timer.Robot, Volvo.Robots.controller_type, Volvo.Robots.location, dbo.TipWear.Date_Time, 
+                         dbo.TipWear.BodysPerElectrode, dbo.TipWear.BodyRemaining
+FROM            dbo.TipWear INNER JOIN
+                         dbo.WeldingGun ON dbo.TipWear.WeldingGunId = dbo.WeldingGun.ID FULL OUTER JOIN
+                         dbo.Timer ON dbo.Timer.ID = dbo.WeldingGun.TimerID FULL OUTER JOIN
+                         Volvo.Robots ON dbo.Timer.Robot = Volvo.Robots.controller_name
+WHERE        (dbo.TipWear.ID IN
+                             (SELECT        MAX(ID) AS Expr1
+                               FROM            dbo.TipWear AS TipWear_1
+                               GROUP BY WeldingGunId))
 ORDER BY dbo.Timer.Robot
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'LastTipwear';
@@ -143,30 +156,32 @@ Begin DesignProperties =
       End
       Begin ColumnWidths = 9
          Width = 284
-         Width = 1644
-         Width = 1488
+         Width = 1650
+         Width = 1485
          Width = 1680
-         Width = 2076
-         Width = 1944
-         Width = 1752
+         Width = 2070
+         Width = 1950
+         Width = 1755
          Width = 1200
          Width = 1200
       End
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
-         Column = 2376
+         Column = 2370
          Alias = 900
-         Table = 1176
+         Table = 1170
          Output = 720
          Append = 1400
          NewValue = 1170
-         SortType = 1356
-         SortOrder = 1416
+         SortType = 1350
+         SortOrder = 1410
          GroupBy = 1350
-         Filter = 1356
+         Filter = 1350
          Or = 1350
          Or = 1350
          Or = 1350
       E', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'LastTipwear';
+
+
 

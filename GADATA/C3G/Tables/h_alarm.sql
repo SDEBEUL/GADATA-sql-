@@ -24,14 +24,36 @@
 
 
 
+
+
 GO
-CREATE NONCLUSTERED INDEX [nci_h_alarm]
-    ON [C3G].[h_alarm]([controller_id] ASC, [_timestamp] ASC)
-    INCLUDE([c_timestamp], [error_id]);
+
 
 
 GO
 CREATE NONCLUSTERED INDEX [<nci_errorview>]
     ON [C3G].[h_alarm]([error_is_alarm] ASC, [_timestamp] ASC, [c_timestamp] ASC)
     INCLUDE([id], [controller_id], [error_id]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [c3g_nci_h_alarmEQUI]
+    ON [C3G].[h_alarm]([c_timestamp] ASC)
+    INCLUDE([controller_id], [error_id], [id]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [<nci_equi_h_alarm2>]
+    ON [C3G].[h_alarm]([controller_id] ASC, [c_timestamp] ASC)
+    INCLUDE([error_id], [id]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_1940774567_6_4]
+    ON [C3G].[h_alarm]([error_id], [c_timestamp]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_1940774567_2_4_6]
+    ON [C3G].[h_alarm]([controller_id], [c_timestamp], [error_id]);
 

@@ -36,3 +36,7 @@ ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\KBAETEN1];
 GO
 ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\JGOWY];
 
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [EqUi];
+

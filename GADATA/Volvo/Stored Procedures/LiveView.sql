@@ -319,7 +319,7 @@ SELECT
               0 AS 'Severity',
 			  'S: ' + GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state)  + '  |T: '  + ISNULL(#SysBreakDwnTime.error_text,GADATA.C4G.fn_decodeSysstate(#SysBreakDwnTime.sys_state))  AS 'Logtekst',
 			 -- ISNULL('S: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|T: '  + #SysBreakDwnTime.error_text,('S: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) ))  AS 'Logtekst',
-			  downtime as 'DT',
+			  ABS(downtime) as 'DT',
               DATEPART(YEAR, #SysBreakDwnTime.oktimestamp) AS 'Year',
 			  DATEPART(WEEK,#SysBreakDwnTime.oktimestamp) AS 'Week',
 			  GADATA.dbo.fn_volvoday(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'day',
@@ -336,30 +336,6 @@ WHERE
  (SysBreakDwnIndx = 1 AND CombinedRobstate <> 3) --laatste event en robot heeft geen resolved event 
   OR
  (SysBreakDwnIndx = 1  AND (_timestamp > getdate()-'1900-01-01 00:04:00:000') ) --laatste event of not geen 5 min aan het draaien 
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---COAMU C4G warnings (een bepaald aantal warnings op een object en alarm geven)
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-UNION 
-select * from GADATA.C4G.WARNING as w where w.Downtime > 5
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---shiftbook items die wachten op assignment
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---UNION 
---select * from gadata.volvo.shiftbook as sb where sb.subgroup like 'WASSIGN'
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---COAMU C3G warnings (een bepaald aantal warnings op een object en alarm geven)
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-UNION 
-select * from GADATA.C3G.WARNING as w where w.Downtime > 5
 
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------

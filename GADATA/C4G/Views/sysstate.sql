@@ -1,13 +1,4 @@
 ﻿
-
-
-
-
-
-
-
-
-
 CREATE VIEW [C4G].[sysstate]
 AS
 SELECT  
@@ -18,7 +9,7 @@ SELECT
 			  Y._timestamp AS 'Timestamp',
               NULL AS 'Logcode',
               NULL AS 'Severity',
-              '  Code: ' + CAST(Y.Sys_state AS varchar) +   '  SysState: ' + (GADATA.c4g.fn_decodeSysstate(y.Sys_state)) AS 'Logtekst',
+              '  Code: ' + CAST(Y.Sys_state AS varchar) +   '  SysState: ' + (GADATA.c4g.fn_decodeSysstate(y.Sys_state)) + '  RobState: ' + CAST(GADATA.C4G.fn_robstate(y.Sys_state) as varchar) AS 'Logtekst',
               NULL AS 'Downtime',
               T.Vyear AS 'Year',
 			  T.Vweek AS 'Week',

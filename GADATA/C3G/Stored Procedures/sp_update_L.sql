@@ -27,6 +27,9 @@ SELECT  distinct
 ,R.error_text as 'error_text'
 ,NULL as 'Appl_id'
 ,NULL as 'Subgroup_id'
+,null
+,null
+,null
 From GADATA.C3G.rt_alarm as R 
 
 Left join GADATA.C3G.L_error as L on

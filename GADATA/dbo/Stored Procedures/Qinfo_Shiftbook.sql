@@ -20,9 +20,15 @@ Set @Redirect = 0
 --get controller type and id for references
 DECLARE @conttroller_id as int 
 DECLARE @controller_type as varchar(10)
-SET @conttroller_id = (SELECT TOP 1 r.id FROM GADATA.volvo.Robots as r where r.controller_name like @robot)
-SET @controller_type = (SELECT TOP 1 r.controller_type FROM GADATA.volvo.Robots as r where r.controller_name like @robot)
+DECLARE @robotname as varchar(10)
 
+--changed code to work with new asset based system and EQ plugin
+SET @conttroller_id = (select top 1 a.controller_id from gadata.equi.assets as a where a.location like @robot)
+SET @robotname  =(select top 1 a.controller_name from gadata.equi.assets as a where a.location like @robot)
+SET @controller_type = (SELECT TOP 1 r.controller_type FROM GADATA.volvo.Robots as r where r.controller_name like @robotname)
+--end change
+--SET @controller_type = (SELECT TOP 1 r.controller_type FROM GADATA.volvo.Robots as r where r.controller_name like @robot)
+--SET @conttroller_id = (SELECT TOP 1 r.id FROM GADATA.volvo.Robots as r where r.controller_name like @robot)
 
 --linked add mode 
 --if in edit mode 

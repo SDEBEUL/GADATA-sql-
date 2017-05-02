@@ -4,6 +4,12 @@
     [LocationDescription] VARCHAR (255) NULL,
     [ASSETNUM]            VARCHAR (255) NULL,
     [AssetDescription]    VARCHAR (255) NULL,
-    [LocationTree]        VARCHAR (MAX) NULL
+    [LocationTree]        VARCHAR (MAX) NULL,
+    [ClassDescription]    VARCHAR (255) NULL,
+    [ClassStructureId]    VARCHAR (255) NULL,
+    [CLassificationId]    VARCHAR (255) NULL,
+    [ClassificationTree]  VARCHAR (MAX) NULL
 );
+
+
 

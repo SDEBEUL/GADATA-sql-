@@ -1,4 +1,4 @@
-﻿CREATE TABLE [C4G].[c_controller] (
+CREATE TABLE [C4G].[c_controller] (
     [id]                    INT           IDENTITY (1, 1) NOT NULL,
     [controller_name]       VARCHAR (50)  NULL,
     [sys_id]                VARCHAR (20)  NULL,
@@ -47,6 +47,9 @@
 
 
 
-GO
 
+
+GO
+CREATE STATISTICS [_dta_stat_1225680060_2_1_4_23]
+    ON [C4G].[c_controller]([controller_name], [id], [location], [ownership]);
 

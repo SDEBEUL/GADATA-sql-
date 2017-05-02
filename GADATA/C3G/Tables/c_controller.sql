@@ -44,3 +44,10 @@
 
 
 
+
+
+
+GO
+CREATE STATISTICS [_dta_stat_1193679946_1_2_4_23]
+    ON [C3G].[c_controller]([id], [controller_name], [location], [ownership]);
+

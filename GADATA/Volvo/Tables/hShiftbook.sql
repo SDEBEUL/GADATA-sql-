@@ -19,3 +19,37 @@
 
 
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_hShiftbook_23_1156823829__K7_K3_K2_K13_K1_8_10_14_15]
+    ON [Volvo].[hShiftbook]([State] ASC, [controller_id] ASC, [controller_type] ASC, [updateTimestamp] ASC, [id] ASC)
+    INCLUDE([AcceptUser], [userDescription], [IndependantLocation], [ReportUser]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_hShiftbook_23_1156823829__K13_K3_K2_K7_K1_8_10_14_15]
+    ON [Volvo].[hShiftbook]([updateTimestamp] ASC, [controller_id] ASC, [controller_type] ASC, [State] ASC, [id] ASC)
+    INCLUDE([AcceptUser], [IndependantLocation], [ReportUser], [userDescription]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_1156823829_3_2]
+    ON [Volvo].[hShiftbook]([controller_id], [controller_type]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_1156823829_3_13_2_7_1]
+    ON [Volvo].[hShiftbook]([controller_id], [updateTimestamp], [controller_type], [State], [id]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_1156823829_13_2_3_1]
+    ON [Volvo].[hShiftbook]([updateTimestamp], [controller_type], [controller_id], [id]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_1156823829_1_13_2]
+    ON [Volvo].[hShiftbook]([id], [updateTimestamp], [controller_type]);
+

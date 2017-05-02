@@ -4,6 +4,10 @@
 
 
 
+
+
+
+
 CREATE PROCEDURE [Volvo].[sp_AutoTrig5Min]
 AS
 BEGIN
@@ -28,15 +32,15 @@ exec GADATA.abb.sp_update_L_IRC5 --
 --abb global
 exec GADATA.abb.sp_UPDATE_abb_APPL_Subgroup --1
 
-print 'test for glue import'
+print 'test for glue import'/*
 --start
 EXEC GADATA.GLUE.sp_update_L_Alarm --20
-EXEC GADATA.GLUE.sp_update_L_Operator --19
+EXEC GADATA.GLUE.sp_update_L_Operator --19*/
 EXEC GADATA.GLUE.sp_vultijd --58
 EXEC GADATA.GLUE.sp_vultijd2 --6:24 en nog ni klaar
-EXEC GADATA.GLUE.sp_vultijd_viewer --1:13
+/*EXEC GADATA.GLUE.sp_vultijd_viewer --1:13
 EXEC GADATA.GLUE.sp_vultijd_gemiddelde --10
-EXEC GADATA.QUISS.sp_QUISS_data --1
+EXEC GADATA.QUISS.sp_QUISS_data --1*/
 --end
 
 Print 'Test for [Volvo].[sp_AutoTrig5Min]'

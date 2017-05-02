@@ -1,3 +1,5 @@
 ﻿CREATE SCHEMA [EqUi]
-    AUTHORIZATION [EqUi];
+    AUTHORIZATION [db_frontendUser];
+
+
 

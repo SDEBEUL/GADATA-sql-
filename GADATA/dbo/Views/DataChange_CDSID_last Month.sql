@@ -1,26 +1,42 @@
 ﻿CREATE VIEW dbo.[DataChange_CDSID_last Month]
 AS
-SELECT        TOP (100) PERCENT dbo.NPT.Name, dbo.Timer.Name AS Timer, dbo.SpotDataChange.DateTime, dbo.Spot.Number AS Spot, dbo.Spot.Program, 
-                         dbo.TimerParameterName.Name AS parameter, dbo.TimerParameterName.Description AS Parameter_Description, dbo.SpotDataChange.OldValue, 
-                         dbo.SpotDataChange.NewValue, dbo.Users.CDSID, dbo.Users.Voornaam, dbo.Users.Achternaam
-FROM            dbo.SpotDataChange INNER JOIN
-                         dbo.Spot ON dbo.SpotDataChange.SpotID = dbo.Spot.ID INNER JOIN
-                         dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID INNER JOIN
-                         dbo.NPT ON dbo.Timer.NptId = dbo.NPT.ID INNER JOIN
-                         dbo.Users ON dbo.SpotDataChange.UserID = dbo.Users.ID INNER JOIN
-                         dbo.TimerParameterName ON dbo.SpotDataChange.ParameterID = dbo.TimerParameterName.ID
-WHERE        (dbo.SpotDataChange.DateTime >= GETDATE() - 7)
-ORDER BY dbo.NPT.Name, Timer, dbo.SpotDataChange.DateTime
+SELECT        dbo.NPT.Name AS NPT, dbo.Timer.Name AS Timer, dbo.Spot.Number, dbo.Spot.Program AS 'program/electrodeNr.', dbo.SpotDataChange.DateTime, 
+                         dbo.TimerParameterName.Description AS parameter, dbo.SpotDataChange.OldValue, dbo.SpotDataChange.NewValue, dbo.Users.CDSID
+FROM            dbo.NPT INNER JOIN
+                         dbo.Timer ON dbo.NPT.ID = dbo.Timer.NptId INNER JOIN
+                         dbo.Spot ON dbo.Timer.ID = dbo.Spot.TimerID INNER JOIN
+                         dbo.SpotDataChange ON dbo.Spot.ID = dbo.SpotDataChange.SpotID INNER JOIN
+                         dbo.TimerParameterName ON dbo.SpotDataChange.ParameterID = dbo.TimerParameterName.ID INNER JOIN
+                         dbo.Users ON dbo.SpotDataChange.UserID = dbo.Users.ID
+WHERE        (dbo.SpotDataChange.DateTime >= GETDATE() - 7) AND (dbo.Users.CDSID <> 'jvancau1') AND (dbo.Users.CDSID <> 'jcoppej1') AND (dbo.Users.CDSID <> 'tleemans') 
+                         AND (dbo.Users.CDSID <> 'gcoppiet') AND (dbo.Users.CDSID <> 'tnotebae') AND (dbo.Users.CDSID <> 'DREYNIE1') AND (dbo.Users.CDSID <> 'BDEVUYS2') AND 
+                         (dbo.Users.CDSID <> 'DSTEENBE') AND (dbo.Users.CDSID <> 'WARNDINOI') AND (dbo.Users.CDSID <> 'HBEYERS') AND (dbo.Users.CDSID <> 'SVANDENE') AND 
+                         (dbo.Users.CDSID <> 'LVANEETV') AND (dbo.Users.CDSID <> 'BRASEMO1') AND (dbo.Users.CDSID <> 'JVANDE37')
+
+UNION
+
+SELECT        dbo.NPT.Name, dbo.Timer.Name AS Expr1, dbo.Spot.Program, null as number, dbo.TimerDataChange.DateTime, dbo.TimerParameterName.Description, 
+                         dbo.TimerDataChange.OldValue, dbo.TimerDataChange.NewValue, dbo.Users.CDSID
+FROM            dbo.NPT INNER JOIN
+                         dbo.Timer ON dbo.NPT.ID = dbo.Timer.NptId INNER JOIN
+                         dbo.Spot ON dbo.Timer.ID = dbo.Spot.TimerID INNER JOIN
+                         dbo.TimerDataChange ON dbo.Timer.ID = dbo.TimerDataChange.TimerID INNER JOIN
+                         dbo.TimerParameterName ON dbo.TimerDataChange.ParameterID = dbo.TimerParameterName.ID INNER JOIN
+                         dbo.Users ON dbo.TimerDataChange.UserID = dbo.Users.ID
+WHERE        (dbo.TimerDataChange.DateTime >= GETDATE() - 7) AND (dbo.Users.CDSID <> 'jvancau1') AND (dbo.Users.CDSID <> 'jcoppej1') AND (dbo.Users.CDSID <> 'tleemans')
+                          AND (dbo.Users.CDSID <> 'gcoppiet') AND (dbo.Users.CDSID <> 'tnotebae') AND (dbo.Users.CDSID <> 'DREYNIE1') AND (dbo.Users.CDSID <> 'BDEVUYS2') AND 
+                         (dbo.Users.CDSID <> 'DSTEENBE') AND (dbo.Users.CDSID <> 'WARNDINOI') AND (dbo.Users.CDSID <> 'HBEYERS') AND (dbo.Users.CDSID <> 'SVANDENE') AND 
+                         (dbo.Users.CDSID <> 'LVANEETV') AND (dbo.Users.CDSID <> 'BRASEMO1') AND (dbo.Users.CDSID <> 'JVANDE37')
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DataChange_CDSID_last Month';
 
 
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'        Width = 2760
-         Width = 1335
-         Width = 1185
-         Width = 2205
-         Width = 3195
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'     Width = 1650
+         Width = 2055
+         Width = 2610
+         Width = 1365
+         Width = 1215
          Width = 1185
          Width = 1125
          Width = 1500
@@ -57,13 +73,15 @@ End
 ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DataChange_CDSID_last Month';
 
 
+
+
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
 Begin DesignProperties = 
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[43] 4[15] 2[15] 3) )"
+         Configuration = "(H (1[25] 4[26] 2[24] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -129,62 +147,62 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "SpotDataChange"
+         Begin Table = "NPT"
             Begin Extent = 
-               Top = 0
-               Left = 36
-               Bottom = 180
-               Right = 206
+               Top = 6
+               Left = 38
+               Bottom = 135
+               Right = 208
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Timer"
+            Begin Extent = 
+               Top = 6
+               Left = 246
+               Bottom = 135
+               Right = 416
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "Spot"
             Begin Extent = 
-               Top = 182
-               Left = 97
-               Bottom = 332
-               Right = 296
+               Top = 6
+               Left = 454
+               Bottom = 199
+               Right = 653
             End
             DisplayFlags = 280
-            TopColumn = 4
+            TopColumn = 1
          End
-         Begin Table = "Timer"
+         Begin Table = "SpotDataChange"
             Begin Extent = 
-               Top = 207
-               Left = 351
-               Bottom = 336
-               Right = 521
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "NPT"
-            Begin Extent = 
-               Top = 207
-               Left = 716
-               Bottom = 336
-               Right = 886
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "Users"
-            Begin Extent = 
-               Top = 71
-               Left = 554
-               Bottom = 200
-               Right = 724
+               Top = 6
+               Left = 691
+               Bottom = 182
+               Right = 861
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "TimerParameterName"
             Begin Extent = 
-               Top = 0
-               Left = 303
+               Top = 6
+               Left = 899
                Bottom = 135
-               Right = 473
+               Right = 1069
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Users"
+            Begin Extent = 
+               Top = 6
+               Left = 1107
+               Bottom = 135
+               Right = 1277
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -200,5 +218,7 @@ Begin DesignProperties =
          Width = 284
          Width = 1335
          Width = 1545
- ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DataChange_CDSID_last Month';
+    ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DataChange_CDSID_last Month';
+
+
 
