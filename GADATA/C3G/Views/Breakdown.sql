@@ -1,51 +1,47 @@
 ﻿
+
 CREATE VIEW [C3G].[Breakdown]
 AS
-SELECT      
-  C3G.c_controller.location AS 'Location'
-, C3G.c_controller.controller_name AS 'Robotname'
-, 'C3G' AS 'Type' 
-, 'BREAKDOWN' AS 'Errortype'
-, H.EndOfBreakdown AS 'Timestamp'
-, ISNULL(ISNULL(LR.[error_number],L.[error_number]),H.Trig_state) AS 'Logcode'
-, ISNULL(ISNULL(LR.error_severity,L.error_severity),NULL) AS 'Severity'
-, ISNULL(('|R: ' + LR.error_text), Isnull(L.error_text,'Fail: ' + GADATA.C3G.[fn_ShortSysstate](H.Trig_state))) AS 'Logtekst'
-, DATEDIFF(MINUTE,'1900-01-01 00:00:00',[C3G].[fts_Downtime] (H.EndOfBreakdown,H.StartOfBreakdown)) AS DOWNTIME
-, T.Vyear AS 'Year'
-, T.Vweek AS 'Week'
-, T.Vday AS 'day'
-, T.shift AS 'Shift'
-, ISNULL(ISNULL(ISNULL(LRA.APPL, LA.APPL),GADATA.[C3G].[fn_GetObjectFromSysstate](H.Trig_state)),'N/A') AS 'Object'
-, ISNULL(ISNULL(ISNULL(LRS.Subgroup, LS.Subgroup),GADATA.[C3G].[fn_GetSubgroupFromSysstate](H.Trig_state)),'N/A') AS 'Subgroup'
-, CAST(H.id AS int) AS idx
+--*******************************************************************************************************--
+--c3g breakdown
+--*******************************************************************************************************--
+SELECT 
+  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
+, a.CLassificationId   AS 'AssetID'
+,'BREAKDOWN'		   AS 'Logtype'
+, H.EndOfBreakdown     AS 'timestamp'
+, ISNULL(LR.[error_number],L.[error_number])	      AS 'Logcode'
+, ISNULL(LR.[error_severity],L.[error_severity])			AS 'Severity'
+, ISNULL(('|R: ' + LR.error_text), Isnull(L.error_text,'Fail: ' + GADATA.C3G.[fn_ShortSysstate](H.Trig_state)))AS 'logtext'
+, DATEDIFF(second,'1900-01-01 00:00:00', H.Rt)		AS 'Response(s)' 
+, DATEDIFF(second, H.StartOfBreakdown, H.EndOfBreakdown)AS 'Downtime(s)'
+, RTRIM(ISNULL(ISNULL(Rcc.Classification, cc.Classification),'Undefined*'))  AS 'Classification'
+, ISNULL(ISNULL(ISNULL(Rcs.Subgroup,cs.Subgroup),GADATA.[C3G].[fn_GetSubgroupFromSysstate2](H.Trig_state)),'Undefined*')  AS 'Subgroup'
+, H.id				 AS 'refId'
+, a.LocationTree     As 'LocationTree'
+, a.ClassificationTree as 'ClassTree'
+, c.controller_name		AS 'controller_name'
+, 'c3g'		As 'controller_type'
 
-
-FROM   GADATA.C3G.h_breakdown as H 
-INNER JOIN C3G.c_controller ON H.controller_id = C3G.c_controller.id 
---join L_error (normal cause)
-LEFT OUTER JOIN GADATA.C3G.L_error  AS L ON 
-L.id = H.error_id 
---join L_error (special cause)
-LEFT OUTER JOIN GADATA.C3G.L_error AS lR ON
-H.RC_error_id = LR.id
+FROM  C3G.h_breakdown AS H 
+LEFT OUTER JOIN C3G.L_error AS L ON L.id = H.error_id 
+LEFT OUTER JOIN C3G.L_error as LR ON LR.ID = H.RC_error_id
+LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
+LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
+LEFT OUTER JOIN VOLVO.c_Classification as Rcc on Rcc.id = LR.c_ClassificationId
+LEFT OUTER JOIN VOLVO.c_Subgroup as Rcs on Rcs.id = LR.c_SubgroupId
+--joining of the RIGHT ASSET
+LEFT OUTER JOIN equi.ASSETS as A on 
+A.controller_type = 'c3g' --join the right 'data controller type'
 AND
-H.RC_error_id IS NOT NULL
---appl (normal cause)
-LEFT OUTER JOIN
-GADATA.C3G.c_Appl as LA ON (LA.id =L.Appl_id) 
---subgroup (normal cause)
- LEFT OUTER JOIN
-gadata.C3G.C_subgroup as LRS ON (LRS.id = LR.subgroup_id) 
---appl (special cause)
-LEFT OUTER JOIN
-GADATA.C3G.c_Appl as LRA ON (LRA.id = LR.Appl_id) 
---subgroup (special cause)
- LEFT OUTER JOIN
-gadata.C3G.C_subgroup as LS ON (LS.id = L.subgroup_id) 
---timeline						 --
-LEFT OUTER JOIN
-VOLVO.L_timeline AS T ON 
-H.EndOfBreakdown BETWEEN T.starttime AND T.endtime
+A.controller_id = h.controller_id --join the right 'data controller id'
+AND 
+A.CLassificationId LIKE '%' + RTRIM(ISNULL(ISNULL(Rcc.Classification, cc.Classification),'UR')) + '%' --join only the asset with the right classification. (if not classified data goes to robot)
+AND
+A.controller_ToolID = 1 --temp until we find a multi tool support sollution
+--
+LEFT JOIN c3g.c_controller as c on c.id = h.controller_id
+--*******************************************************************************************************--
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'Breakdown';
 

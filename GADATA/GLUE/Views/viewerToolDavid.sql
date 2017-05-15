@@ -1,5 +1,7 @@
 ﻿
 
+
+
 CREATE VIEW [GLUE].[viewerToolDavid]
 
 AS
@@ -33,7 +35,7 @@ FROM
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 
-SELECT * FROM GADATA.C4G.RsBreakdown as B
+SELECT * FROM GADATA.C4G.OLD_breakdown as B
 WHERE 
 --Datetime filter
  (B.[Timestamp]  BETWEEN GETDATE()  - '1900-02-14 00:00:00' AND GETDATE())
@@ -74,7 +76,7 @@ WHERE
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION
-SELECT * FROM GADATA.C3G.Breakdown as B
+SELECT * FROM GADATA.C3G.old_Breakdown as B
 WHERE 
 --Datetime filter
  (B.[Timestamp]  BETWEEN GETDATE()  - '1900-02-14 00:00:00' AND GETDATE())) as output

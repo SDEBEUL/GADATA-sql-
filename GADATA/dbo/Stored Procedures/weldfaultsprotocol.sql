@@ -58,7 +58,7 @@ UNION
 
 SELECT       [Timestamp],NULL AS [Location], [Robotname], NULL AS [Type], NULL AS [Errortype], [Logtekst],
              [DOWNTIME] AS ProductionLoss, NULL AS [Shift], NULL AS [Shift], NULL AS [Shift], NULL AS [Shift], NULL AS [Shift], NULL AS [Shift]
-FROM            C3G.Breakdown
+FROM            C3G.old_old_breakdown
 WHERE        (Object = 'Spot')    AND Timestamp between   @startdate and @EndDate 
 
 UNION
@@ -66,7 +66,7 @@ UNION
 SELECT        [Timestamp], NULL AS [Location], [Robotname] AS ROBOT, NULL AS [Type], NULL AS [ErrorType], [Logtekst], 
                          [DOWNTIME] As proctionLoss, NULL AS [Year], NULL AS [Week], NULL AS [day],  NULL AS [Subgroup], NULL AS [idx], null as spot
                         
-FROM            [GADATA].[C4G].[Breakdown]
+FROM            [GADATA].[C4G].[old_old_breakdown]
 WHERE        object = 'Spot' AND Timestamp between   @startdate and @EndDate 
 
 UNION
@@ -119,7 +119,7 @@ UNION
 
   SELECT       [Timestamp],NULL AS [Location], [Robotname], NULL AS [Type], NULL AS [Errortype], [Logtekst],
              [DOWNTIME] AS ProductionLoss, NULL AS [Shift], NULL AS [Shift], NULL AS [Shift], NULL AS [Shift], NULL AS [Shift], NULL AS [Shift]
-FROM            C3G.Breakdown
+FROM            C3G.old_breakdown
 WHERE        Logtekst LIKE '%water%'  AND Timestamp between   @startdate and @EndDate 
 
 UNION
@@ -127,7 +127,7 @@ UNION
 SELECT        [Timestamp], NULL AS [Location], [Robotname] AS ROBOT, NULL AS [Type], NULL AS [ErrorType], [Logtekst], 
                          [DOWNTIME] As proctionLoss, NULL AS [Year], NULL AS [Week], NULL AS [day],  NULL AS [Subgroup], NULL AS [idx], null as spot
                         
-FROM            [GADATA].[C4G].[Breakdown]
+FROM            [GADATA].[C4G].[old_breakdown]
 WHERE       Logtekst LIKE '%water%'  AND Timestamp between   @startdate and @EndDate 
 
 

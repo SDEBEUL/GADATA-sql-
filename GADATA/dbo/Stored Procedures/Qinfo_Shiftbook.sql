@@ -107,9 +107,9 @@ END
 	left join GADATA.volvo.Robots as r on (r.controller_type = sb.controller_type) and (r.id = sb.controller_id)
 	left join
 	(
-	select * from GADATA.C3G.Breakdown as c3gb where  c3gb.idx = @breakdownid
+	select * from GADATA.C3G.old_Breakdown as c3gb where  c3gb.idx = @breakdownid
 	UNION
-	select * from GADATA.C4G.RsBreakdown as c4gb where  c4gb.Idx = @breakdownid
+	select * from GADATA.C4G.old_breakdown as c4gb where  c4gb.Idx = @breakdownid
 	) as B on B.robotname = @Robot
 	WHERE
 	--called from a breakdown

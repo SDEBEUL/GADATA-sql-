@@ -88,7 +88,7 @@ SELECT
 , count(c4g_breakdown.[Downtime(s)]) AS 'Count'
 , c4g_breakdown.Subgroup
 , min(c4g_breakdown.refId) as 'refid'
-FROM gadata.equi.c4g_breakdown
+FROM gadata.c4g.breakdown as c4g_breakdown
 left join GADATA.volvo.L_timeline as timeline on c4g_breakdown.[timestamp] between timeline.starttime and timeline.endtime
 WHERE 
 --Asset Filters
@@ -132,7 +132,7 @@ SELECT
 , count(c3g_breakdown.[Downtime(s)]) AS 'Count'
 , c3g_breakdown.Subgroup
 , min(c3g_breakdown.refId) as 'refid'
-FROM gadata.equi.c3g_breakdown
+FROM GADATA.c3g.breakdown as c3g_breakdown
 left join GADATA.volvo.L_timeline as timeline on c3g_breakdown.[timestamp] between timeline.starttime and timeline.endtime
 WHERE 
 --Asset Filters
@@ -190,7 +190,7 @@ SELECT
 , count(c4g_error.[timestamp]) AS 'Count'
 , c4g_error.Subgroup
 , min(c4g_error.refId) as 'refid'
-FROM GADATA.equi.c4g_error 
+FROM GADATA.c4g.Error as c4g_error 
 left join GADATA.volvo.L_timeline as timeline on c4g_error.[timestamp] between timeline.starttime and timeline.endtime
 WHERE 
 isnull(c4g_error.AssetID,'%') like @assets
@@ -233,7 +233,7 @@ SELECT
 , count(c3g_error.[timestamp]) AS 'Count'
 , c3g_error.Subgroup
 , min(c3g_error.refId) as 'refid'
-FROM GADATA.equi.c3g_error 
+FROM GADATA.c3g.error as c3g_error 
 left join GADATA.volvo.L_timeline as timeline on c3g_error.[timestamp] between timeline.starttime and timeline.endtime
 WHERE 
 isnull(c3g_error.AssetID,'%') like @assets

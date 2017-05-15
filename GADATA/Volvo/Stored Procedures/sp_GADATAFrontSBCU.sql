@@ -1,4 +1,4 @@
-﻿
+
 CREATE PROCEDURE [Volvo].[sp_GADATAFrontSBCU]
 --timeparameters
    @StartDate as DATETIME = null,
@@ -19,7 +19,7 @@ SELECT 'THIS SYSTEM IS DISABELD' as 'info'
 
 END
 GO
-
-
-
+GRANT EXECUTE
+    ON OBJECT::[Volvo].[sp_GADATAFrontSBCU] TO [db_frontendUser]
+    AS [GADATA];
 

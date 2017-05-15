@@ -1,32 +1,39 @@
 ﻿
-
-
-CREATE PROCEDURE [EQUI].[sp_GADATAFontPOSITIONS]
+CREATE PROCEDURE [EqUi].[sp_GADATAFontPOSITIONS]
+--default parameters
 --timeparameters
-   @StartDate as DATETIME = null,
-   @EndDate as DATETIME = null,
---Filterparameters.
-   @RobotFilterWild as varchar(10) = '%',
-   @LocationFilterWild as varchar(20) = '%',
---COMAU C4G booleans
-   @GetC4GSBCU as bit = 0, --TBT
---Comau C3G Booleans   
-   @GetC3GSBCU as bit = 0 
+	   @StartDate as DATETIME = null,
+	   @EndDate as DATETIME = null,
+	   @daysBack as int = null,
+	--Filterparameters.
+	   @locations as varchar(20) = '%' 
 AS
 BEGIN
+
+---------------------------------------------------------------------------------------
+--set first day of the week to monday (german std)
+---------------------------------------------------------------------------------------
+SET DATEFIRST 1
+---------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------
 --Set default values of start and end date
 ---------------------------------------------------------------------------------------
 if ((@StartDate is null) OR (@StartDate = '1900-01-01 00:00:00:000'))
 BEGIN
-SET @StartDate = GETDATE()-1
+SET @StartDate = GETDATE()-'1900-01-01 12:00:00'
 END
 
 if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))
 BEGIN
 SET @EndDate = GETDATE()
 END
+--for days back mode
+if (@daysBack is not null)
+BEGIN
+SET @StartDate = GETDATE() - @daysBack
+SET @EndDate = GETDATE()
+END 
 ---------------------------------------------------------------------------------------
 
 
@@ -55,9 +62,7 @@ SELECT
   left join GADATA.c3g.c_controller as r on r.id = l.controller_id
 
   WHERE 
-  r.location LIKE @LocationFilterWild
-  AND 
-  r.controller_name LIKE @RobotFilterWild
+  r.controller_name LIKE @locations
   ) as x 
   where x.rnDESC = 1 OR x.[Save Time] BETWEEN @StartDate AND @EndDate
 --c4g pos 
@@ -86,9 +91,7 @@ SELECT
   left join GADATA.c4g.c_controller  as c on c.id = l.controller_id
   
   WHERE 
-  c.location LIKE @LocationFilterWild
-  AND 
-  c.controller_name LIKE @RobotFilterWild
+  c.controller_name LIKE @locations
   ) as x 
   where x.rnDESC = 1 OR x.[Save Time] BETWEEN @StartDate AND @EndDate
 END

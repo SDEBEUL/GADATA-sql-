@@ -8,17 +8,12 @@
    @RobotFilterMaskEnd as varchar(10) = '%',
    @LocationFilterWild as varchar(20) = '%'
 
-
 AS
 BEGIN
 ---------------------------------------------------------------------------------------
 --set first day of the week to monday (german std)
 ---------------------------------------------------------------------------------------
 SET DATEFIRST 1
----------------------------------------------------------------------------------------
---update the L_breakdown table 
----------------------------------------------------------------------------------------
---EXEC dbo.sp_VCSC_C4G_Update_L_breakdown_A1 
 ---------------------------------------------------------------------------------------
 --to index sys event table based on time and robotid 
 ---------------------------------------------------------------------------------------
@@ -299,65 +294,79 @@ END
 --------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---c4g down right now 
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
+
 --if (OBJECT_ID('GADATA.VOLVO.L_liveView') is not null) drop table GADATA.VOLVO.L_liveView
 DELETE GADATA.volvo.L_liveView FROM GADATA.volvo.L_liveView
 INSERT INTO GADATA.VOLVO.L_liveView
-SELECT *  FROM
+SELECT * 
+--INTO  GADATA.volvo.L_liveView
+ FROM
 (
+--*******************************************************************************************************--
+--c4g down right now 
+--*******************************************************************************************************--
 SELECT 
-              c_controller.location AS 'Location',
-			  c_controller.controller_name AS 'Robot',
-              'C4G' AS 'Type',
-			  'LIVE' as 'Errortype',
-              convert(char(19),#SysBreakDwnTime.oktimestamp,120) AS 'Timestamp',
-              #SysBreakDwnTime.error_number AS 'Logcode',
-              0 AS 'Severity',
-			  'S: ' + GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state)  + '  |T: '  + ISNULL(#SysBreakDwnTime.error_text,GADATA.C4G.fn_decodeSysstate(#SysBreakDwnTime.sys_state))  AS 'Logtekst',
-			 -- ISNULL('S: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) + '|T: '  + #SysBreakDwnTime.error_text,('S: ' + CAST(GADATA.c4g.fn_decodeSysstate(#SysBreakDwnTime.sys_state) AS varchar) ))  AS 'Logtekst',
-			  ABS(downtime) as 'DT',
-              DATEPART(YEAR, #SysBreakDwnTime.oktimestamp) AS 'Year',
-			  DATEPART(WEEK,#SysBreakDwnTime.oktimestamp) AS 'Week',
-			  GADATA.dbo.fn_volvoday(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'day',
-			  GADATA.dbo.fn_volvoshift1(#SysBreakDwnTime.oktimestamp,CAST(#SysBreakDwnTime.oktimestamp AS time)) AS 'Shift',
-			  'N/A' AS 'Object',
-			  'N/A' AS 'Subgroup',
-              #SysBreakDwnTime.id			  
-           
-FROM #SysBreakDwnTime
---join the controller name
-JOIN    c4g.c_controller ON (#SysBreakDwnTime.controller_id = c_controller.id) 
+  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
+, a.CLassificationId   AS 'AssetID'
+,'LIVE'		   AS 'Logtype'
+,  H.oktimestamp      AS 'timestamp'
+,  H.[error_number]	      AS 'Logcode'
+,  null			AS 'Severity'
+,  'S: ' + GADATA.c4g.fn_decodeSysstate(H.sys_state)  + 
+   '  |T: '  + ISNULL(H.error_text,GADATA.C4G.fn_decodeSysstate(H.sys_state))  
+AS 'logtext'
+, null 	AS 'Response(s)' 
+, ABS(H.downtime)AS 'Downtime(s)'
+, RTRIM(ISNULL(cc.Classification,'Undefined*'))  AS 'Classification'
+, ISNULL(cs.Subgroup,'Undefined*')					   AS 'Subgroup'
+, H.id				 AS 'refId'
+, a.LocationTree     As 'LocationTree'
+, a.ClassificationTree as 'ClassTree'
+, c.controller_name		AS 'controller_name'
+, 'c4g'		As 'controller_type'
+
+FROM  #SysBreakDwnTime AS H 
+LEFT OUTER JOIN C4G.L_error AS L ON L.id = H.error_id 
+LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
+LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
+--joining of the RIGHT ASSET
+LEFT OUTER JOIN equi.ASSETS as A on 
+A.controller_type = 'c4g' --join the right 'data controller type'
+AND
+A.controller_id = h.controller_id --join the right 'data controller id'
+AND 
+A.CLassificationId LIKE '%' + RTRIM(ISNULL(cc.Classification,'UR')) + '%' --join only the asset with the right classification. (if not classified data goes to robot)
+AND
+A.controller_ToolID = 1 --temp until we find a multi tool support sollution
+--
+LEFT JOIN c4g.c_controller as c on c.id = h.controller_id
 
 WHERE 
- (SysBreakDwnIndx = 1 AND CombinedRobstate <> 3) --laatste event en robot heeft geen resolved event 
+ (SysBreakDwnIndx = 1 AND H.CombinedRobstate <> 3) --laatste event en robot heeft geen resolved event 
   OR
- (SysBreakDwnIndx = 1  AND (_timestamp > getdate()-'1900-01-01 00:04:00:000') ) --laatste event of not geen 5 min aan het draaien 
+ (SysBreakDwnIndx = 1  AND (H._timestamp > getdate()-'1900-01-01 00:04:00:000') ) --laatste event of not geen 5 min aan het draaien 
 --*******************************************************************************************************--
 UNION
 --*******************************************************************************************************--
 --supervisie slowspeed c4g
 --*******************************************************************************************************--
-/*SELECT    
-  C.location
-, C.controller_name AS Robotname
-, 'C4G' AS Type
-, 'SLOWSpeed' AS Errortype
-, getdate() AS timestamp
-, NULL AS Logcode
-, 0 AS Severity
+SELECT
+  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
+, a.CLassificationId   AS 'AssetID'
+,'SLOWSpeed'		   AS 'Logtype'
+,  getdate()    AS 'timestamp'
+,  null	      AS 'Logcode'
+,  null			AS 'Severity'
 , 'WARNING ROBOT SPEED $GEN_ovr:= ' + rtv.value + ' Since: ' + CONVERT(char(19),rtv._timestamp, 120) AS  Logtekst
-, NULL AS Downtime
-, T.Vyear AS Year
-, T.Vweek AS Week
-, T.Vday AS day
-, T.shift
-, 'SLOWSpeed' AS 'Object'
-, 'SLOWSpeed' AS 'Subgroup'
-, 0 AS 'idx'
+, null 	AS 'Response(s)' 
+, null AS 'Downtime(s)'
+, ''  AS 'Classification'
+, ''					   AS 'Subgroup'
+, null				 AS 'refId'
+, a.LocationTree     As 'LocationTree'
+, a.ClassificationTree as 'ClassTree'
+, c.controller_name		AS 'controller_name'
+, 'c4g'		As 'controller_type'
 FROM  
 (
 Select 
@@ -367,66 +376,73 @@ FROM
 GADATA.C4G.rt_GEN_OVR as rtv
 where rtv.variable_id = 11 
 ) as rtv 
-LEFT OUTER JOIN c4g.c_controller AS C ON rtv.controller_id = C.id 
-LEFT OUTER JOIN VOLVO.L_timeline AS T ON rtv._timestamp BETWEEN T.starttime AND T.endtime
+--joining of the RIGHT ASSET
+LEFT OUTER JOIN equi.ASSETS as A on 
+A.controller_type = 'c4g' --join the right 'data controller type'
+AND
+A.controller_id = rtv.controller_id --join the right 'data controller id'
+AND 
+A.CLassificationId LIKE '%URC%'
+--
+LEFT JOIN c4g.c_controller as c on c.id = rtv.controller_id
 WHERE 
 rtv.rndesc = 1
 AND
 rtv.value <> 100
+
 --*******************************************************************************************************--
-union*/
+union
 --*******************************************************************************************************--
 --supervisie c3G
 --*******************************************************************************************************--
-SELECT      
-  C3G.c_controller.location AS 'Location'
-, C3G.c_controller.controller_name AS 'Robotname'
-, 'C3G' AS 'Type'
-, 'LIVE' AS 'Errortype'
-, H.EndOfBreakdown AS 'Timestamp'
-, ISNULL(ISNULL(LR.[error_number],L.[error_number]),H.Trig_state) AS 'Logcode'
-, 0 AS 'Severity'
-, 'S: '+ GADATA.C3G.[fn_ShortSysstate](H.Active_state) + '  |T: ' + ISNULL(('|R: ' + LR.error_text), Isnull(L.error_text,'Fail: ' + GADATA.C3G.fn_decodeSysstate(H.Trig_state))) AS 'Logtekst'
-, DATEDIFF(MINUTE,'1900-01-01 00:00:00',[C3G].[fts_Downtime] (H.EndOfBreakdown,H.StartOfBreakdown)) AS DOWNTIME
-, T.Vyear AS 'Year'
-, T.Vweek AS 'Week'
-, T.Vday AS 'day'
-, T.shift AS 'Shift'
-, ISNULL(ISNULL(LRA.APPL, LA.APPL),'N/A') AS 'Object'
-, ISNULL(ISNULL(LRS.Subgroup, LS.Subgroup),'N/A') AS 'Subgroup'
-, H.id
-
-
+SELECT  
+  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
+, a.CLassificationId   AS 'AssetID'
+,'LIVE'		   AS 'Logtype'
+, H.EndOfBreakdown     AS 'timestamp'
+, ISNULL(ISNULL(LR.[error_number],L.[error_number]),H.Trig_state)       AS 'Logcode'
+,  null			AS 'Severity'
+, 'S: '+ GADATA.C3G.[fn_ShortSysstate](H.Active_state) + 
+  '  |T: ' + ISNULL(('|R: ' + LR.error_text), Isnull(L.error_text,'Fail: ' + GADATA.C3G.fn_decodeSysstate(H.Trig_state))) 
+  AS 'Logtekst'
+, DATEDIFF(second,'1900-01-01 00:00:00', H.Rt)		AS 'Response(s)' 
+, DATEDIFF(second, H.StartOfBreakdown, H.EndOfBreakdown)AS 'Downtime(s)'
+, RTRIM(ISNULL(ISNULL(Rcc.Classification, cc.Classification),'Undefined*'))  AS 'Classification'
+, ISNULL(ISNULL(ISNULL(Rcs.Subgroup,cs.Subgroup),GADATA.[C3G].[fn_GetSubgroupFromSysstate2](H.Trig_state)),'Undefined*')  AS 'Subgroup'
+, H.id				 AS 'refId'
+, a.LocationTree     As 'LocationTree'
+, a.ClassificationTree as 'ClassTree'
+, c.controller_name		AS 'controller_name'
+, 'c3g'		As 'controller_type'
+ 
 FROM   GADATA.C3G.rt_breakdown as H 
-INNER JOIN C3G.c_controller ON H.controller_id = C3G.c_controller.id 
---join L_error (normal cause)
-LEFT OUTER JOIN GADATA.C3G.L_error  AS L ON 
-L.id = H.error_id 
---join L_error (special cause)
-LEFT OUTER JOIN GADATA.C3G.L_error AS lR ON
-H.RC_error_id = LR.id
+
+LEFT OUTER JOIN C3G.L_error AS L ON L.id = H.error_id 
+LEFT OUTER JOIN C3G.L_error as LR ON LR.ID = H.RC_error_id
+LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
+LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
+LEFT OUTER JOIN VOLVO.c_Classification as Rcc on Rcc.id = LR.c_ClassificationId
+LEFT OUTER JOIN VOLVO.c_Subgroup as Rcs on Rcs.id = LR.c_SubgroupId
+--joining of the RIGHT ASSET
+LEFT OUTER JOIN equi.ASSETS as A on 
+A.controller_type = 'c3g' --join the right 'data controller type'
 AND
-H.RC_error_id IS NOT NULL
---appl (normal cause)
-LEFT OUTER JOIN
-GADATA.C3G.c_Appl as LA ON (LA.id =L.Appl_id) 
---subgroup (normal cause)
- LEFT OUTER JOIN
-gadata.C3G.C_subgroup as LRS ON (LRS.id = LR.subgroup_id) 
---appl (special cause)
-LEFT OUTER JOIN
-GADATA.C3G.c_Appl as LRA ON (LRA.id = LR.Appl_id) 
---subgroup (special cause)
- LEFT OUTER JOIN
-gadata.C3G.C_subgroup as LS ON (LS.id = L.subgroup_id) 
---timeline						 --
-LEFT OUTER JOIN
-VOLVO.L_timeline AS T ON 
-H.EndOfBreakdown BETWEEN T.starttime AND T.endtime
+A.controller_id = h.controller_id --join the right 'data controller id'
+AND 
+A.CLassificationId LIKE '%' + RTRIM(ISNULL(ISNULL(Rcc.Classification, cc.Classification),'UR')) + '%' --join only the asset with the right classification. (if not classified data goes to robot)
+AND
+A.controller_ToolID = 1 --temp until we find a multi tool support sollution
+--
+LEFT JOIN c3g.c_controller as c on c.id = h.controller_id
 --*******************************************************************************************************--
 
 
+--*******************************************************************************************************--
+--END
+--*******************************************************************************************************--
+--*******************************************************************************************************--
 ) as x 
+
 ORDER BY   x.[Timestamp] DESC 
 --*/
 END

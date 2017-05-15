@@ -129,21 +129,21 @@ UNION
 --*******************************************************************************************************--
 --c3g error
 --*******************************************************************************************************--
-SELECT * from GADATA.EqUi.c3g_error
+SELECT * from GADATA.c3g.error
 where 
 --Asset Filters
-isnull(c3g_error.AssetID,'%') like @assets
+isnull(error.AssetID,'%') like @assets
 and 
-isnull(c3g_error.LOCATION,c3g_error.controller_name) like @locations
+isnull(error.LOCATION,error.controller_name) like @locations
 and
-c3g_error.controller_name like @locations
+error.controller_name like @locations
 and
-isnull(c3g_error.LocationTree,'%') like @lochierarchy
+isnull(error.LocationTree,'%') like @lochierarchy
 --Time Filter
 and
-c3g_error.[timestamp] BETWEEN @StartDate AND @EndDate
+error.[timestamp] BETWEEN @StartDate AND @EndDate
 and
-@MinLogserv <= c3g_error.Severity
+@MinLogserv <= error.Severity
 and
 @c3gError = 1
 --*******************************************************************************************************--
@@ -151,21 +151,21 @@ UNION
 --*******************************************************************************************************--
 --c4g error
 --*******************************************************************************************************--
-select * from GADATA.EqUi.c4g_error
+select * from GADATA.c4g.error
 where 
 --Asset Filters
-isnull(c4g_error.AssetID,'%') like @assets
+isnull(error.AssetID,'%') like @assets
 and 
-isnull(c4g_error.LOCATION,c4g_error.controller_name) like @locations
+isnull(error.LOCATION,error.controller_name) like @locations
 and
-c4g_error.controller_name like @locations
+error.controller_name like @locations
 and
-isnull(c4g_error.LocationTree,'%') like @lochierarchy
+isnull(error.LocationTree,'%') like @lochierarchy
 --Time Filter
 and
-c4g_error.[timestamp] BETWEEN @StartDate AND @EndDate
+error.[timestamp] BETWEEN @StartDate AND @EndDate
 and
-@MinLogserv <= c4g_error.Severity
+@MinLogserv <= error.Severity
 and
 @c4gError = 1
 --*******************************************************************************************************--
@@ -173,7 +173,7 @@ UNION
 --*******************************************************************************************************--
 --c3g breakdown
 --*******************************************************************************************************--
-select * from GADATA.EqUi.c3g_breakdown
+select * from GADATA.c3g.breakdown as c3g_breakdown
 where 
 --Asset Filters
 isnull(c3g_breakdown.AssetID,'%') like @assets
@@ -195,7 +195,7 @@ UNION
 --*******************************************************************************************************--
 --c4g breakdown
 --*******************************************************************************************************--
-SELECT * from GADATA.EqUi.c4g_breakdown
+SELECT * from GADATA.c4g.breakdown as c4g_breakdown
 where 
 --Asset Filters
 isnull(c4g_breakdown.assetid,'%') like @assets
@@ -439,31 +439,20 @@ UNION
 --*******************************************************************************************************--
 --supervisie
 --*******************************************************************************************************--
-SELECT
-  L.[Robot]	     AS 'Location' 
-, Null AS 'AssetID'
-, L.Errortype AS 'Logtype'
-, L.timestamp AS 'timestamp'
-, Null      AS 'Logcode'
-, Null      AS 'Severity'
-, L.logtekst AS 'Logtekst'
-, NULL      AS 'Response'
-, l.DT*60      AS 'Downtime'
-, l.Object		AS 'Classification'
-, l.subgroup		AS 'Subgroup'
-, l.id		AS 'refId'
-, NULL		As 'LocationTree'
-, NULL		AS 'ClassTree'
-, NULL		AS 'controller_name'
-, NULL		As 'controller_type'
-
-FROM GADATA.volvo.L_liveView as l 
-where @active = 1 
+SELECT * from gadata.volvo.L_liveView 
+where 
+--Asset Filters
+L_liveView.AssetID like @assets
+and 
+L_liveView.LOCATION like @locations
 and
-l.robot not like 'ABB%'
+L_liveView.LocationTree like @lochierarchy
+and
+@active = 1 
+--custom filtering 
 and
 --filter out some crap states 
-l.Logtekst not in (
+L_liveView.logtext not in (
  'S: Run   |T: Run '
 ,'S: Alarm (SS) H   |T: Safety gate'
 ,'S: Alarm (SS) H   |T: HOLD from fieldbus'
@@ -473,6 +462,8 @@ l.Logtekst not in (
 ,'S: Ready   |T: Ready '
 ,'S: H   |T: HOLD from fieldbus'
 ,'S:   |T: '
+,'S: Run   |T: Fail: Run '
+,'S: DriveOff (SS)   |T: Fail: Run '
 )
 --*******************************************************************************************************--
 

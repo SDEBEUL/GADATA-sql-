@@ -5,34 +5,49 @@
 
 
 
+
 CREATE VIEW [C3G].[Error]
 AS
-SELECT        
-  C.location
-, C.controller_name AS Robotname
-, 'C3G' AS Type
-,CASE when l.error_severity = 2 THEN 'WARNING' 
+--*******************************************************************************************************--
+--c3g error
+--*******************************************************************************************************--
+SELECT 
+  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
+ , a.CLassificationId     AS 'AssetID'
+ ,CASE when l.error_severity = 2 
+ THEN 'WARNING' 
  ELSE 'ERROR' 
- END AS Errortype
-, H.C_timestamp AS timestamp
-, L.error_number AS Logcode
-, L.error_severity AS Severity
-, L.error_text AS Logtekst
-, NULL AS Downtime
-, T.Vyear AS Year
-, T.Vweek AS Week
-, T.Vday AS day
-, T.shift
-, ISNULL(C3G.c_Appl.APPL,'NA') AS 'Object'
-, ISNULL(C3G.c_Subgroup.Subgroup, 'NA') as 'Subgroup' 
-, CAST(H.id AS int) AS idx
-FROM            C3G.h_alarm AS H 
+ END				   AS 'Logtype'
+, H.c_timestamp        AS 'timestamp'
+, L.[error_number]       AS 'Logcode'
+, L.[error_severity]     AS 'Severity'
+, L.error_text		   AS 'logtext'
+, NULL     AS 'Response'
+, NULL     AS 'Downtime'
+, RTRIM(ISNULL(cc.Classification,'Undefined*'))  AS 'Classification'
+, ISNULL(cs.Subgroup,'Undefined*')		 AS 'Subgroup'
+, H.id				 AS 'refId'
+, a.LocationTree     As 'LocationTree'
+, a.ClassificationTree as 'ClassTree'
+, c.controller_name		AS 'controller_name'
+, 'c3g'		As 'controller_type'
+
+FROM  C3G.h_alarm AS H 
 LEFT OUTER JOIN C3G.L_error AS L ON L.id = H.error_id 
-LEFT OUTER JOIN C3G.c_controller AS C ON H.controller_id = C.id 
-LEFT  JOIN C3G.c_Appl ON L.Appl_id = C3G.c_Appl.id 
-LEFT  JOIN C3G.c_Subgroup ON L.Subgroup_id = C3G.c_Subgroup.id 
-LEFT OUTER JOIN VOLVO.L_timeline AS T ON H.c_timestamp BETWEEN T.starttime AND T.endtime
-WHERE   (L.[error_severity] <> -1) and h.c_timestamp < getdate()
+LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
+LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
+--joining of the RIGHT ASSET
+LEFT OUTER JOIN equi.ASSETS as A on 
+A.controller_type = 'c3g' --join the right 'data controller type'
+AND
+A.controller_id = h.controller_id --join the right 'data controller id'
+AND 
+A.CLassificationId LIKE '%' + ISNULL(RTRIM(cc.Classification),'UR') + '%' --join only the asset with the right classification. (if not classified data goes to robot)
+AND
+A.controller_ToolID = 1 --temp until we find a multi tool support sollution
+--
+LEFT JOIN c3g.c_controller as c on c.id = h.controller_id
+--*******************************************************************************************************--
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'Error';
 

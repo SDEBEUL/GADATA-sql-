@@ -20,7 +20,7 @@ exec GADATA.C4G.sp_update_Lerror_classifcation
 exec [C4G].sp_Update_L_breakdown
 exec [C4G].sp_ReClass_L_breakdown
 
-
+--common
 exec [Volvo].[LiveView]
 
 

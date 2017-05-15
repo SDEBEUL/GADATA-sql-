@@ -1,54 +1,89 @@
 ﻿
-
-CREATE VIEW [C4G].[Error]
+/********************************************************************************************************--
+c4g breakdown
+*******************************************************************************************************--
+*******************************************************************************************************--*/
+CREATE VIEW [C4G].[Breakdown]
 AS
 --*******************************************************************************************************--
---c4g error
+--c4g breakdown
 --*******************************************************************************************************--
 SELECT 
   isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
-, a.CLassificationId     AS 'AssetID'
-
-,CASE when l.error_severity = 2 
- THEN 'WARNING' 
- ELSE 'ERROR' 
- END				   AS 'Logtype'
-, H.c_timestamp        AS 'timestamp'
-, L.[error_number]       AS 'Logcode'
-, L.[error_severity]     AS 'Severity'
-, L.error_text		   AS 'logtext'
-, NULL     AS 'Response'
-, NULL     AS 'Downtime'
-, RTRIM(ISNULL(cc.Classification,'Undefined*'))  AS 'Classification'
-, ISNULL(cs.Subgroup,'Undefined*')		 AS 'Subgroup'
+, a.CLassificationId   AS 'AssetID'
+,'BREAKDOWN'		   AS 'Logtype'
+, H.EndOfBreakdown     AS 'timestamp'
+, ISNULL(LR.[error_number],L.[error_number])	      AS 'Logcode'
+, ISNULL(LR.[error_severity],L.[error_severity])			AS 'Severity'
+, ISNULL(('|R: ' + LR.error_text), L.error_text )		AS 'logtext'
+, DATEDIFF(second,'1900-01-01 00:00:00', H.Rt) 	AS 'Response(s)' 
+, DATEDIFF(second, H.StartOfBreakdown, H.EndOfBreakdown)AS 'Downtime(s)'
+, RTRIM(ISNULL(ISNULL(Rcc.Classification, cc.Classification),'Undefined*'))  AS 'Classification'
+, ISNULL(ISNULL(Rcs.Subgroup,cs.Subgroup),'Undefined*')					   AS 'Subgroup'
 , H.id				 AS 'refId'
 , a.LocationTree     As 'LocationTree'
 , a.ClassificationTree as 'ClassTree'
 , c.controller_name		AS 'controller_name'
 , 'c4g'		As 'controller_type'
 
-FROM  C4G.h_alarm AS H 
+FROM  C4G.h_breakdown AS H 
 LEFT OUTER JOIN C4G.L_error AS L ON L.id = H.error_id 
+LEFT OUTER JOIN C4G.L_error as LR ON LR.ID = H.RC_error_id
 LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
 LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
+LEFT OUTER JOIN VOLVO.c_Classification as Rcc on Rcc.id = LR.c_ClassificationId
+LEFT OUTER JOIN VOLVO.c_Subgroup as Rcs on Rcs.id = LR.c_SubgroupId
 --joining of the RIGHT ASSET
 LEFT OUTER JOIN equi.ASSETS as A on 
 A.controller_type = 'c4g' --join the right 'data controller type'
 AND
 A.controller_id = h.controller_id --join the right 'data controller id'
 AND 
-A.CLassificationId LIKE '%' + ISNULL(RTRIM(cc.Classification),'UR') + '%' --join only the asset with the right classification. (if not classified data goes to robot)
+A.CLassificationId LIKE '%' + RTRIM(ISNULL(ISNULL(Rcc.Classification, cc.Classification),'UR')) + '%' --join only the asset with the right classification. (if not classified data goes to robot)
 AND
 A.controller_ToolID = 1 --temp until we find a multi tool support sollution
 --
 LEFT JOIN c4g.c_controller as c on c.id = h.controller_id
 --*******************************************************************************************************--
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'Error';
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'Breakdown';
 
 
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'   Table = 1170
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'    End
+         Begin Table = "A"
+            Begin Extent = 
+               Top = 168
+               Left = 48
+               Bottom = 329
+               Right = 259
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "c"
+            Begin Extent = 
+               Top = 168
+               Left = 307
+               Bottom = 329
+               Right = 534
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
          Output = 720
          Append = 1400
          NewValue = 1170
@@ -62,7 +97,7 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'   Table =
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'Error';
+', @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'Breakdown';
 
 
 GO
@@ -139,75 +174,72 @@ Begin DesignProperties =
       Begin Tables = 
          Begin Table = "H"
             Begin Extent = 
-               Top = 6
-               Left = 38
-               Bottom = 135
-               Right = 208
+               Top = 7
+               Left = 48
+               Bottom = 168
+               Right = 264
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "L"
             Begin Extent = 
-               Top = 6
-               Left = 246
-               Bottom = 135
-               Right = 416
+               Top = 7
+               Left = 312
+               Bottom = 168
+               Right = 520
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "C"
+         Begin Table = "LR"
             Begin Extent = 
-               Top = 6
-               Left = 454
-               Bottom = 135
-               Right = 642
+               Top = 7
+               Left = 568
+               Bottom = 168
+               Right = 776
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "c_Appl (C4G)"
+         Begin Table = "cc"
             Begin Extent = 
-               Top = 6
-               Left = 680
-               Bottom = 101
-               Right = 850
+               Top = 7
+               Left = 824
+               Bottom = 146
+               Right = 1018
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "c_Subgroup (C4G)"
+         Begin Table = "cs"
             Begin Extent = 
-               Top = 6
-               Left = 888
-               Bottom = 101
-               Right = 1058
+               Top = 7
+               Left = 1066
+               Bottom = 146
+               Right = 1260
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "T"
+         Begin Table = "Rcc"
             Begin Extent = 
-               Top = 102
-               Left = 680
-               Bottom = 231
-               Right = 850
+               Top = 147
+               Left = 824
+               Bottom = 286
+               Right = 1018
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-      End
-   End
-   Begin SQLPane = 
-   End
-   Begin DataPane = 
-      Begin ParameterDefaults = ""
-      End
-   End
-   Begin CriteriaPane = 
-      Begin ColumnWidths = 11
-         Column = 1440
-         Alias = 900
-      ', @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'Error';
+         Begin Table = "Rcs"
+            Begin Extent = 
+               Top = 147
+               Left = 1066
+               Bottom = 286
+               Right = 1260
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+     ', @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'Breakdown';
 

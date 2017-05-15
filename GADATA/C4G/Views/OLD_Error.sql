@@ -1,54 +1,38 @@
 ﻿
-
-CREATE VIEW [C4G].[Error]
+CREATE VIEW [C4G].[OLD_Error]
 AS
---*******************************************************************************************************--
---c4g error
---*******************************************************************************************************--
-SELECT 
-  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
-, a.CLassificationId     AS 'AssetID'
-
-,CASE when l.error_severity = 2 
- THEN 'WARNING' 
+SELECT        
+C.location
+, C.controller_name AS Robotname
+, 'C4G' AS Type
+,CASE when l.error_severity = 2 THEN 'WARNING' 
  ELSE 'ERROR' 
- END				   AS 'Logtype'
-, H.c_timestamp        AS 'timestamp'
-, L.[error_number]       AS 'Logcode'
-, L.[error_severity]     AS 'Severity'
-, L.error_text		   AS 'logtext'
-, NULL     AS 'Response'
-, NULL     AS 'Downtime'
-, RTRIM(ISNULL(cc.Classification,'Undefined*'))  AS 'Classification'
-, ISNULL(cs.Subgroup,'Undefined*')		 AS 'Subgroup'
-, H.id				 AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
-, c.controller_name		AS 'controller_name'
-, 'c4g'		As 'controller_type'
-
-FROM  C4G.h_alarm AS H 
+ END AS Errortype
+, ISNULL(H._timestamp, H.c_timestamp) AS timestamp
+, L.error_number AS Logcode
+, L.error_severity AS Severity
+, L.error_text AS Logtekst
+, NULL AS Downtime
+, T.Vyear AS Year
+, T.Vweek AS Week
+, T.Vday AS day
+, T.shift
+, ISNULL(C4G.c_Appl.APPL,'NA') AS 'Object'
+, ISNULL(C4G.c_Subgroup.Subgroup, 'NA') as 'Subgroup' 
+, CAST(H.id AS int) AS idx
+FROM            C4G.h_alarm AS H 
 LEFT OUTER JOIN C4G.L_error AS L ON L.id = H.error_id 
-LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
-LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'c4g' --join the right 'data controller type'
-AND
-A.controller_id = h.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%' + ISNULL(RTRIM(cc.Classification),'UR') + '%' --join only the asset with the right classification. (if not classified data goes to robot)
-AND
-A.controller_ToolID = 1 --temp until we find a multi tool support sollution
---
-LEFT JOIN c4g.c_controller as c on c.id = h.controller_id
---*******************************************************************************************************--
+LEFT OUTER JOIN c4g.c_controller AS C ON H.controller_id = C.id 
+LEFT  JOIN C4G.c_Appl ON L.Appl_id = C4G.c_Appl.id 
+LEFT  JOIN C4G.c_Subgroup ON L.Subgroup_id = C4G.c_Subgroup.id 
+LEFT OUTER JOIN VOLVO.L_timeline AS T ON isnull(H._timestamp, H.c_timestamp) BETWEEN T.starttime AND T.endtime
+WHERE        (H.error_is_alarm = 1)
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'Error';
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'OLD_Error';
 
 
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'   Table = 1170
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'      Table = 1170
          Output = 720
          Append = 1400
          NewValue = 1170
@@ -62,7 +46,7 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'   Table =
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'Error';
+', @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'OLD_Error';
 
 
 GO
@@ -139,60 +123,60 @@ Begin DesignProperties =
       Begin Tables = 
          Begin Table = "H"
             Begin Extent = 
-               Top = 6
-               Left = 38
-               Bottom = 135
-               Right = 208
+               Top = 7
+               Left = 48
+               Bottom = 168
+               Right = 242
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "L"
             Begin Extent = 
-               Top = 6
-               Left = 246
-               Bottom = 135
-               Right = 416
+               Top = 7
+               Left = 290
+               Bottom = 168
+               Right = 498
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "C"
             Begin Extent = 
-               Top = 6
-               Left = 454
-               Bottom = 135
-               Right = 642
+               Top = 7
+               Left = 546
+               Bottom = 168
+               Right = 773
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "c_Appl (C4G)"
             Begin Extent = 
-               Top = 6
-               Left = 680
-               Bottom = 101
-               Right = 850
+               Top = 7
+               Left = 821
+               Bottom = 124
+               Right = 1015
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "c_Subgroup (C4G)"
             Begin Extent = 
-               Top = 6
-               Left = 888
-               Bottom = 101
-               Right = 1058
+               Top = 7
+               Left = 1063
+               Bottom = 124
+               Right = 1257
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "T"
             Begin Extent = 
-               Top = 102
-               Left = 680
-               Bottom = 231
-               Right = 850
+               Top = 126
+               Left = 821
+               Bottom = 287
+               Right = 1015
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -209,5 +193,5 @@ Begin DesignProperties =
       Begin ColumnWidths = 11
          Column = 1440
          Alias = 900
-      ', @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'Error';
+   ', @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'OLD_Error';
 

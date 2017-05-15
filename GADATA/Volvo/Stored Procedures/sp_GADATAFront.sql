@@ -125,7 +125,7 @@ FROM
 --C4G Qry Breakdowns (einde van storings met storings tijd)
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
-SELECT * FROM GADATA.C4G.RsBreakdown as B
+SELECT * FROM GADATA.C4G.OLD_breakdown as B
 WHERE 
 --Datetime filter
  (B.[Timestamp]  BETWEEN @StartDate AND @EndDate)
@@ -152,7 +152,7 @@ AND
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION
-SELECT * FROM GADATA.C4G.Error AS C4GE
+SELECT * FROM GADATA.C4G.old_error AS C4GE
 WHERE 
 --datetime filter
 (C4GE.[Timestamp] BETWEEN @StartDate AND @EndDate)
@@ -188,7 +188,7 @@ AND
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION
-SELECT * FROM GADATA.C3G.Error AS C3GE
+SELECT * FROM GADATA.C3G.old_error AS C3GE
 
 WHERE
 --date time filter
@@ -219,7 +219,7 @@ AND
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 UNION
-SELECT * FROM GADATA.C3G.Breakdown as B
+SELECT * FROM GADATA.C3G.OLD_Breakdown as B
 WHERE 
 --Datetime filter
  (B.[Timestamp]  BETWEEN @StartDate AND @EndDate)
