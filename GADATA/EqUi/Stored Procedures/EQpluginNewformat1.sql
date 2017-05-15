@@ -1,4 +1,6 @@
 ﻿
+
+
 CREATE PROCEDURE [EqUi].[EQpluginNewformat1]
 
 --default parameters
@@ -19,9 +21,16 @@ CREATE PROCEDURE [EqUi].[EQpluginNewformat1]
    @c4gBreakdown as bit  = 1,
    @c3gSysState as bit = 0,
    @c4gSysState as bit = 0,
+   @c3gMOD as bit = 0,
+   @c4gMOD as bit = 0,
    @c3gSBCU as bit = 0,
+   @abbIRC5Error as bit = 0,
+   @abbIRC5State as bit = 0,
+   @abbS4Error as bit = 0,
+   @abbS4State as bit = 0,
    @getshiftbook as bit = 0,
    @active as bit = 0,
+   @stw040 as bit = 0,
    @MinLogserv as int = 0,
    @MinDowntime as int = 0
 
@@ -93,13 +102,13 @@ FROM
 --timeline
 --*******************************************************************************************************--
 SELECT 
-  Null	    AS 'Location' 
-, Null	    AS 'AssetID'
+ 'TIMELINE' AS 'Location' 
+,'TIMELINE'	AS 'AssetID'
 ,'TIMELINE' AS 'Logtype'
-, T.starttime AS 'timestamp'
+, T.starttime + '1900-01-01 00:00:01' AS 'timestamp' --add 1s because else dubble match on join with weeknumbers
 , Null      AS 'Logcode'
 , Null      AS 'Severity'
-, null      AS 'logtext'
+, 'Begin of Shift: ' + T.[shift] + '  Ploeg:'+ T.PLOEG       AS 'logtext'
 , NULL      AS 'Response'
 , NULL      AS 'Downtime'
 , 'TIMELINE'		AS 'Classification'
@@ -206,47 +215,120 @@ and
 --*******************************************************************************************************--
 UNION
 --*******************************************************************************************************--
---c3g SysState
+--ABB IRC5 Error
 --*******************************************************************************************************--
-SELECT  
-  A.Location	     AS 'Location' 
-, A.CLassificationID AS 'AssetID'
-,'SYSSTATE' AS 'Logtype'
-, Y._timestamp AS 'timestamp'
-, Null      AS 'Logcode'
-, Null      AS 'Severity'
-,'  Code: ' + CAST(Y.Sys_state AS varchar) +   '  SysState: ' + (GADATA.C3G.fn_decodeSysstate(y.Sys_state))       AS 'logtext'
-, NULL      AS 'Response'
-, NULL      AS 'Downtime'
-, NULL		AS 'Classification'
-, NULL		AS 'Subgroup'
-, NULL		AS 'refId'
-, NULL		As 'LocationTree'
-, NULL		AS 'ClassTree'
-, NULL		AS 'controller_name'
-, 'c3g'		As 'controller_type'
-
-FROM  GADATA.C3G.rt_sys_event as Y
---join the timeline
-LEFT JOIN GADATA.VOLVO.L_timeline AS T ON ( Y._timestamp BETWEEN T.starttime AND T.endtime)
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'c3g' --join the right 'data controller type'
-AND
-A.controller_id = Y.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%URC%'--join c3g robot because state is owned by robot
-
+SELECT * from GADATA.abb.IRC5error
 where 
 --Asset Filters
-a.CLassificationId like @assets
+isnull(IRC5error.assetid,'%') like @assets
 and 
-a.LOCATION like @locations
+isnull(IRC5error.LOCATION,IRC5error.controller_name) like @locations
 and
-a.LocationTree like @lochierarchy
+IRC5error.controller_name like @locations
+and
+isnull(IRC5error.LocationTree,'%') like @lochierarchy
 --Time Filter
 and
-Y._timestamp BETWEEN @StartDate AND @EndDate
+IRC5error.[timestamp] BETWEEN @StartDate AND @EndDate
+and
+@abbIRC5Error = 1
+--*******************************************************************************************************--
+UNION
+--*******************************************************************************************************--
+--ABB IRC5 State
+--*******************************************************************************************************--
+SELECT * from GADATA.abb.IRC5State
+where 
+--Asset Filters
+isnull(IRC5State.assetid,'%') like @assets
+and 
+isnull(IRC5State.LOCATION,IRC5State.controller_name) like @locations
+and
+IRC5State.controller_name like @locations
+and
+isnull(IRC5State.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+IRC5State.[timestamp] BETWEEN @StartDate AND @EndDate
+and
+@abbIRC5State = 1
+--*******************************************************************************************************--
+UNION
+--*******************************************************************************************************--
+--ABB S4 Error
+--*******************************************************************************************************--
+SELECT * from GADATA.abb.S4error
+where 
+--Asset Filters
+isnull(S4error.assetid,'%') like @assets
+and 
+isnull(S4error.LOCATION,S4error.controller_name) like @locations
+and
+S4error.controller_name like @locations
+and
+isnull(S4error.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+S4error.[timestamp] BETWEEN @StartDate AND @EndDate
+and
+@abbS4Error = 1
+--*******************************************************************************************************--
+UNION
+--*******************************************************************************************************--
+--ABB S4 State
+--*******************************************************************************************************--
+SELECT * from GADATA.abb.S4State
+where 
+--Asset Filters
+isnull(S4State.assetid,'%') like @assets
+and 
+isnull(S4State.LOCATION,S4State.controller_name) like @locations
+and
+S4State.controller_name like @locations
+and
+isnull(S4State.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+S4State.[timestamp] BETWEEN @StartDate AND @EndDate
+and
+@abbS4State = 1
+--*******************************************************************************************************--
+
+UNION
+--*******************************************************************************************************--
+--stw040
+--*******************************************************************************************************--
+SELECT * from GADATA.EqUi.stw040
+where 
+--Asset Filters
+isnull(stw040.assetid,'%') like @assets
+and 
+isnull(stw040.LOCATION,stw040.controller_name) like @locations
+and
+stw040.controller_name like @locations
+and
+isnull(stw040.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+stw040.[timestamp] BETWEEN @StartDate AND @EndDate
+and
+@stw040 = 1
+--*******************************************************************************************************--
+UNION
+--*******************************************************************************************************--
+--c3g SysState
+--*******************************************************************************************************--
+SELECT * from gadata.c3g.sysstate
+where 
+--Asset Filters
+sysstate.AssetID like @assets
+and 
+sysstate.LOCATION like @locations
+and
+sysstate.LocationTree like @lochierarchy
+--Time Filter
+and
+sysstate.timestamp BETWEEN @StartDate AND @EndDate
 and
 @c3gSysState = 1
 --*******************************************************************************************************--
@@ -254,91 +336,74 @@ UNION
 --*******************************************************************************************************--
 --c4g SysState
 --*******************************************************************************************************--
-SELECT  
-  A.Location	     AS 'Location' 
-, A.CLassificationID AS 'AssetID'
-,'SYSSTATE' AS 'Logtype'
-, Y._timestamp AS 'timestamp'
-, Null      AS 'Logcode'
-, Null      AS 'Severity'
-,'  Code: ' + CAST(Y.Sys_state AS varchar) +   '  SysState: ' + (GADATA.c4g.fn_decodeSysstate(y.Sys_state)) + '  RobState: ' + CAST(GADATA.C4G.fn_robstate(y.Sys_state) as varchar) AS 'logtext'
-, NULL      AS 'Response'
-, NULL      AS 'Downtime'
-, NULL		AS 'Classification'
-, NULL		AS 'Subgroup'
-, NULL		AS 'refId'
-, NULL		As 'LocationTree'
-, NULL		AS 'ClassTree'
-, NULL		AS 'controller_name'
-, 'c4g'		As 'controller_type'
-
-FROM  GADATA.C4G.rt_sys_event as Y
---join the timeline
-LEFT JOIN GADATA.VOLVO.L_timeline AS T ON ( Y._timestamp BETWEEN T.starttime AND T.endtime)
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'c4g' --join the right 'data controller type'
-AND
-A.controller_id = Y.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%URC%'--join c4g robot because state is owned by robot
-
+SELECT * from gadata.c4g.sysstate
 where 
 --Asset Filters
-a.CLassificationId like @assets
+sysstate.AssetID like @assets
 and 
-a.LOCATION like @locations
+sysstate.LOCATION like @locations
 and
-a.LocationTree like @lochierarchy
+sysstate.LocationTree like @lochierarchy
 --Time Filter
 and
-Y._timestamp BETWEEN @StartDate AND @EndDate
+sysstate.timestamp BETWEEN @StartDate AND @EndDate
 and
 @c4gSysState = 1
+
 --*******************************************************************************************************--
 UNION
 --*******************************************************************************************************--
---c3g SBCU
+--c4g MOD
 --*******************************************************************************************************--
-SELECT  
-  A.Location	     AS 'Location' 
-, A.CLassificationID AS 'AssetID'
-,'SBCU' AS 'Logtype'
-, L.tool_timestamp AS 'timestamp'
-, Null      AS 'Logcode'
-, Null      AS 'Severity'
-,'Gun:' + CAST(L.tool_id as varchar(2)) + ' Long: ' + isnull(CAST(L.Longcheck as varchar(3)), '/') + '  Update: ' + isnull(CAST(L.TcpUpdate as varchar(3)),'/') + '  Dsetup: ' + LTRIM(Str(L.dsetup, 5, 2)) + '  Dmeas: ' + LTRIM(Str(L.Dmeas, 5, 2)) AS 'Logtekst'
-, NULL      AS 'Response'
-, NULL      AS 'Downtime'
-, NULL		AS 'Classification'
-, NULL		AS 'Subgroup'
-, NULL		AS 'refId'
-, NULL		As 'LocationTree'
-, NULL		AS 'ClassTree'
-, NULL		AS 'controller_name'
-, 'c3g'		As 'controller_type'
-
-FROM c3g.rt_toollog as L 
---join the timeline
-LEFT JOIN GADATA.VOLVO.L_timeline AS T ON ( L.tool_timestamp BETWEEN T.starttime AND T.endtime)
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'c3g' --join the right 'data controller type'
-AND
-A.controller_id = L.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%URC%'
-
+SELECT * from gadata.c4g.[MOD]
 where 
 --Asset Filters
-a.CLassificationId like @assets
+[MOD].AssetID like @assets
 and 
-a.LOCATION like @locations
+[MOD].LOCATION like @locations
 and
-a.LocationTree like @lochierarchy
+[MOD].LocationTree like @lochierarchy
 --Time Filter
 and
-L.tool_timestamp BETWEEN @StartDate AND @EndDate
+[MOD].timestamp BETWEEN @StartDate AND @EndDate
+and
+@c4gMOD = 1
+--*******************************************************************************************************--
+UNION
+--*******************************************************************************************************--
+--c3g MOD
+--*******************************************************************************************************--
+SELECT * from gadata.c3g.[MOD]
+where 
+--Asset Filters
+[MOD].AssetID like @assets
+and 
+[MOD].LOCATION like @locations
+and
+[MOD].LocationTree like @lochierarchy
+--Time Filter
+and
+[MOD].timestamp BETWEEN @StartDate AND @EndDate
+and
+@c3gMOD = 1
+--*******************************************************************************************************--
+UNION
+
+
+--*******************************************************************************************************--
+--c3g SBCU
+--*******************************************************************************************************--
+select * from gadata.c3g.sbcu
+where 
+--Asset Filters
+sbcu.AssetID like @assets
+and 
+sbcu.LOCATION like @locations
+and
+sbcu.LocationTree like @lochierarchy
+--Time Filter
+and
+sbcu.[timestamp] BETWEEN @StartDate AND @EndDate
 and
 @c3gSBCU = 1
 --*******************************************************************************************************--
@@ -410,8 +475,8 @@ l.Logtekst not in (
 ,'S:   |T: '
 )
 --*******************************************************************************************************--
---*******************************************************************************************************--
 
+--*******************************************************************************************************--
 
 ) as output
 left join gadata.volvo.l_timeline as timeline on output.timestamp between timeline.starttime and timeline.endtime

@@ -8,8 +8,14 @@
     [ClassDescription]    VARCHAR (255) NULL,
     [ClassStructureId]    VARCHAR (255) NULL,
     [CLassificationId]    VARCHAR (255) NULL,
-    [ClassificationTree]  VARCHAR (MAX) NULL
+    [ClassificationTree]  VARCHAR (MAX) NULL,
+    [Area]                VARCHAR (255) NULL,
+    [SubArea]             VARCHAR (255) NULL,
+    [Line]                VARCHAR (255) NULL,
+    [Station]             VARCHAR (255) NULL
 );
+
+
 
 
 

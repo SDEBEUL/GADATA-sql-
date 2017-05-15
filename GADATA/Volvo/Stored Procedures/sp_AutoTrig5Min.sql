@@ -30,7 +30,7 @@ exec GADATA.abb.sp_update_L_S4 --4
 exec GADATA.abb.sp_Decode_AE_IRC5 --1
 exec GADATA.abb.sp_update_L_IRC5 --
 --abb global
-exec GADATA.abb.sp_UPDATE_abb_APPL_Subgroup --1
+exec GADATA.abb.sp_update_Lerror_classifcation
 
 print 'test for glue import'/*
 --start

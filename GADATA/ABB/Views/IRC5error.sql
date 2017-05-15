@@ -1,35 +1,42 @@
 ﻿
 
-
-
-
-
 CREATE VIEW [ABB].[IRC5error]
 AS
-SELECT        
-C.location
-, C.controller_name AS Robotname
-, 'IRC5' AS Type
-, 'ERROR' AS Errortype
-, ISNULL(H._timestamp, H.wd_timestamp) AS timestamp
-, L.error_number AS Logcode
-, L.error_severity AS Severity
-, L.error_text  AS Logtekst
-, NULL AS Downtime
-, T.Vyear AS Year
-, T.Vweek AS Week
-, T.Vday AS day
-, T.shift
-, ABB.c_Appl.APPL AS Object
-, ABB.c_Subgroup.Subgroup
-, CAST(H.id AS int) AS idx
+SELECT
+  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
+, a.CLassificationId     AS 'AssetID'
+, 'ERROR'			   AS 'Logtype'
+, ISNULL(H._timestamp, H.wd_timestamp)       AS 'timestamp'
+, L.[error_number]       AS 'Logcode'
+, L.[error_severity]     AS 'Severity'
+, L.error_text		   AS 'logtext'
+, NULL     AS 'Response'
+, NULL     AS 'Downtime'
+, RTRIM(ISNULL(cc.Classification,'Undefined*'))  AS 'Classification'
+, ISNULL(cs.Subgroup,'Undefined*')		 AS 'Subgroup'
+, H.id				 AS 'refId'
+, a.LocationTree     As 'LocationTree'
+, a.ClassificationTree as 'ClassTree'
+, c.controller_name		AS 'controller_name'
+, 'IRC5'		As 'controller_type'
+
 FROM            ABB.h_alarm AS H 
 LEFT OUTER JOIN ABB.L_error AS L ON L.id = H.error_id 
---LEFT OUTER JOIN ABB.L_Cause as Lc on lc.id = H.cause_id
-LEFT OUTER JOIN ABB.c_controller AS C ON H.controller_id = C.id 
-LEFT OUTER JOIN ABB.c_Appl ON L.Appl_id = ABB.c_Appl.id 
-LEFT OUTER JOIN ABB.c_Subgroup ON L.Subgroup_id = ABB.c_Subgroup.id 
-LEFT OUTER JOIN VOLVO.L_timeline AS T ON H._timestamp BETWEEN T.starttime AND T.endtime
+--
+LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
+LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
+--joining of the RIGHT ASSET
+LEFT OUTER JOIN equi.ASSETS as A on 
+A.controller_type = 'IRC5' --join the right 'data controller type'
+AND
+A.controller_id = h.controller_id --join the right 'data controller id'
+AND 
+A.CLassificationId LIKE '%' + ISNULL(RTRIM(cc.Classification),'UR') + '%' --join only the asset with the right classification. (if not classified data goes to robot)
+AND
+A.controller_ToolID = 1 --temp until we find a multi tool support sollution
+--
+LEFT JOIN ABB.c_controller as c on c.id = h.controller_id
+--
 WHERE   (C.[Type] LIKE '%IRC5%') AND L.category_id not in (13)
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'ABB', @level1type = N'VIEW', @level1name = N'IRC5error';

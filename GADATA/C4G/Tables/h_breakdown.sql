@@ -22,6 +22,8 @@
 
 
 
+
+
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_Resptime]
     ON [C4G].[h_breakdown]([controller_id] ASC, [error_id] ASC, [EndOfBreakdown] ASC, [Rt] ASC, [Trig_state] ASC, [id] ASC);
@@ -41,4 +43,15 @@ CREATE STATISTICS [_dta_stat_2039118455_8_3_2_9]
 GO
 CREATE STATISTICS [_dta_stat_2039118455_2_8_9]
     ON [C4G].[h_breakdown]([controller_id], [error_id], [RC_error_id]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_h_breakdown_23_2039118455__K3_1_2_4_7_8_9]
+    ON [C4G].[h_breakdown]([EndOfBreakdown] ASC)
+    INCLUDE([controller_id], [error_id], [id], [RC_error_id], [Rt], [StartOfBreakdown]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_2039118455_8_9_3]
+    ON [C4G].[h_breakdown]([error_id], [RC_error_id], [EndOfBreakdown]);
 

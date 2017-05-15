@@ -14,3 +14,10 @@
 
 
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_rt_sys_event_23_452769266__K2_K3]
+    ON [C4G].[rt_sys_event]([controller_id] ASC, [_timestamp] ASC);
+

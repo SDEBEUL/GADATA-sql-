@@ -1,52 +1,157 @@
 ﻿
-CREATE VIEW [C4G].[sysstate]
+
+/*join c4g robot because state is owned by robot*/
+CREATE VIEW [C4G].[SysState]
 AS
 SELECT  
-              C.location AS 'Location',
-			  C.controller_name AS 'Robotname',
-              'C4G' AS 'Type',
-			  'EVENT' AS 'Errortype',
-			  Y._timestamp AS 'Timestamp',
-              NULL AS 'Logcode',
-              NULL AS 'Severity',
-              '  Code: ' + CAST(Y.Sys_state AS varchar) +   '  SysState: ' + (GADATA.c4g.fn_decodeSysstate(y.Sys_state)) + '  RobState: ' + CAST(GADATA.C4G.fn_robstate(y.Sys_state) as varchar) AS 'Logtekst',
-              NULL AS 'Downtime',
-              T.Vyear AS 'Year',
-			  T.Vweek AS 'Week',
-			  T.Vday AS 'Day',
-			 T.[Shift] AS 'Shift',
-			  'Event'  AS 'Object',
-			  'Event'  AS 'Subgroup',
-              CAST(Y.id AS int) AS 'idx'
+  isnull(a.LOCATION,c.controller_name+'#')	     AS 'Location' 
+, A.CLassificationID AS 'AssetID'
+,'SYSSTATE' AS 'Logtype'
+, Y._timestamp AS 'timestamp'
+, Null      AS 'Logcode'
+, Null      AS 'Severity'
+,'  Code: ' + CAST(Y.Sys_state AS varchar) +   '  SysState: ' + (GADATA.c4g.fn_decodeSysstate(y.Sys_state)) + '  RobState: ' + CAST(GADATA.C4G.fn_robstate(y.Sys_state) as varchar) AS 'logtext'
+, NULL      AS 'Response'
+, NULL      AS 'Downtime'
+, ''		AS 'Classification'
+, ''		AS 'Subgroup'
+, y.id		AS 'refId'
+, a.LocationTree     As 'LocationTree'
+, a.ClassificationTree as 'ClassTree'
+, c.controller_name			AS 'controller_name'
+, 'c4g'		As 'controller_type'
 
-FROM  GADATA.c4g.rt_sys_event as Y
---join the controller name
-LEFT JOIN    GADATA.c4g.c_controller as C ON (Y.controller_id = C.id) 
---join the timeline
-LEFT JOIN GADATA.VOLVO.L_timeline AS T ON ( Y._timestamp BETWEEN T.starttime AND T.endtime)
+FROM  GADATA.C4G.rt_sys_event as Y
+--joining of the RIGHT ASSET
+LEFT OUTER JOIN equi.ASSETS as A on 
+A.controller_type = 'c4g' --join the right 'data controller type'
+AND
+A.controller_id = Y.controller_id --join the right 'data controller id'
+AND 
+A.CLassificationId LIKE '%URC%'--join c4g robot because state is owned by robot
+--
+LEFT JOIN c4g.c_controller as c on c.id = y.controller_id
+GO
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'SysState';
 
---data from L_operation (to catch robots offline)
-UNION
-SELECT 
-              C.location AS 'Location',
-			  C.controller_name AS 'Robotname',
-              'C4G' AS 'Type',
-			  'EVENT' AS 'Errortype',
-			  Y._timestamp AS 'Timestamp',
-              NULL AS 'Logcode',
-              NULL AS 'Severity',
-              'Code: 0  SysState: Disconnected' AS 'Logtekst',
-              NULL AS 'Downtime',
-              T.Vyear AS 'Year',
-			  T.Vweek AS 'Week',
-			  T.Vday AS 'Day',
-			  T.[Shift] AS 'Shift',
-			  'Event'  AS 'Object',
-			  'Event'  AS 'Subgroup',
-              CAST(Y.id AS int) AS 'idx'
-			FROM GADATA.c4g.l_operation  AS y
---join the controller name
-LEFT JOIN    GADATA.c4g.c_controller as C ON (Y.controller_id = C.id) 
---join the timeline
-LEFT JOIN GADATA.VOLVO.L_timeline AS T ON ( Y._timestamp BETWEEN T.starttime AND T.endtime)
-WHERE (y.code = 4) --connection lost 
+
+GO
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "Y"
+            Begin Extent = 
+               Top = 7
+               Left = 48
+               Bottom = 168
+               Right = 242
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "A"
+            Begin Extent = 
+               Top = 7
+               Left = 290
+               Bottom = 168
+               Right = 501
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+', @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'SysState';
+

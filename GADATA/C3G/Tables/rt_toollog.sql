@@ -23,6 +23,8 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [nci_c3g_rt_toollog__tool_timesamp__longcheck]
     ON [C3G].[rt_toollog]([tool_timestamp] ASC, [Longcheck] ASC)
@@ -39,4 +41,15 @@ GO
 CREATE NONCLUSTERED INDEX [_dta_index_rt_toollog_23_1216632023__K2_1_3_4_5_12_13_14]
     ON [C3G].[rt_toollog]([tool_timestamp] ASC)
     INCLUDE([controller_id], [Dmeas], [Dsetup], [ID], [Longcheck], [TcpUpdate], [tool_id]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_rt_toollog_23_1216632023__K12_K2_3_4_5_13_14]
+    ON [C3G].[rt_toollog]([controller_id] ASC, [tool_timestamp] ASC)
+    INCLUDE([Dmeas], [Dsetup], [Longcheck], [TcpUpdate], [tool_id]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_1216632023_2_12]
+    ON [C3G].[rt_toollog]([tool_timestamp], [controller_id]);
 

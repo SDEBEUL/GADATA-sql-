@@ -34,6 +34,8 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [IX_h_alarm]
     ON [C4G].[h_alarm]([id] ASC);
@@ -101,4 +103,10 @@ CREATE STATISTICS [_dta_stat_180963771_4_2_6]
 GO
 CREATE STATISTICS [_dta_stat_180963771_2_6]
     ON [C4G].[h_alarm]([controller_id], [error_id]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_h_alarm_23_180963771__K4_K2_K6_1]
+    ON [C4G].[h_alarm]([c_timestamp] ASC, [controller_id] ASC, [error_id] ASC)
+    INCLUDE([id]);
 

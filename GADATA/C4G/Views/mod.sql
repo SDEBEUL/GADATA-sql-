@@ -1,6 +1,5 @@
 ﻿
 
-
 CREATE VIEW [C4G].[mod]
 AS
 WITH modtemp as
@@ -23,16 +22,14 @@ SELECT
   FROM [GADATA].[C4G].[L_robotpositions]
 ) 
 
-
-select 
-       c.location  AS 'Location'
-	   ,c.controller_name  AS 'Robotname'
-	   ,'C4G' as 'Type'
-	   ,'MOD' AS 'Errortype'
-	   ,modtemp.[file_timestamp] AS 'timestamp'
-	   ,NULL as 'Logcode'
-	   ,Null as 'Severity'
-      ,'Prog: ' + modtemp.[Owner] + '  Pos: ' + modtemp.[Pos] + 
+SELECT  
+  isnull(a.LOCATION,c.controller_name+'#')	     AS 'Location' 
+, A.CLassificationID AS 'AssetID'
+,'mod' AS 'Logtype'
+, modtemp.[file_timestamp] AS 'timestamp'
+, Null      AS 'Logcode'
+, Null      AS 'Severity'
+,'Prog: ' + modtemp.[Owner] + '  Pos: ' + modtemp.[Pos] + 
 	   '  DeltaP: ' + CAST(ROUND(SQRT(
 	  POWER((modtemp.[X]-Lmodtemp.[X]),2)
 	  +
@@ -46,16 +43,17 @@ select
 	  POWER((modtemp.[e]-Lmodtemp.[e]),2)
 	  +
 	  POWER((modtemp.[r]-Lmodtemp.[r]),2)
-	  ),2) as varchar) as 'Logtekst'
-	  ,NULL as 'Downtime'
-	  ,LT.Vyear AS 'Year'
-	  ,LT.Vweek  AS 'Week'
-	  ,LT.Vday AS 'day'
-	  ,LT.shift AS 'Shift'
-	  ,'mod' as 'Object'
-	  ,'mod' as 'Subgroup'
-	  ,modtemp.ModCount as 'idx'
-
+	  ),2) as varchar)
+	   AS 'Logtekst'
+, NULL      AS 'Response'
+, NULL      AS 'Downtime'
+, ''		AS 'Classification'
+, ''		AS 'Subgroup'
+, null		AS 'refId'
+, a.LocationTree     As 'LocationTree'
+, a.ClassificationTree as 'ClassTree'
+, c.controller_name			AS 'controller_name'
+, 'c4g'		As 'controller_type'
 
 from modtemp
 LEFT join modtemp Lmodtemp on 
@@ -66,8 +64,17 @@ AND
 (modtemp.Pos = Lmodtemp.pos)
 AND
 ((modtemp.ModCount - 1) = Lmodtemp.ModCount)
-LEFT JOIN GADATA.c4g.c_controller as c on c.id = modtemp.controller_id
-LEFT JOIN GADATA.volvo.L_timeline as LT on modtemp.file_timestamp BETWEEN lt.starttime AND LT.endtime
+
+--joining of the RIGHT ASSET
+LEFT OUTER JOIN equi.ASSETS as A on 
+A.controller_type = 'c4g' --join the right 'data controller type'
+AND
+A.controller_id = Lmodtemp.controller_id --join the right 'data controller id'
+AND 
+A.CLassificationId LIKE '%URC%'
+--
+LEFT JOIN c4g.c_controller as c on c.id = Lmodtemp.controller_id
+--
 where modtemp.modcount <> 1
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'mod';

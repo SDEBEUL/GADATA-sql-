@@ -26,6 +26,8 @@
 
 
 
+
+
 GO
 
 
@@ -56,4 +58,9 @@ CREATE STATISTICS [_dta_stat_1940774567_6_4]
 GO
 CREATE STATISTICS [_dta_stat_1940774567_2_4_6]
     ON [C3G].[h_alarm]([controller_id], [c_timestamp], [error_id]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_1940774567_2_6]
+    ON [C3G].[h_alarm]([controller_id], [error_id]);
 

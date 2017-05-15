@@ -1,26 +1,37 @@
 ﻿
+
+
+
 CREATE VIEW [C3G].[SBCU]
-AS
-SELECT        
-  c.location AS 'Location'
-, c.controller_name AS 'Robotname'
-, 'C3G' AS 'Type'
-, 'SBCU' AS 'Errortype'
+AS        
+SELECT  
+  isnull(a.LOCATION,c.controller_name+'#')	     AS 'Location' 
+, A.CLassificationID AS 'AssetID'
+,'SBCU' AS 'Logtype'
 , L.tool_timestamp AS 'timestamp'
-, NULL AS 'Logcode'
-, NULL AS 'Severity'
+, Null      AS 'Logcode'
+, Null      AS 'Severity'
 ,'Gun:' + CAST(L.tool_id as varchar(2)) + ' Long: ' + isnull(CAST(L.Longcheck as varchar(3)), '/') + '  Update: ' + isnull(CAST(L.TcpUpdate as varchar(3)),'/') + '  Dsetup: ' + LTRIM(Str(L.dsetup, 5, 2)) + '  Dmeas: ' + LTRIM(Str(L.Dmeas, 5, 2)) AS 'Logtekst'
-, NULL AS 'Downtime'
-, T.Vyear AS 'Year'
-, T.Vweek AS 'Week'
-, T.Vday AS 'day'
-, T.shift AS 'Shift'
-, 'SBCU' AS 'Object'
-, 'SBCU' As 'Subgroup'
-, CAST(L.id AS int) AS 'idx'
-FROM    c3g.rt_toollog as L 
-LEFT JOIN c3g.c_controller as c ON L.controller_id = c.ID 
-LEFT  JOIN VOLVO.L_timeline AS T ON L.tool_timestamp BETWEEN T.starttime AND T.endtime
+, NULL      AS 'Response'
+, NULL      AS 'Downtime'
+, ''		AS 'Classification'
+, ''		AS 'Subgroup'
+, l.ID		AS 'refId'
+, a.LocationTree     As 'LocationTree'
+, a.ClassificationTree as 'ClassTree'
+, c.controller_name			AS 'controller_name'
+, 'c3g'		As 'controller_type'
+
+FROM c3g.rt_toollog as L 
+--joining of the RIGHT ASSET
+LEFT OUTER JOIN equi.ASSETS as A on 
+A.controller_type = 'c3g' --join the right 'data controller type'
+AND
+A.controller_id = L.controller_id --join the right 'data controller id'
+AND 
+A.CLassificationId LIKE '%URC%'
+--
+LEFT JOIN c3g.c_controller as c on c.id = L.controller_id
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'SBCU';
 

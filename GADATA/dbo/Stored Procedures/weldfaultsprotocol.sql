@@ -12,7 +12,7 @@ BEGIN
 ---------------------------------------------------------------------------------------
 if ((@StartDate is null) OR (@StartDate = '1900-01-01 00:00:00:000'))
 BEGIN
-SET @StartDate = GETDATE()-14
+SET @StartDate = GETDATE()-1
 END
 
 if ((@EndDate is null) OR (@EndDate = '1900-01-01 00:00:00:000'))

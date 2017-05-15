@@ -47,7 +47,20 @@
 
 
 
+
+
 GO
 CREATE STATISTICS [_dta_stat_1193679946_1_2_4_23]
     ON [C3G].[c_controller]([id], [controller_name], [location], [ownership]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_c_controller_23_1193679946__K2_K4_K23_1_24_25_26]
+    ON [C3G].[c_controller]([controller_name] ASC, [location] ASC, [ownership] ASC)
+    INCLUDE([Area], [id], [Plant], [SubArea]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_c_controller_23_1193679946__K1_K2]
+    ON [C3G].[c_controller]([id] ASC, [controller_name] ASC);
 

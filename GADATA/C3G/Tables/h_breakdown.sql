@@ -28,6 +28,8 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [nci_h_breakdown]
     ON [C3G].[h_breakdown]([controller_id] ASC)
@@ -58,4 +60,10 @@ CREATE STATISTICS [_dta_stat_1291660_3_2_8]
 GO
 CREATE STATISTICS [_dta_stat_1291660_2_8_9_3]
     ON [C3G].[h_breakdown]([controller_id], [error_id], [RC_error_id], [EndOfBreakdown]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_h_breakdown_23_1291660__K3_K8_K9_K2_1_4_5_7]
+    ON [C3G].[h_breakdown]([EndOfBreakdown] ASC, [error_id] ASC, [RC_error_id] ASC, [controller_id] ASC)
+    INCLUDE([Rt], [StartOfBreakdown], [Trig_state], [id]);
 

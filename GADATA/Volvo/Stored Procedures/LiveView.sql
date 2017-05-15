@@ -336,40 +336,95 @@ WHERE
  (SysBreakDwnIndx = 1 AND CombinedRobstate <> 3) --laatste event en robot heeft geen resolved event 
   OR
  (SysBreakDwnIndx = 1  AND (_timestamp > getdate()-'1900-01-01 00:04:00:000') ) --laatste event of not geen 5 min aan het draaien 
-
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
---ABB check data comm (geeft alarm als er 5 min geen data is)
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
+--*******************************************************************************************************--
 UNION
-SELECT DISTINCT  
-              'IT15582_vm1' AS 'Location',
-			  'ABB OPC' AS 'Robot',
-              x.type AS 'Type',
-			  'LIVE' as 'Errortype',
-              convert(char(19),(getdate()+'1900-01-02 00:00:0.00'),120) AS 'Timestamp',
-              NULL AS 'Logcode',
-              20 AS 'Severity',
-			  'ABB OPC WARNING type: ' + x.type + '  NO DATA (30min) Last message: ' + convert(char(19),x.LastMessage,120) AS 'Logtekst',
-			  NULL AS 'DT',
-              NULL AS 'Year',
-			  NULL AS 'Week',
-			  NULL AS 'day',
-			  NULL AS 'Shift',
-			  null AS 'Object',
-			  null AS 'Subgroup',
-              NULL AS 'id'
- FROM
-(SELECT 
- comm.Type
-,comm.LastMessage
-,ROW_NUMBER() OVER (PARTITION BY comm.type ORDER BY comm.LastMessage DESC) AS rnDESC
-from GADATA.abb.LastCommList as comm
-) as x 
-where x.rnDESC = 1 
-and x.LastMessage < (getdate() - '1900-01-01 00:30:00')
----------------------------------------------------------------------------------------
+--*******************************************************************************************************--
+--supervisie slowspeed c4g
+--*******************************************************************************************************--
+/*SELECT    
+  C.location
+, C.controller_name AS Robotname
+, 'C4G' AS Type
+, 'SLOWSpeed' AS Errortype
+, getdate() AS timestamp
+, NULL AS Logcode
+, 0 AS Severity
+, 'WARNING ROBOT SPEED $GEN_ovr:= ' + rtv.value + ' Since: ' + CONVERT(char(19),rtv._timestamp, 120) AS  Logtekst
+, NULL AS Downtime
+, T.Vyear AS Year
+, T.Vweek AS Week
+, T.Vday AS day
+, T.shift
+, 'SLOWSpeed' AS 'Object'
+, 'SLOWSpeed' AS 'Subgroup'
+, 0 AS 'idx'
+FROM  
+(
+Select 
+*
+,ROW_NUMBER() OVER (PARTITION BY rtv.controller_id ORDER BY rtv._timestamp DESC) AS rndesc
+FROM
+GADATA.C4G.rt_GEN_OVR as rtv
+where rtv.variable_id = 11 
+) as rtv 
+LEFT OUTER JOIN c4g.c_controller AS C ON rtv.controller_id = C.id 
+LEFT OUTER JOIN VOLVO.L_timeline AS T ON rtv._timestamp BETWEEN T.starttime AND T.endtime
+WHERE 
+rtv.rndesc = 1
+AND
+rtv.value <> 100
+--*******************************************************************************************************--
+union*/
+--*******************************************************************************************************--
+--supervisie c3G
+--*******************************************************************************************************--
+SELECT      
+  C3G.c_controller.location AS 'Location'
+, C3G.c_controller.controller_name AS 'Robotname'
+, 'C3G' AS 'Type'
+, 'LIVE' AS 'Errortype'
+, H.EndOfBreakdown AS 'Timestamp'
+, ISNULL(ISNULL(LR.[error_number],L.[error_number]),H.Trig_state) AS 'Logcode'
+, 0 AS 'Severity'
+, 'S: '+ GADATA.C3G.[fn_ShortSysstate](H.Active_state) + '  |T: ' + ISNULL(('|R: ' + LR.error_text), Isnull(L.error_text,'Fail: ' + GADATA.C3G.fn_decodeSysstate(H.Trig_state))) AS 'Logtekst'
+, DATEDIFF(MINUTE,'1900-01-01 00:00:00',[C3G].[fts_Downtime] (H.EndOfBreakdown,H.StartOfBreakdown)) AS DOWNTIME
+, T.Vyear AS 'Year'
+, T.Vweek AS 'Week'
+, T.Vday AS 'day'
+, T.shift AS 'Shift'
+, ISNULL(ISNULL(LRA.APPL, LA.APPL),'N/A') AS 'Object'
+, ISNULL(ISNULL(LRS.Subgroup, LS.Subgroup),'N/A') AS 'Subgroup'
+, H.id
+
+
+FROM   GADATA.C3G.rt_breakdown as H 
+INNER JOIN C3G.c_controller ON H.controller_id = C3G.c_controller.id 
+--join L_error (normal cause)
+LEFT OUTER JOIN GADATA.C3G.L_error  AS L ON 
+L.id = H.error_id 
+--join L_error (special cause)
+LEFT OUTER JOIN GADATA.C3G.L_error AS lR ON
+H.RC_error_id = LR.id
+AND
+H.RC_error_id IS NOT NULL
+--appl (normal cause)
+LEFT OUTER JOIN
+GADATA.C3G.c_Appl as LA ON (LA.id =L.Appl_id) 
+--subgroup (normal cause)
+ LEFT OUTER JOIN
+gadata.C3G.C_subgroup as LRS ON (LRS.id = LR.subgroup_id) 
+--appl (special cause)
+LEFT OUTER JOIN
+GADATA.C3G.c_Appl as LRA ON (LRA.id = LR.Appl_id) 
+--subgroup (special cause)
+ LEFT OUTER JOIN
+gadata.C3G.C_subgroup as LS ON (LS.id = L.subgroup_id) 
+--timeline						 --
+LEFT OUTER JOIN
+VOLVO.L_timeline AS T ON 
+H.EndOfBreakdown BETWEEN T.starttime AND T.endtime
+--*******************************************************************************************************--
+
 
 ) as x 
 ORDER BY   x.[Timestamp] DESC 

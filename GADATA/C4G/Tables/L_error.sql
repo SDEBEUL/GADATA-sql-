@@ -70,6 +70,8 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [idx_error_id]
     ON [C4G].[L_error]([id] ASC);
@@ -110,4 +112,24 @@ CREATE STATISTICS [_dta_stat_212963885_4_2_3_9_8]
 GO
 CREATE STATISTICS [_dta_stat_212963885_1_9_8_4_2_3]
     ON [C4G].[L_error]([id], [c_SubgroupId], [c_ClassificationId], [error_text], [error_number], [error_severity]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_L_error_23_212963885__K1_K3_K8_K9_K4_K2]
+    ON [C4G].[L_error]([id] ASC, [error_severity] ASC, [c_ClassificationId] ASC, [c_SubgroupId] ASC, [error_text] ASC, [error_number] ASC);
+
+
+GO
+CREATE STATISTICS [_dta_stat_212963885_3_8]
+    ON [C4G].[L_error]([error_severity], [c_ClassificationId]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_212963885_3_4]
+    ON [C4G].[L_error]([error_severity], [error_text]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_212963885_3_1_8]
+    ON [C4G].[L_error]([error_severity], [id], [c_ClassificationId]);
 
