@@ -9,12 +9,10 @@
 );
 
 
-
-
 GO
 CREATE NONCLUSTERED INDEX [nci_wearbeforrechange]
     ON [dbo].[WearBeforeChange]([DateTime] ASC)
-    INCLUDE([TimerID], [ElectrodeNbr], [wear]);
+    INCLUDE([ElectrodeNbr], [TimerID], [wear]);
 
 
 GO

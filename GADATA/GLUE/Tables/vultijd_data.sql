@@ -8,5 +8,3 @@
     CONSTRAINT [PK_vultijd_data] PRIMARY KEY CLUSTERED ([ID] ASC)
 );
 
-
-

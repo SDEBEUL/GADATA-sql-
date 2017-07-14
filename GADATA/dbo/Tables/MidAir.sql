@@ -13,8 +13,28 @@
 );
 
 
+GO
+CREATE NONCLUSTERED INDEX [nci_midAirRef]
+    ON [dbo].[MidAir]([DateTime] ASC)
+    INCLUDE([ElectrodeNo], [ResisActual], [ResisRef], [SpotId]);
 
 
+GO
+CREATE NONCLUSTERED INDEX [nc_dbo_midair__spotid__datetime]
+    ON [dbo].[MidAir]([SpotId] ASC, [DateTime] ASC)
+    INCLUDE([ElectrodeNo]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_dbo_miair_datetime]
+    ON [dbo].[MidAir]([DateTime] ASC)
+    INCLUDE([ElectrodeNo], [SpotId]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_dbo_midair__datetime__resact_refres__elctno]
+    ON [dbo].[MidAir]([SpotId] ASC)
+    INCLUDE([DateTime], [ElectrodeNo], [ResisActual], [ResisRef]);
 
 
 GO
@@ -27,22 +47,4 @@ GO
 CREATE NONCLUSTERED INDEX [nci_midair]
     ON [dbo].[MidAir]([SpotId] ASC)
     INCLUDE([DateTime], [ElectrodeNo]);
-
-
-GO
-CREATE NONCLUSTERED INDEX [nci_dbo_midair__datetime__resact_refres__elctno]
-    ON [dbo].[MidAir]([SpotId] ASC)
-    INCLUDE([DateTime], [ResisActual], [ResisRef], [ElectrodeNo]);
-
-
-GO
-CREATE NONCLUSTERED INDEX [nci_dbo_miair_datetime]
-    ON [dbo].[MidAir]([DateTime] ASC)
-    INCLUDE([SpotId], [ElectrodeNo]);
-
-
-GO
-CREATE NONCLUSTERED INDEX [nc_dbo_midair__spotid__datetime]
-    ON [dbo].[MidAir]([SpotId] ASC, [DateTime] ASC)
-    INCLUDE([ElectrodeNo]);
 

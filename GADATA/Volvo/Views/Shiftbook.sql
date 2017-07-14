@@ -1,55 +1,38 @@
 ﻿
 
-
-
-
-
 CREATE VIEW [Volvo].[Shiftbook]
 AS
-SELECT        
-  ISNULL(r.location,'UserDeff') as 'Location'
-, isnull(r.controller_name,sb.IndependantLocation) AS Robotname
-, UPPER(sb.controller_type) AS Type
-, 'SHIFTBOOK' AS Errortype
-, sb.updateTimestamp AS timestamp
-, NULL AS Logcode
-, NULL AS Severity
-, ISNULL(sb.acceptuser+'<= ' ,ISNULL(sb.ReportUser+'=> ','N/A'))  + sb.userDescription AS Logtekst
-, NULL AS Downtime
-, T.Vyear AS Year
-, T.Vweek AS Week
-, T.Vday AS day
-, T.shift
-, 'Status =>' AS 'Object'
-, ISNULL(sb.State,'N/A') as 'Subgroup' 
-, sb.id AS idx
-FROM  gadata.volvo.hShiftbook as sb
-left join GADATA.volvo.L_timeline as T on sb.updateTimestamp between t.starttime and t.endtime
-left join GADATA.volvo.Robots as r on r.id = sb.controller_id and r.controller_type = sb.controller_type
-where sb.State not like 'WASSIGN'
+SELECT 
+  isnull(a.LOCATION,r.controller_name+'#')		   AS 'Location' 
+, a.CLassificationId     AS 'AssetID'
+, 'SHIFTBOOK'			   AS 'Logtype'
+, sb.updateTimestamp      AS 'timestamp'
+, null       AS 'Logcode'
+, null    AS 'Severity'
+, ISNULL(sb.acceptuser+'<= ' ,ISNULL(sb.ReportUser+'=> ','N/A'))  + sb.userDescription		   AS 'logtext'
+, NULL     AS 'Response'
+, NULL     AS 'Downtime'
+, 'Status =>'  AS 'Classification'
+, ISNULL(sb.State,'N/A')		 AS 'Subgroup'
+, sb.id				 AS 'refId'
+, a.LocationTree     As 'LocationTree'
+, a.ClassificationTree as 'ClassTree'
+, r.controller_name		AS 'controller_name'
+, ''		As 'controller_type'
 
-UNION
-SELECT        
-  ISNULL(r.location,'UserDeff') as 'Location'
-, isnull(r.controller_name,sb.IndependantLocation) AS Robotname
-, UPPER(sb.controller_type) AS Type
-, 'SHIFTBOOK' AS Errortype
-, getdate()-'1900-01-01 00:00:10' AS timestamp
-, NULL AS Logcode
-, NULL AS Severity
-, 'WASSIGN | ( •_•)  |' + sb.ReportUser+'=>'  + sb.userDescription AS Logtekst
-, NULL AS Downtime
-, T.Vyear AS Year
-, T.Vweek AS Week
-, T.Vday AS day
-, T.shift
-, 'Status =>' AS 'Object'
-, ISNULL(sb.State,'N/A') as 'Subgroup' 
-, sb.id AS idx
 FROM  gadata.volvo.hShiftbook as sb
-left join GADATA.volvo.L_timeline as T on sb.updateTimestamp between t.starttime and t.endtime
+--joining of the RIGHT ASSET
+LEFT OUTER JOIN equi.ASSETS as A on 
+A.controller_type = sb.controller_type --join the right 'data controller type'
+AND
+A.controller_id = sb.controller_id --join the right 'data controller id'
+AND 
+A.CLassificationId LIKE '%UR%' --join only on robots
+AND
+A.controller_ToolID = 1 --temp until we find a multi tool support sollution
+--
 left join GADATA.volvo.Robots as r on r.id = sb.controller_id and r.controller_type = sb.controller_type
-where sb.State  like 'WASSIGN'
+--
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Shiftbook';
 

@@ -11,7 +11,3 @@
     CONSTRAINT [PK_rt_file] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-
-
-
-

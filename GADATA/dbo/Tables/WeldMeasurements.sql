@@ -21,9 +21,3 @@
     CONSTRAINT [FK_WeldMeasurements_Spot] FOREIGN KEY ([SpotId]) REFERENCES [dbo].[Spot] ([ID])
 );
 
-
-
-
-
-
-

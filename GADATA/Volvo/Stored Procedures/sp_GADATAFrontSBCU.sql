@@ -1,4 +1,4 @@
-
+﻿
 CREATE PROCEDURE [Volvo].[sp_GADATAFrontSBCU]
 --timeparameters
    @StartDate as DATETIME = null,

@@ -6,8 +6,6 @@
 );
 
 
-
-
 GO
 CREATE NONCLUSTERED INDEX [_dta_index_c_Classification_23_845870726__K1_2]
     ON [Volvo].[c_Classification]([id] ASC)

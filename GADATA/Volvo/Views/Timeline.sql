@@ -1,4 +1,5 @@
 ﻿
+
 CREATE VIEW [Volvo].[Timeline]
 AS
 SELECT      
@@ -18,7 +19,7 @@ SELECT
 , T.PLOEG AS 'Ploeg'
 , 'Timeline' AS 'Object'
 , 'Timeline' as 'Subgroup'
-, Null as 'id'
+, T.id as 'id'
 FROM VOLVO.L_timeline AS T
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Timeline';
@@ -134,6 +135,4 @@ Begin DesignProperties =
    End
 End
 ', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Timeline';
-
-
 

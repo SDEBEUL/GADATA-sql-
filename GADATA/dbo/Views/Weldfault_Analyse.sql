@@ -178,5 +178,3 @@ Begin DesignProperties =
       Begin ColumnWidths = 11
       ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'Weldfault_Analyse';
 
-
-

@@ -86,5 +86,3 @@ GRANT EXECUTE
     ON OBJECT::[dbo].[Qinfo_CheckAlert] TO [db_frontendUser]
     AS [dbo];
 
-
-

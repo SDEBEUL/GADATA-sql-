@@ -1,7 +1,7 @@
 ﻿
 
 
-CREATE PROCEDURE [EQUI].[sp_templateForEQplugin]
+CREATE PROCEDURE [EqUi].[sp_templateForEQplugin]
 
 --default parameters
 --timeparameters
@@ -20,8 +20,6 @@ CREATE PROCEDURE [EQUI].[sp_templateForEQplugin]
    @TestVarchar1 as varchar(100) = null,
    @TestVarchar2 as varchar(100) = null
 
---gives the right permission when a low level user only has execution rights
-with execute as owner
 AS
 BEGIN
 

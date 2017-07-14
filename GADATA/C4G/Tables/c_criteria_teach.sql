@@ -25,5 +25,3 @@
     CONSTRAINT [FK_c_criteria_teach_c_criteria_setup_id] FOREIGN KEY ([c_criteria_setup_id]) REFERENCES [C4G].[c_criteria_setup] ([id])
 );
 
-
-

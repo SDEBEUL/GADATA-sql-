@@ -4,5 +4,3 @@
     CONSTRAINT [PK_L_Remedy] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-
-

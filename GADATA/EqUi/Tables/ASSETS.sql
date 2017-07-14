@@ -18,12 +18,3 @@
     [controller_ToolID]  BIGINT        NULL
 );
 
-
-
-
-
-
-GO
-CREATE NONCLUSTERED INDEX [nci_assetsToolid]
-    ON [EqUi].[ASSETS]([controller_type] ASC, [controller_ToolID] ASC);
-

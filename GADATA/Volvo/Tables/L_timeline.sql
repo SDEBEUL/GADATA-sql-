@@ -13,12 +13,9 @@
 );
 
 
-
-
-
-
-
-
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_L_timeline_23_2095203110__K1_K2_K10_K4_K5_K6_K7_K9]
+    ON [Volvo].[L_timeline]([starttime] ASC, [endtime] ASC, [id] ASC, [Vyear] ASC, [Vweek] ASC, [Vday] ASC, [shift] ASC, [PLOEG] ASC);
 
 
 GO
@@ -32,8 +29,8 @@ CREATE UNIQUE NONCLUSTERED INDEX [NCI_Time]
 
 
 GO
-CREATE NONCLUSTERED INDEX [_dta_index_L_timeline_23_2095203110__K1_K2_K10_K4_K5_K6_K7_K9]
-    ON [Volvo].[L_timeline]([starttime] ASC, [endtime] ASC, [id] ASC, [Vyear] ASC, [Vweek] ASC, [Vday] ASC, [shift] ASC, [PLOEG] ASC);
+CREATE STATISTICS [_dta_stat_2095203110_1_7_4_5]
+    ON [Volvo].[L_timeline]([starttime], [shift], [Vyear], [Vweek]);
 
 
 GO
@@ -47,13 +44,13 @@ CREATE STATISTICS [_dta_stat_2095203110_10_1_2_4_5_6_7_9]
 
 
 GO
-CREATE STATISTICS [_dta_stat_2095203110_1_4_5_6_7_9]
-    ON [Volvo].[L_timeline]([starttime], [Vyear], [Vweek], [Vday], [shift], [PLOEG]);
+CREATE STATISTICS [_dta_stat_2095203110_1_2_4_5_6_7_9]
+    ON [Volvo].[L_timeline]([starttime], [endtime], [Vyear], [Vweek], [Vday], [shift], [PLOEG]);
 
 
 GO
-CREATE STATISTICS [_dta_stat_2095203110_1_2_4_5_6_7_9]
-    ON [Volvo].[L_timeline]([starttime], [endtime], [Vyear], [Vweek], [Vday], [shift], [PLOEG]);
+CREATE STATISTICS [_dta_stat_2095203110_1_4_5_6_7_9]
+    ON [Volvo].[L_timeline]([starttime], [Vyear], [Vweek], [Vday], [shift], [PLOEG]);
 
 
 GO

@@ -19,6 +19,8 @@ CREATE PROCEDURE [EqUi].[EQpluginNewformat1]
    @c4gError as bit = 1,
    @c3gBreakdown as bit = 1,
    @c4gBreakdown as bit  = 1,
+   @c3gBreakdownStart as bit = 0,
+   @c4gBreakdownStart as bit  = 0,
    @c3gSysState as bit = 0,
    @c4gSysState as bit = 0,
    @c3gMOD as bit = 0,
@@ -113,7 +115,7 @@ SELECT
 , NULL      AS 'Downtime'
 , 'TIMELINE'		AS 'Classification'
 , 'TIMELINE'		AS 'Subgroup'
-, NULL		AS 'refId'
+, T.id		AS 'refId'
 , NULL		As 'LocationTree'
 , NULL		AS 'ClassTree'
 , NULL		AS 'controller_name'
@@ -124,6 +126,7 @@ where
 T.starttime BETWEEN @StartDate AND @EndDate
 AND
 @timeline = 1
+
 --*******************************************************************************************************--
 UNION
 --*******************************************************************************************************--
@@ -213,6 +216,49 @@ and
 and
 @c4gBreakdown = 1
 --*******************************************************************************************************--
+
+UNION
+--*******************************************************************************************************--
+--c3g breakdown start
+--*******************************************************************************************************--
+select * from GADATA.c3g.breakdown_start as c3g_breakdown_start
+where 
+--Asset Filters
+isnull(c3g_breakdown_start.AssetID,'%') like @assets
+and 
+isnull(c3g_breakdown_start.LOCATION,c3g_breakdown_start.controller_name) like @locations
+and
+c3g_breakdown_start.controller_name like @locations
+and
+isnull(c3g_breakdown_start.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+c3g_breakdown_start.[timestamp] BETWEEN @StartDate AND @EndDate
+and
+@c3gBreakdownStart = 1
+--*******************************************************************************************************--
+UNION
+--*******************************************************************************************************--
+--c4g breakdown start
+--*******************************************************************************************************--
+SELECT * from GADATA.c4g.Breakdown_Start as Breakdown_Start
+where 
+--Asset Filters
+isnull(Breakdown_Start.assetid,'%') like @assets
+and 
+isnull(Breakdown_Start.LOCATION,Breakdown_Start.controller_name) like @locations
+and
+Breakdown_Start.controller_name like @locations
+and
+isnull(Breakdown_Start.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+Breakdown_Start.[timestamp] BETWEEN @StartDate AND @EndDate
+and
+@c4gBreakdownStart = 1
+--*******************************************************************************************************--
+
+
 UNION
 --*******************************************************************************************************--
 --ABB IRC5 Error
@@ -340,8 +386,10 @@ SELECT * from gadata.c4g.sysstate
 where 
 --Asset Filters
 sysstate.AssetID like @assets
-and 
-sysstate.LOCATION like @locations
+and
+isnull(sysstate.LOCATION,sysstate.controller_name) like @locations
+and
+sysstate.controller_name like @locations
 and
 sysstate.LocationTree like @lochierarchy
 --Time Filter
@@ -352,6 +400,7 @@ and
 
 --*******************************************************************************************************--
 UNION
+/* SHUTDOWN TAKES UP 20 % of the Query
 --*******************************************************************************************************--
 --c4g MOD
 --*******************************************************************************************************--
@@ -377,8 +426,10 @@ SELECT * from gadata.c3g.[MOD]
 where 
 --Asset Filters
 [MOD].AssetID like @assets
-and 
-[MOD].LOCATION like @locations
+and
+isnull([MOD].LOCATION,[MOD].controller_name) like @locations
+and
+[MOD].controller_name like @locations
 and
 [MOD].LocationTree like @lochierarchy
 --Time Filter
@@ -387,9 +438,7 @@ and
 and
 @c3gMOD = 1
 --*******************************************************************************************************--
-UNION
-
-
+UNION*/
 --*******************************************************************************************************--
 --c3g SBCU
 --*******************************************************************************************************--
@@ -397,8 +446,10 @@ select * from gadata.c3g.sbcu
 where 
 --Asset Filters
 sbcu.AssetID like @assets
-and 
-sbcu.LOCATION like @locations
+and
+isnull(sbcu.LOCATION,sbcu.controller_name) like @locations
+and
+sbcu.controller_name like @locations
 and
 sbcu.LocationTree like @lochierarchy
 --Time Filter
@@ -409,30 +460,22 @@ and
 --*******************************************************************************************************--
 UNION
 --*******************************************************************************************************--
---Shiftbook TEMP
+--Shiftbook 
 --*******************************************************************************************************--
-SELECT
-  L.robotname	     AS 'Location' 
-, Null AS 'AssetID'
-,'SHIFTBOOK' AS 'Logtype'
-, L.timestamp AS 'timestamp'
-, Null      AS 'Logcode'
-, Null      AS 'Severity'
-, L.logtekst AS 'Logtekst'
-, NULL      AS 'Response'
-, NULL      AS 'Downtime'
-, NULL		AS 'Classification'
-, l.subgroup		AS 'Subgroup'
-, l.idx		AS 'refId'
-, NULL		As 'LocationTree'
-, NULL		AS 'ClassTree'
-, NULL		AS 'controller_name'
-, NULL		As 'controller_type'
-
-FROM GADATa.VOLVO.[Shiftbook] as l 
+SELECT * FROM GADATa.VOLVO.Shiftbook 
 where 
-L.timestamp BETWEEN @StartDate AND @EndDate
-AND
+--Asset Filters
+isnull(Shiftbook.assetid,'%') like @assets
+and 
+isnull(Shiftbook.LOCATION,Shiftbook.controller_name) like @locations
+and
+Shiftbook.controller_name like @locations
+and
+isnull(Shiftbook.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+Shiftbook.[timestamp] BETWEEN @StartDate AND @EndDate
+and
 @getshiftbook = 1
 --*******************************************************************************************************--
 UNION
@@ -443,8 +486,10 @@ SELECT * from gadata.volvo.L_liveView
 where 
 --Asset Filters
 L_liveView.AssetID like @assets
-and 
-L_liveView.LOCATION like @locations
+AND
+isnull(L_liveView.LOCATION,L_liveView.controller_name) like @locations
+and
+L_liveView.controller_name like @locations
 and
 L_liveView.LocationTree like @lochierarchy
 and

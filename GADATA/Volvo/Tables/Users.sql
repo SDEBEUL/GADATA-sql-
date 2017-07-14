@@ -8,5 +8,3 @@
     CONSTRAINT [PK_Users_2] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-
-

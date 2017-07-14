@@ -8,5 +8,3 @@
     CONSTRAINT [FK_TipWear_WeldingGun] FOREIGN KEY ([WeldingGunId]) REFERENCES [dbo].[WeldingGun] ([ID])
 );
 
-
-

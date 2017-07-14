@@ -12,5 +12,3 @@
     CONSTRAINT [FK_GunCylinderefernce_c_controller] FOREIGN KEY ([Controller_id]) REFERENCES [C3G].[c_controller] ([id])
 );
 
-
-

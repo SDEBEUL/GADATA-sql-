@@ -39,23 +39,6 @@
 );
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-GO
-CREATE STATISTICS [_dta_stat_1225680060_2_1_4_23]
-    ON [C4G].[c_controller]([controller_name], [id], [location], [ownership]);
-
-
 GO
 CREATE NONCLUSTERED INDEX [_dta_index_c_controller_23_1225680060__K1_K2]
     ON [C4G].[c_controller]([id] ASC, [controller_name] ASC);
@@ -64,4 +47,9 @@ CREATE NONCLUSTERED INDEX [_dta_index_c_controller_23_1225680060__K1_K2]
 GO
 CREATE STATISTICS [_dta_stat_1225680060_2_4_23]
     ON [C4G].[c_controller]([controller_name], [location], [ownership]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_1225680060_2_1_4_23]
+    ON [C4G].[c_controller]([controller_name], [id], [location], [ownership]);
 

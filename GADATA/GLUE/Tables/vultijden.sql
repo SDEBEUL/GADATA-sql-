@@ -8,5 +8,3 @@
     CONSTRAINT [FK_vultijden2] FOREIGN KEY ([Controller_id]) REFERENCES [GLUE].[Controller] ([ID])
 );
 
-
-

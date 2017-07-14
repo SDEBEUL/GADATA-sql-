@@ -7,5 +7,3 @@
     CONSTRAINT [PK_c_error_no_log] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-
-

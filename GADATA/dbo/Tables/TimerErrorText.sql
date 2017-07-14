@@ -4,11 +4,3 @@
     CONSTRAINT [PK_TimerErrorText] PRIMARY KEY CLUSTERED ([ID] ASC)
 );
 
-
-
-
-
-
-GO
-
-

@@ -45,5 +45,3 @@
     CONSTRAINT [FK_c_criteria_setup_c_rec_variable_when3] FOREIGN KEY ([c_rec_variable_id_when3]) REFERENCES [C4G].[c_rec_variable] ([id])
 );
 
-
-

@@ -13,5 +13,3 @@
     CONSTRAINT [FK_TimerDataChange_Users] FOREIGN KEY ([UserID]) REFERENCES [dbo].[Users] ([ID])
 );
 
-
-

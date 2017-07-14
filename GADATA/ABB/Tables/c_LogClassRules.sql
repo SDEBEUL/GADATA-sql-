@@ -17,10 +17,6 @@
 );
 
 
-
-
-
-
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'if true the Err_text field value will try to match in L_error.text ', @level0type = N'SCHEMA', @level0name = N'ABB', @level1type = N'TABLE', @level1name = N'c_LogClassRules', @level2type = N'COLUMN', @level2name = N'F_error_text';
 

@@ -5,5 +5,3 @@
     [countOfDowntime]        INT           NULL
 );
 
-
-

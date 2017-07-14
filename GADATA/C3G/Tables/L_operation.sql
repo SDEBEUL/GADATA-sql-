@@ -9,8 +9,6 @@
 );
 
 
-
-
 GO
 CREATE NONCLUSTERED INDEX [nci_robots_L_operation]
     ON [C3G].[L_operation]([code] ASC, [controller_id] ASC)

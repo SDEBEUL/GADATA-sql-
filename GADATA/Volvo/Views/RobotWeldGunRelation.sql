@@ -160,5 +160,3 @@ Begin DesignProperties =
 End
 ', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'RobotWeldGunRelation';
 
-
-

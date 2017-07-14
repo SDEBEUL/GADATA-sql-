@@ -55,6 +55,18 @@ select
 from GADATA.ABB.c_controller as abb
 ) as x
 GO
+GRANT SELECT
+    ON OBJECT::[Volvo].[Robots] TO [db_frontendUser]
+    AS [GADATA];
+
+
+GO
+GRANT CONTROL
+    ON OBJECT::[Volvo].[Robots] TO [db_frontendUser]
+    AS [GADATA];
+
+
+GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Robots';
 
 
@@ -157,20 +169,4 @@ Begin DesignProperties =
    End
 End
 ', @level0type = N'SCHEMA', @level0name = N'Volvo', @level1type = N'VIEW', @level1name = N'Robots';
-
-
-GO
-GRANT SELECT
-    ON OBJECT::[Volvo].[Robots] TO [db_frontendUser]
-    AS [GADATA];
-
-
-
-
-GO
-GRANT CONTROL
-    ON OBJECT::[Volvo].[Robots] TO [db_frontendUser]
-    AS [GADATA];
-
-
 

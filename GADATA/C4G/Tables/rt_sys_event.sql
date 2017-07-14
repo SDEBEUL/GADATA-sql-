@@ -9,12 +9,10 @@
 );
 
 
-
-
-
-
-
-
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_rt_sys_event_23_452769266__K3_1_2_4]
+    ON [C4G].[rt_sys_event]([_timestamp] ASC)
+    INCLUDE([controller_id], [id], [sys_state]);
 
 
 GO

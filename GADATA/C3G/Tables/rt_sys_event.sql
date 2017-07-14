@@ -9,24 +9,20 @@
 );
 
 
-
-
-
-
-
-
-
-
-
-
 GO
-CREATE NONCLUSTERED INDEX [nci_rt_sysevent_tis]
+CREATE NONCLUSTERED INDEX [nci_sysEvent1]
     ON [C3G].[rt_sys_event]([_timestamp] ASC)
-    INCLUDE([id], [controller_id], [sys_state]);
+    INCLUDE([c_timestamp], [controller_id], [id], [sys_state]);
 
 
 GO
 CREATE NONCLUSTERED INDEX [_dta_index_rt_sys_event_23_1492772971__K2_K3_4]
     ON [C3G].[rt_sys_event]([controller_id] ASC, [_timestamp] ASC)
     INCLUDE([sys_state]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_rt_sysevent_tis]
+    ON [C3G].[rt_sys_event]([_timestamp] ASC)
+    INCLUDE([controller_id], [id], [sys_state]);
 

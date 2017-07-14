@@ -14,9 +14,3 @@
     CONSTRAINT [FK_rt_alarm_c_controller2] FOREIGN KEY ([controller_id]) REFERENCES [C4G].[c_controller] ([id])
 );
 
-
-
-
-
-
-

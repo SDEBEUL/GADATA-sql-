@@ -4,5 +4,3 @@
     CONSTRAINT [PK_TimerParameterFilter_1] PRIMARY KEY CLUSTERED ([ID] ASC)
 );
 
-
-

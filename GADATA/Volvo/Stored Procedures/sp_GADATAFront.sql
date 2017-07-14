@@ -338,8 +338,3 @@ SET @RequestString =
 EXEC GADATA.volvo.sp_Alog @rowcount = @rowcountmen, @Request = @RequestString
 
 END
-GO
-
-
-
-

@@ -22,5 +22,3 @@
     CONSTRAINT [FK_rt_criteria_run_rt_rec_group] FOREIGN KEY ([rt_rec_group_id]) REFERENCES [C4G].[rt_rec_group] ([id])
 );
 
-
-

@@ -1,13 +1,14 @@
 ﻿
 
 
+
 CREATE VIEW [ABB].[S4state]
 AS
 SELECT             
   isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
 , a.CLassificationId     AS 'AssetID'
 , 'ERROR'			   AS 'Logtype'
-, ISNULL(H._timestamp, H.wd_timestamp)       AS 'timestamp'
+, iSNULL(H._timestamp, H.wd_timestamp)       AS 'timestamp'
 , L.[error_number]       AS 'Logcode'
 , L.[error_severity]     AS 'Severity'
 , L.error_text		   AS 'logtext'

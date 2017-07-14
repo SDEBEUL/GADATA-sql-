@@ -13,5 +13,3 @@
     CONSTRAINT [FK_WeldFaultLog_WeldSubFaultName] FOREIGN KEY ([WeldSubFaultID]) REFERENCES [dbo].[WeldSubFaultName] ([ID])
 );
 
-
-

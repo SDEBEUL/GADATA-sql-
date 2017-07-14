@@ -1,13 +1,11 @@
 ﻿
 
-
-
 CREATE VIEW [dbo].[MidairRef]
 AS
 SELECT        
 rwg.Robot AS 'Robotname'
 , 'Tool: ' + CAST(MA.ElectrodeNo AS varchar(2)) AS 'Tool'
-, MA.DateTime AS 'timestamp'
+,  MA.DateTime AS 'timestamp'
 , MA.SpotId
 , MA.ResisActual
 , MA.ResisRef

@@ -8,7 +8,3 @@
     CONSTRAINT [FK_PlateType_PlateMaterial] FOREIGN KEY ([MaterialID]) REFERENCES [dbo].[PlateMaterial] ([ID])
 );
 
-
-
-
-

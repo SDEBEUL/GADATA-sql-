@@ -102,7 +102,7 @@ LEFT join GADATA.C3G.h_alarm AS H on   --show also compare the logtekst here....
 (
 (R.controller_id  = H.controller_id)
 AND
-(R.c_timestamp = H.c_timestamp) --was losing data because of this (controle side clock resolution = 1s so errors in the same S only 1 would pass. 
+(isnull(R.c_timestamp,r._timestamp) = isnull(H.c_timestamp,h._timestamp)) --was losing data because of this (controle side clock resolution = 1s so errors in the same S only 1 would pass. 
 AND
 (R.error_id = H.error_id)
 --Current solution MAY give Dups. is the rt_alarm does not contain the error that is in on the controller.

@@ -17,17 +17,3 @@
     [controller_type] VARCHAR (3)    NOT NULL
 );
 
-
-
-
-
-
-
-
-GO
-
-
-
-GO
-
-

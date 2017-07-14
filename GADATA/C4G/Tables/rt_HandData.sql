@@ -9,9 +9,3 @@
     CONSTRAINT [FK_rt_HandData_c_variable] FOREIGN KEY ([variable_id]) REFERENCES [C4G].[c_variable] ([id])
 );
 
-
-
-
-
-
-

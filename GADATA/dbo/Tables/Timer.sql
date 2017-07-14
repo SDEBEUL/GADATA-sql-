@@ -7,5 +7,3 @@
     CONSTRAINT [FK_Timer_NPT] FOREIGN KEY ([NptId]) REFERENCES [dbo].[NPT] ([ID])
 );
 
-
-

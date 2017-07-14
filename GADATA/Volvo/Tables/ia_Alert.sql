@@ -19,3 +19,35 @@
     CONSTRAINT [PK_ia_Alert] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_ia_Alert_23_516105525__K1_14]
+    ON [Volvo].[ia_Alert]([id] ASC)
+    INCLUDE([User_Comment]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_ia_Alert_23_516105525__K17_K2_K1_K4_K6_14]
+    ON [Volvo].[ia_Alert]([AlertStatus] ASC, [_timestamp] ASC, [id] ASC, [controller_name] ASC, [description] ASC)
+    INCLUDE([User_Comment]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_516105525_2_17_1_4_6]
+    ON [Volvo].[ia_Alert]([_timestamp], [AlertStatus], [id], [controller_name], [description]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_516105525_4_2_6_1]
+    ON [Volvo].[ia_Alert]([controller_name], [_timestamp], [description], [id]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_516105525_1_17]
+    ON [Volvo].[ia_Alert]([id], [AlertStatus]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_516105525_2_1]
+    ON [Volvo].[ia_Alert]([_timestamp], [id]);
+

@@ -12,9 +12,3 @@
     CONSTRAINT [FK_rt_value_c_variable] FOREIGN KEY ([variable_id]) REFERENCES [C4G].[c_variable] ([id])
 );
 
-
-
-
-
-
-

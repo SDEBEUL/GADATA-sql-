@@ -9,9 +9,3 @@
     CONSTRAINT [FK_rt_statement_c_statement] FOREIGN KEY ([statement_id]) REFERENCES [C4G].[c_statement] ([id])
 );
 
-
-
-
-
-
-

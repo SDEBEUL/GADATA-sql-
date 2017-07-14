@@ -1,6 +1,7 @@
 ﻿
 
 
+
 CREATE PROCEDURE [GLUE].[sp_supervisorrapport2]
 
 @shift_arbeidsongevallen as varchar(250) = null,
@@ -292,20 +293,91 @@ END
 
 if(@Veld_Zieken_A_ingevuld = 1)
 BEGIN
-INSERT INTO GLUE.supervisorrapport_zieken(Datum,shift,aantal_zieken, Zone)
-VALUES(@Datum, 'A', @Zieken_A, @Zone)
+if (OBJECT_ID('#supervisorrapport_zieken_A') is not null) drop table #supervisorrapport_zieken_A
+
+SELECT @Datum AS Datum, 'A' AS shift, @Zieken_A AS aantal_zieken, @Zone AS Zone
+INTO #supervisorrapport_zieken_A
+
+INSERT INTO GLUE.supervisorrapport_zieken
+
+SELECT 
+R.Datum
+,R.shift
+,R.aantal_zieken
+,R.Zone
+FROM #supervisorrapport_zieken_A as R
+
+LEFT join GADATA.GLUE.supervisorrapport_zieken AS H on  
+(
+(R.Datum  = H.Datum)
+AND
+(R.shift = H.shift)
+AND
+(R.aantal_zieken = H.aantal_zieken) --was losing data because of this (controle side clock resolution = 1s so errors in the same S only 1 would pass. 
+AND
+(R.Zone = H.Zone)
+)
+where (H.id IS NULL) 
 END
 
 if(@Veld_Zieken_B_ingevuld = 1)
 BEGIN
-INSERT INTO GLUE.supervisorrapport_zieken(Datum,shift,aantal_zieken, Zone)
-VALUES(@Datum, 'B', @Zieken_B, @Zone)
+
+if (OBJECT_ID('#supervisorrapport_zieken_B') is not null) drop table #supervisorrapport_zieken_B
+
+SELECT @Datum AS Datum, 'B' AS shift, @Zieken_B AS aantal_zieken, @Zone AS Zone
+INTO #supervisorrapport_zieken_B
+
+INSERT INTO GLUE.supervisorrapport_zieken
+
+SELECT 
+R.Datum
+,R.shift
+,R.aantal_zieken
+,R.Zone
+FROM #supervisorrapport_zieken_B as R
+
+LEFT join GADATA.GLUE.supervisorrapport_zieken AS H on  
+(
+(R.Datum  = H.Datum)
+AND
+(R.shift = H.shift)
+AND
+(R.aantal_zieken = H.aantal_zieken) --was losing data because of this (controle side clock resolution = 1s so errors in the same S only 1 would pass. 
+AND
+(R.Zone = H.Zone)
+)
+where (H.id IS NULL) 
 END
 
 if(@Veld_Zieken_C_ingevuld = 1)
 BEGIN
-INSERT INTO GLUE.supervisorrapport_zieken(Datum,shift,aantal_zieken, Zone)
-VALUES(@Datum, 'C', @Zieken_C, @Zone)
+
+if (OBJECT_ID('#supervisorrapport_zieken_C') is not null) drop table #supervisorrapport_zieken_C
+
+SELECT @Datum AS Datum, 'C' AS shift, @Zieken_C AS aantal_zieken, @Zone AS Zone
+INTO #supervisorrapport_zieken_C
+
+INSERT INTO GLUE.supervisorrapport_zieken
+
+SELECT 
+R.Datum
+,R.shift
+,R.aantal_zieken
+,R.Zone
+FROM #supervisorrapport_zieken_C as R
+
+LEFT join GADATA.GLUE.supervisorrapport_zieken AS H on  
+(
+(R.Datum  = H.Datum)
+AND
+(R.shift = H.shift)
+AND
+(R.aantal_zieken = H.aantal_zieken) --was losing data because of this (controle side clock resolution = 1s so errors in the same S only 1 would pass. 
+AND
+(R.Zone = H.Zone)
+)
+where (H.id IS NULL) 
 END
 
 END

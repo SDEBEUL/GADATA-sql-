@@ -5,5 +5,3 @@
     CONSTRAINT [PK_C_Subgroup] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-
-

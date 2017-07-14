@@ -7,7 +7,3 @@
     CONSTRAINT [PK_rt_not_saved] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-
-
-
-

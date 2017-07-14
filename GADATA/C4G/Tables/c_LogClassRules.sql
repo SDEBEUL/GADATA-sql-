@@ -15,7 +15,3 @@
     CONSTRAINT [FK_c_LogClassRules_c_Subgroup1] FOREIGN KEY ([c_SubgroupId]) REFERENCES [Volvo].[c_Subgroup] ([id])
 );
 
-
-
-
-

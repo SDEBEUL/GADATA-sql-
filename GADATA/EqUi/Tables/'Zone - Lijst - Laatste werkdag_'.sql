@@ -15,3 +15,9 @@
     CONSTRAINT [PK_'Zone - Lijst - Laatste werkdag$'] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
+
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_'Zone - Lijst - Laatste werkdag$_23_1594397395__K2_K13_4_5_6_7_8_9_10]
+    ON [EqUi].['Zone - Lijst - Laatste werkdag$']([Begin storing] ASC, [id] ASC)
+    INCLUDE([#], [Machines], [Objectcode + omschrijving], [Omschrijving aktie], [Omschrijving oorzaak], [Storingstijd (min)], [Verl# T (min)]);
+

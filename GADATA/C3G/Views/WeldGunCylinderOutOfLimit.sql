@@ -4,6 +4,8 @@
 
 
 
+
+
 CREATE VIEW [C3G].[WeldGunCylinderOutOfLimit]
 AS
 SELECT 

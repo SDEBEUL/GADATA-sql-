@@ -8,5 +8,3 @@
     CONSTRAINT [PK_c_statement] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-
-

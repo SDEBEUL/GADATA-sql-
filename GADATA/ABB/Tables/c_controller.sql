@@ -26,14 +26,6 @@
 );
 
 
-
-
-
-
-
-
-
-
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [NCI_Type]
     ON [ABB].[c_controller]([id] ASC, [Type] ASC, [controller_name] ASC, [location] ASC);

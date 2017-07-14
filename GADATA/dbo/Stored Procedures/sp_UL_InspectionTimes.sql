@@ -21,7 +21,7 @@ if (OBJECT_ID('tempdb..#UltralogInspectionsRnDesc') is not null) drop table #Ult
 	FROM GADATA.dbo.UltralogInspections
 
 
-	SELECT 
+	SELECT
 		
 		#UltralogInspectionsRnDesc.InspectionTime,
 		#UltralogInspectionsRnDesc.StationID, 

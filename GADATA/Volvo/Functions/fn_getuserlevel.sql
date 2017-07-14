@@ -20,5 +20,3 @@ GRANT EXECUTE
     ON OBJECT::[Volvo].[fn_getuserlevel] TO [db_frontendUser]
     AS [GADATA];
 
-
-

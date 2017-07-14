@@ -78,6 +78,9 @@ SELECT distinct
 ,null
 ,null
 ,c_category.id
+,null
+,null
+,null
 From GADATA.abb.rt_alarm_s4
 Left OUTER join GADATA.abb.L_error on
 (rt_alarm_s4.[Message] = L_error.error_text)

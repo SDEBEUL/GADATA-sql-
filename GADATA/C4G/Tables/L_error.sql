@@ -16,75 +16,9 @@
 );
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 GO
-CREATE NONCLUSTERED INDEX [idx_error_id]
-    ON [C4G].[L_error]([id] ASC);
-
-
-GO
-CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_L_error_ID2]
-    ON [C4G].[L_error]([id] ASC, [Appl_id] ASC, [Subgroup_id] ASC, [error_number] ASC, [error_severity] ASC, [error_text] ASC);
-
-
-GO
-CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_L_error_ID]
-    ON [C4G].[L_error]([id] ASC, [error_number] ASC, [error_severity] ASC, [Appl_id] ASC, [Subgroup_id] ASC);
+CREATE NONCLUSTERED INDEX [_dta_index_L_error_23_212963885__K1_K3_K8_K9_K4_K2]
+    ON [C4G].[L_error]([id] ASC, [error_severity] ASC, [c_ClassificationId] ASC, [c_SubgroupId] ASC, [error_text] ASC, [error_number] ASC);
 
 
 GO
@@ -100,28 +34,33 @@ CREATE NONCLUSTERED INDEX [nci_Le_1]
 
 
 GO
-CREATE STATISTICS [_dta_stat_212963885_9_8_4_2]
-    ON [C4G].[L_error]([c_SubgroupId], [c_ClassificationId], [error_text], [error_number]);
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_L_error_ID2]
+    ON [C4G].[L_error]([id] ASC, [Appl_id] ASC, [Subgroup_id] ASC, [error_number] ASC, [error_severity] ASC, [error_text] ASC);
 
 
 GO
-CREATE STATISTICS [_dta_stat_212963885_4_2_3_9_8]
-    ON [C4G].[L_error]([error_text], [error_number], [error_severity], [c_SubgroupId], [c_ClassificationId]);
+CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_L_error_ID]
+    ON [C4G].[L_error]([id] ASC, [error_number] ASC, [error_severity] ASC, [Appl_id] ASC, [Subgroup_id] ASC);
 
 
 GO
-CREATE STATISTICS [_dta_stat_212963885_1_9_8_4_2_3]
-    ON [C4G].[L_error]([id], [c_SubgroupId], [c_ClassificationId], [error_text], [error_number], [error_severity]);
+CREATE NONCLUSTERED INDEX [idx_error_id]
+    ON [C4G].[L_error]([id] ASC);
 
 
 GO
-CREATE NONCLUSTERED INDEX [_dta_index_L_error_23_212963885__K1_K3_K8_K9_K4_K2]
-    ON [C4G].[L_error]([id] ASC, [error_severity] ASC, [c_ClassificationId] ASC, [c_SubgroupId] ASC, [error_text] ASC, [error_number] ASC);
+CREATE STATISTICS [_dta_stat_212963885_3_1_8_9_2]
+    ON [C4G].[L_error]([error_severity], [id], [c_ClassificationId], [c_SubgroupId], [error_number]);
 
 
 GO
-CREATE STATISTICS [_dta_stat_212963885_3_8]
-    ON [C4G].[L_error]([error_severity], [c_ClassificationId]);
+CREATE STATISTICS [_dta_stat_212963885_3_9_1]
+    ON [C4G].[L_error]([error_severity], [c_SubgroupId], [id]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_212963885_3_1_8]
+    ON [C4G].[L_error]([error_severity], [id], [c_ClassificationId]);
 
 
 GO
@@ -130,6 +69,21 @@ CREATE STATISTICS [_dta_stat_212963885_3_4]
 
 
 GO
-CREATE STATISTICS [_dta_stat_212963885_3_1_8]
-    ON [C4G].[L_error]([error_severity], [id], [c_ClassificationId]);
+CREATE STATISTICS [_dta_stat_212963885_3_8]
+    ON [C4G].[L_error]([error_severity], [c_ClassificationId]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_212963885_1_9_8_4_2_3]
+    ON [C4G].[L_error]([id], [c_SubgroupId], [c_ClassificationId], [error_text], [error_number], [error_severity]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_212963885_4_2_3_9_8]
+    ON [C4G].[L_error]([error_text], [error_number], [error_severity], [c_SubgroupId], [c_ClassificationId]);
+
+
+GO
+CREATE STATISTICS [_dta_stat_212963885_9_8_4_2]
+    ON [C4G].[L_error]([c_SubgroupId], [c_ClassificationId], [error_text], [error_number]);
 

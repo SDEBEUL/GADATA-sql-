@@ -13,5 +13,3 @@
     CONSTRAINT [PK_c_weldguns] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-
-

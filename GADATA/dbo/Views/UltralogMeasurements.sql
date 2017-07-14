@@ -19,10 +19,6 @@ FROM     dbo.Spot INNER JOIN
                   dbo.PlateType AS PlateType_2 ON dbo.PlateCombinations.Plate3ID = PlateType_2.ID INNER JOIN
                   dbo.PlateType AS PlateType_3 ON dbo.PlateCombinations.Plate4ID = PlateType_3.ID
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'UltralogMeasurements';
-
-
-GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N' End
             DisplayFlags = 280
             TopColumn = 0
@@ -270,4 +266,8 @@ Begin DesignProperties =
                Bottom = 224
                Right = 1087
            ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'UltralogMeasurements';
+
+
+GO
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'UltralogMeasurements';
 

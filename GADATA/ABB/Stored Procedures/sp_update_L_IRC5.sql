@@ -83,7 +83,13 @@ SELECT distinct
 ,null
 From GADATA.abb.rt_alarm_IRC5
 Left OUTER join GADATA.abb.L_error on
-(rt_alarm_IRC5.[Message] = L_error.error_text)
+(
+rt_alarm_IRC5.[Message] = L_error.error_text
+AND 
+rt_alarm_IRC5.[number] = L_error.[error_number]
+AND 
+rt_alarm_IRC5.[severity] = L_error.[error_severity] 
+)
 LEFT OUTER join GADATA.abb.c_category on 
 (GADATA.abb.rt_alarm_IRC5.Category = GADATA.abb.c_category.Category)
 where (L_error.id IS NULL)

@@ -17,24 +17,10 @@
 );
 
 
-
-
-
-
-
-
-
-
 GO
-CREATE NONCLUSTERED INDEX [nci_c3g_rt_toollog__tool_timesamp__longcheck]
-    ON [C3G].[rt_toollog]([tool_timestamp] ASC, [Longcheck] ASC)
-    INCLUDE([tool_id], [controller_id]);
-
-
-GO
-CREATE NONCLUSTERED INDEX [nci_tool_id_Dsetup_controller_id]
-    ON [C3G].[rt_toollog]([Longcheck] ASC, [tool_timestamp] ASC)
-    INCLUDE([tool_id], [Dsetup], [controller_id]);
+CREATE NONCLUSTERED INDEX [_dta_index_rt_toollog_23_1216632023__K12_K2_3_4_5_13_14]
+    ON [C3G].[rt_toollog]([controller_id] ASC, [tool_timestamp] ASC)
+    INCLUDE([Dmeas], [Dsetup], [Longcheck], [TcpUpdate], [tool_id]);
 
 
 GO
@@ -44,9 +30,15 @@ CREATE NONCLUSTERED INDEX [_dta_index_rt_toollog_23_1216632023__K2_1_3_4_5_12_13
 
 
 GO
-CREATE NONCLUSTERED INDEX [_dta_index_rt_toollog_23_1216632023__K12_K2_3_4_5_13_14]
-    ON [C3G].[rt_toollog]([controller_id] ASC, [tool_timestamp] ASC)
-    INCLUDE([Dmeas], [Dsetup], [Longcheck], [TcpUpdate], [tool_id]);
+CREATE NONCLUSTERED INDEX [nci_tool_id_Dsetup_controller_id]
+    ON [C3G].[rt_toollog]([Longcheck] ASC, [tool_timestamp] ASC)
+    INCLUDE([controller_id], [Dsetup], [tool_id]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_c3g_rt_toollog__tool_timesamp__longcheck]
+    ON [C3G].[rt_toollog]([tool_timestamp] ASC, [Longcheck] ASC)
+    INCLUDE([controller_id], [tool_id]);
 
 
 GO

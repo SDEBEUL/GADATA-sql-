@@ -9,12 +9,6 @@
 );
 
 
-
-
-
-
-
-
 GO
 CREATE NONCLUSTERED INDEX [nci_glueVultijden]
     ON [GLUE].[vultijden_viewers]([vultijd_ms] ASC, [couten] ASC)

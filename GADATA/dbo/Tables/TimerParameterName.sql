@@ -7,5 +7,3 @@
     CONSTRAINT [PK_TimerParameterName] PRIMARY KEY CLUSTERED ([ID] ASC)
 );
 
-
-

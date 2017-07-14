@@ -14,6 +14,7 @@ Print '--Running ABB.sp_Decode_AE_S4'
 print '--*****************************************************************************--'
 Print'--Live table splitting'
 ---------------------------------------------------------------------------------------
+
 if (OBJECT_ID('tempdb..#ABB_AE_S4_datasplit') is not null) drop table #ABB_AE_S4_datasplit 
 SELECT 
 id,     
@@ -71,4 +72,5 @@ Print'--clear read data from livestream table'
 ---------------------------------------------------------------------------------------
 DELETE FROM gadata.dbo.rt_message_ABB_S4 where gadata.dbo.rt_message_ABB_S4.id <= (select max(#ABB_AE_S4_datasplit.id) from #ABB_AE_S4_datasplit)
 ---------------------------------------------------------------------------------------
+
 END

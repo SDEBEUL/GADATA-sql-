@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [ABB].[IRC5error]
 AS
 SELECT

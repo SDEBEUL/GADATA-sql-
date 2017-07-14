@@ -17,19 +17,15 @@
 );
 
 
-
-
-
-
-
-
-
-
+GO
+CREATE NONCLUSTERED INDEX [_dta_index_h_alarm_23_1161771196__K2]
+    ON [ABB].[h_alarm]([controller_id] ASC);
 
 
 GO
-CREATE NONCLUSTERED INDEX [NCI_Timestamp]
-    ON [ABB].[h_alarm]([_timestamp] ASC, [error_id] ASC, [controller_id] ASC, [wd_timestamp] ASC);
+CREATE NONCLUSTERED INDEX [<abb_H_alarm_tsNIC,>]
+    ON [ABB].[h_alarm]([controller_id] ASC)
+    INCLUDE([_timestamp], [error_id], [id], [wd_timestamp]);
 
 
 GO
@@ -39,7 +35,11 @@ CREATE NONCLUSTERED INDEX [nci_H_alarm]
 
 
 GO
-CREATE NONCLUSTERED INDEX [<abb_H_alarm_tsNIC,>]
-    ON [ABB].[h_alarm]([controller_id] ASC)
-    INCLUDE([id], [_timestamp], [wd_timestamp], [error_id]);
+CREATE NONCLUSTERED INDEX [NCI_Timestamp]
+    ON [ABB].[h_alarm]([_timestamp] ASC, [error_id] ASC, [controller_id] ASC, [wd_timestamp] ASC);
+
+
+GO
+CREATE STATISTICS [_dta_stat_1161771196_7_2]
+    ON [ABB].[h_alarm]([error_id], [controller_id]);
 

@@ -12,9 +12,3 @@
     CONSTRAINT [PK_ia_command] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-
-
-
-
-
-

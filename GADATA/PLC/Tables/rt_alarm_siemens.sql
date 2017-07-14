@@ -10,7 +10,3 @@
     CONSTRAINT [PK_rt_alarm_siemens] PRIMARY KEY CLUSTERED ([ID] ASC)
 );
 
-
-
-
-

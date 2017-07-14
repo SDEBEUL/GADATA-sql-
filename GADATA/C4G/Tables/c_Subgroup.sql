@@ -5,8 +5,6 @@
 );
 
 
-
-
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_c_Subgroup]
     ON [C4G].[c_Subgroup]([Subgroup] ASC, [id] ASC);

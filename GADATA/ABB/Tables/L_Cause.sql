@@ -4,5 +4,3 @@
     CONSTRAINT [PK_L_Cause] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-
-

@@ -40,3 +40,251 @@ ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\JGOWY];
 GO
 ALTER ROLE [db_datareader] ADD MEMBER [EqUi];
 
+
+GO
+ALTER ROLE [db_securityadmin] ADD MEMBER [VCCNET\JSCHWAB5];
+
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [VCCNET\bdevuys2];
+
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [VCCNET\BGASTHUY];
+
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [VCCNET\PAVAU];
+
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [VCCNET\JSCHWAB5];
+
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [AASPOT_DEV];
+
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [VCCNET\jcoppej1];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VASC_a];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCCNET\bdevuys2];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCCNET\BGASTHUY];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCCNET\PAVAU];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCCNET\JSCHWAB5];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [AASPOT_DEV];
+
+
+GO
+
+
+
+GO
+
+
+
+GO
+
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc4g_d];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc4g_c];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc4g_b];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc4g_a];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc3g_e];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc3g_d];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc3g_c];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc3g_b];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc3g_a];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCCNET\jcoppej1];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [ABBopc];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCTimesync];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCHelper];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc4g];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [VCSCc3g];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VASC_a];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\PAUDENA2];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\bdevuys2];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\BGASTHUY];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\PAVAU];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\JSCHWAB5];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [AASPOT_DEV];
+
+
+GO
+
+
+
+GO
+
+
+
+GO
+
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc4g_d];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc4g_c];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc4g_b];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc4g_a];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc3g_e];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc3g_d];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc3g_c];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc3g_b];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc3g_a];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\jcoppej1];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [ABBopc];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCTimesync];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCHelper];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc4g];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCSCc3g];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [AASPOT_c];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [AASPOT_b];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [AASPOT_a];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [AASPOT_c];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [AASPOT_b];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [AASPOT_a];
+

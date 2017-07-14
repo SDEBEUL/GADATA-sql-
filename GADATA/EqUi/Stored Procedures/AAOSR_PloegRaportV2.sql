@@ -316,26 +316,28 @@ and
 @getAlerts = 1
 --************************************************************************************--
 
+
 --************************************************************************************--
 --shiftbook (binnen dt range)
 --************************************************************************************--
 UNION
 SELECT 
-  sb.Robotname 
-, null
-, sb.ErrorType
-, sb.timestamp
-, null as 'Logcode'
-, sb.Logtekst 
+  sb.location 
+, sb.AssetID 
+, sb.Logtype
+, sb.[timestamp] 
+, sb.[Logcode] 
+, sb.logtext 
  + ISNULL(' |info: ' + CAST(REPLACE(sb2.userComment,'***************************','=>') as varchar(8000)),'')  
- + ISNULL(char(10) + ' |WO: ' + CAST(sb2.wo as varchar(10)),'') as 'Logtekst'
-, null
-, sb.Downtime
+ + ISNULL(char(10) + ' |WO: ' + CAST(sb2.wo as varchar(10)),'') as 'logtext'
+, NULL
 , NULL 
+, NULL
 , sb.Subgroup
-, sb.idx
+, sb.refId 
+
 FROM Gadata.volvo.Shiftbook as sb 
-left join GADATA.volvo.hShiftbook sb2 on sb2.id = sb.idx
+left join GADATA.volvo.hShiftbook sb2 on sb2.id = sb.refid
 where 
 sb.timestamp between @StartDate and @EndDate 
 and 
@@ -347,19 +349,22 @@ and
 --************************************************************************************--
 UNION
 SELECT 
-  sb.Robotname 
-, null
-, sb.ErrorType
-, sb.timestamp
-, null as 'Logcode'
-, sb.Logtekst + ISNULL(' |info: ' + CAST(REPLACE(sb2.userComment,'***************************','=>') as varchar(8000)),'')  as 'Logtekst'
-, null
-, sb.Downtime
+  sb.location 
+, sb.AssetID 
+, sb.Logtype
+, sb.[timestamp] 
+, sb.[Logcode] 
+, sb.logtext 
+ + ISNULL(' |info: ' + CAST(REPLACE(sb2.userComment,'***************************','=>') as varchar(8000)),'')  
+ + ISNULL(char(10) + ' |WO: ' + CAST(sb2.wo as varchar(10)),'') as 'logtext'
+, NULL
 , NULL 
+, NULL
 , sb.Subgroup
-, sb.idx
+, sb.refId 
+
 FROM Gadata.volvo.Shiftbook as sb 
-left join GADATA.volvo.hShiftbook as sb2 on sb2.id = sb.idx
+left join GADATA.volvo.hShiftbook sb2 on sb2.id = sb.refid
 where 
 sb.timestamp < @StartDate
 AND 
