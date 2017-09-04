@@ -288,3 +288,23 @@ ALTER ROLE [db_datareader] ADD MEMBER [AASPOT_b];
 GO
 ALTER ROLE [db_datareader] ADD MEMBER [AASPOT_a];
 
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [GMorris];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [GMorris];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [GMorris];
+
+
+GO
+ALTER ROLE [db_accessadmin] ADD MEMBER [GMorris];
+
+
+GO
+ALTER ROLE [db_accessadmin] ADD MEMBER [VASC_a];
+

@@ -1,24 +1,31 @@
 ﻿CREATE VIEW dbo.DataChange_last24H
 AS
-SELECT        TOP (100) PERCENT dbo.NPT.Name AS NPT, dbo.Timer.Name AS TIMER, dbo.SpotDataChange.DateTime AS Date, dbo.Spot.Number, dbo.Spot.Program, 
-                         dbo.TimerParameterName.Description, dbo.SpotDataChange.OldValue AS [oude parameter], dbo.SpotDataChange.NewValue AS [nieuwe parameter], 
-                         dbo.Users.CDSID
-FROM            dbo.Spot INNER JOIN
-                         dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID AND dbo.Spot.TimerID = dbo.Timer.ID INNER JOIN
-                         dbo.NPT ON dbo.Timer.NptId = dbo.NPT.ID INNER JOIN
-                         dbo.SpotDataChange ON dbo.Spot.ID = dbo.SpotDataChange.SpotID AND dbo.Spot.ID = dbo.SpotDataChange.SpotID INNER JOIN
-                         dbo.TimerParameterName ON dbo.SpotDataChange.ParameterID = dbo.TimerParameterName.ID AND 
-                         dbo.SpotDataChange.ParameterID = dbo.TimerParameterName.ID INNER JOIN
-                         dbo.Users ON dbo.SpotDataChange.UserID = dbo.Users.ID AND dbo.SpotDataChange.UserID = dbo.Users.ID
-WHERE        (dbo.SpotDataChange.DateTime >= GETDATE() - 1)
-ORDER BY NPT, TIMER, Date
+SELECT TOP (100) PERCENT dbo.NPT.Name AS NPT, dbo.Timer.Name AS TIMER, dbo.SpotDataChange.DateTime AS Date, dbo.Spot.Program AS ' program/electrodeNr', 
+                  dbo.TimerParameterName.Description, dbo.SpotDataChange.OldValue AS [oude parameter], dbo.SpotDataChange.NewValue AS [nieuwe parameter], dbo.Users.CDSID
+FROM     dbo.Spot INNER JOIN
+                  dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID AND dbo.Spot.TimerID = dbo.Timer.ID INNER JOIN
+                  dbo.NPT ON dbo.Timer.NptId = dbo.NPT.ID INNER JOIN
+                  dbo.SpotDataChange ON dbo.Spot.ID = dbo.SpotDataChange.SpotID AND dbo.Spot.ID = dbo.SpotDataChange.SpotID INNER JOIN
+                  dbo.TimerParameterName ON dbo.SpotDataChange.ParameterID = dbo.TimerParameterName.ID AND 
+                  dbo.SpotDataChange.ParameterID = dbo.TimerParameterName.ID INNER JOIN
+                  dbo.Users ON dbo.SpotDataChange.UserID = dbo.Users.ID AND dbo.SpotDataChange.UserID = dbo.Users.ID
+WHERE  (dbo.SpotDataChange.DateTime >= GETDATE() - 1)
+UNION
+SELECT dbo.NPT.Name, dbo.Timer.Name AS Expr1, dbo.TimerDataChange.DateTime,null as spot, dbo.TimerParameterName.Description, dbo.TimerDataChange.OldValue, 
+                  dbo.TimerDataChange.NewValue,  dbo.Users.CDSID
+FROM     dbo.NPT INNER JOIN
+                  dbo.Timer ON dbo.NPT.ID = dbo.Timer.NptId INNER JOIN
+                  dbo.TimerDataChange ON dbo.Timer.ID = dbo.TimerDataChange.TimerID INNER JOIN
+                  dbo.TimerParameterName ON dbo.TimerDataChange.ParameterID = dbo.TimerParameterName.ID INNER JOIN
+                  dbo.Users ON dbo.TimerDataChange.UserID = dbo.Users.ID
+WHERE  (dbo.TimerDataChange.DateTime >= GETDATE() - 1)
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
 Begin DesignProperties = 
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+         Configuration = "(H (1[17] 4[31] 2[23] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -84,66 +91,6 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "Spot"
-            Begin Extent = 
-               Top = 6
-               Left = 38
-               Bottom = 307
-               Right = 237
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "Timer"
-            Begin Extent = 
-               Top = 6
-               Left = 275
-               Bottom = 289
-               Right = 445
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "NPT"
-            Begin Extent = 
-               Top = 6
-               Left = 483
-               Bottom = 284
-               Right = 653
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "SpotDataChange"
-            Begin Extent = 
-               Top = 6
-               Left = 691
-               Bottom = 234
-               Right = 861
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "TimerParameterName"
-            Begin Extent = 
-               Top = 6
-               Left = 899
-               Bottom = 230
-               Right = 1069
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "Users"
-            Begin Extent = 
-               Top = 6
-               Left = 1107
-               Bottom = 213
-               Right = 1277
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
       End
    End
    Begin SQLPane = 
@@ -155,22 +102,14 @@ Begin DesignProperties =
          Width = 284
          Width = 1500
          Width = 1500
- ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DataChange_last24H';
-
-
-GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DataChange_last24H';
-
-
-GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'        Width = 2685
+         Width = 2688
          Width = 1500
          Width = 1500
          Width = 1500
-         Width = 2625
+         Width = 2628
          Width = 1500
          Width = 1500
-         Width = 2955
+         Width = 2952
          Width = 1500
       End
    End
@@ -178,14 +117,14 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'        Wi
       Begin ColumnWidths = 11
          Column = 1440
          Alias = 900
-         Table = 1170
+         Table = 1176
          Output = 720
          Append = 1400
          NewValue = 1170
-         SortType = 1350
-         SortOrder = 1410
+         SortType = 1356
+         SortOrder = 1416
          GroupBy = 1350
-         Filter = 1905
+         Filter = 1908
          Or = 1350
          Or = 1350
          Or = 1350
@@ -193,4 +132,16 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'        Wi
    End
 End
 ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DataChange_last24H';
+
+
+
+
+GO
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DataChange_last24H';
+
+
+
+
+GO
+
 

@@ -14,3 +14,9 @@
     CONSTRAINT [FK_Spot_Timer] FOREIGN KEY ([TimerID]) REFERENCES [dbo].[Timer] ([ID])
 );
 
+
+GO
+ALTER TABLE [dbo].[Spot] NOCHECK CONSTRAINT [FK_Spot_PlateCombinations];
+
+
+

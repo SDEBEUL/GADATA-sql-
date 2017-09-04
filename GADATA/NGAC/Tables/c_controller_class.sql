@@ -1,0 +1,27 @@
+﻿CREATE TABLE [NGAC].[c_controller_class] (
+    [id]                                INT          IDENTITY (1, 1) NOT NULL,
+    [name]                              VARCHAR (30) NOT NULL,
+    [doConnect]                         BIT          NULL,
+    [evStateChange]                     BIT          NULL,
+    [evOperatingModeChange]             BIT          NULL,
+    [evConnectionChange]                BIT          NULL,
+    [evExecutionStatus]                 BIT          NULL,
+    [evExecutionStatusTRob1]            BIT          NULL,
+    [evBackupCompleted]                 BIT          NULL,
+    [evDataResolveChange]               BIT          NULL,
+    [evExecutionCycleChange]            BIT          NULL,
+    [evTaskEnabledChange]               BIT          NULL,
+    [evMasterChange]                    BIT          NULL,
+    [evMotionPointerTRob1Change]        BIT          NULL,
+    [evProgramPointerTRob1Change]       BIT          NULL,
+    [evMotionPointerTRob1ManualChange]  BIT          NULL,
+    [evProgramPointerTRob1ManualChange] BIT          NULL,
+    [cVariableMask]                     INT          NULL,
+    [cVariableSearchMask]               INT          NULL,
+    [cDeviceInfoMask]                   INT          NULL,
+    [cCSVLogMask]                       INT          NULL,
+    [logCategoryMask]                   INT          NULL,
+    [handleHSocket]                     BIT          NULL,
+    CONSTRAINT [PK_c_controller_class_1] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+

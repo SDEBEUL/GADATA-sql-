@@ -85,27 +85,6 @@ FROM            dbo.NPT INNER JOIN
                          dbo.Users ON dbo.TimerDataChange.UserID = dbo.Users.ID
 WHERE       dbo.TimerDataChange.DateTime between @startdate and @EndDate 
 
-
-UNION
-
-SELECT  
-      [Timestamp]
-	  ,null as [Location]
-      ,[Robotname]
-      ,null as [Type]
-      ,null as [Errortype]
-      ,[Logtekst]
-      ,[Dowtime]
-      ,null as [Year]
-      ,null as [Week]
-	  ,[Subgroup]
-      ,null as [day]
-      ,null as [Object]
-      
-      ,null as [idx]
-  FROM [GADATA].[Volvo].[Alerts]
-  WHERE [Subgroup] = 'WGK'
-
 UNION
 
 SELECT          dbo.TimerErrorLog.DateTime, dbo.NPT.Name As NPT, dbo.Timer.Robot,NULL AS spot, NULL AS Program, dbo.TimerErrorText.ErrorText,

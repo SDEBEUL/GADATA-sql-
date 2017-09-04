@@ -6,6 +6,7 @@
 
 
 
+
 CREATE VIEW [Volvo].[Robots]
 AS
 SELECT distinct * FROM
@@ -53,6 +54,21 @@ select
 ,NULL as 'SubArea'
 ,Null as 'server'
 from GADATA.ABB.c_controller as abb
+
+
+UNION
+select
+ 'NGAC' as controller_type
+,'GADATA.NGAC.c_controller' as 'table'
+,NGAC.id
+,NGAC.controller_name
+,null as 'location'
+,null as'ownership'
+,NULL as 'Plant'
+,NULL as 'Area'
+,NULL as 'SubArea'
+,Null as 'server'
+from GADATA.NGAC.c_controller as NGAC
 ) as x
 GO
 GRANT SELECT
