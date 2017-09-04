@@ -26,10 +26,6 @@ CREATE PROCEDURE [EqUi].[EQpluginNewformat1]
    @c3gMOD as bit = 0,
    @c4gMOD as bit = 0,
    @c3gSBCU as bit = 0,
-   @abbIRC5Error as bit = 0,
-   @abbIRC5State as bit = 0,
-   @abbS4Error as bit = 0,
-   @abbS4State as bit = 0,
    @getshiftbook as bit = 0,
    @active as bit = 0,
    @stw040 as bit = 0,
@@ -256,88 +252,6 @@ and
 Breakdown_Start.[timestamp] BETWEEN @StartDate AND @EndDate
 and
 @c4gBreakdownStart = 1
---*******************************************************************************************************--
-
-
-UNION
---*******************************************************************************************************--
---ABB IRC5 Error
---*******************************************************************************************************--
-SELECT * from GADATA.abb.IRC5error
-where 
---Asset Filters
-isnull(IRC5error.assetid,'%') like @assets
-and 
-isnull(IRC5error.LOCATION,IRC5error.controller_name) like @locations
-and
-IRC5error.controller_name like @locations
-and
-isnull(IRC5error.LocationTree,'%') like @lochierarchy
---Time Filter
-and
-IRC5error.[timestamp] BETWEEN @StartDate AND @EndDate
-and
-@abbIRC5Error = 1
---*******************************************************************************************************--
-UNION
---*******************************************************************************************************--
---ABB IRC5 State
---*******************************************************************************************************--
-SELECT * from GADATA.abb.IRC5State
-where 
---Asset Filters
-isnull(IRC5State.assetid,'%') like @assets
-and 
-isnull(IRC5State.LOCATION,IRC5State.controller_name) like @locations
-and
-IRC5State.controller_name like @locations
-and
-isnull(IRC5State.LocationTree,'%') like @lochierarchy
---Time Filter
-and
-IRC5State.[timestamp] BETWEEN @StartDate AND @EndDate
-and
-@abbIRC5State = 1
---*******************************************************************************************************--
-UNION
---*******************************************************************************************************--
---ABB S4 Error
---*******************************************************************************************************--
-SELECT * from GADATA.abb.S4error
-where 
---Asset Filters
-isnull(S4error.assetid,'%') like @assets
-and 
-isnull(S4error.LOCATION,S4error.controller_name) like @locations
-and
-S4error.controller_name like @locations
-and
-isnull(S4error.LocationTree,'%') like @lochierarchy
---Time Filter
-and
-S4error.[timestamp] BETWEEN @StartDate AND @EndDate
-and
-@abbS4Error = 1
---*******************************************************************************************************--
-UNION
---*******************************************************************************************************--
---ABB S4 State
---*******************************************************************************************************--
-SELECT * from GADATA.abb.S4State
-where 
---Asset Filters
-isnull(S4State.assetid,'%') like @assets
-and 
-isnull(S4State.LOCATION,S4State.controller_name) like @locations
-and
-S4State.controller_name like @locations
-and
-isnull(S4State.LocationTree,'%') like @lochierarchy
---Time Filter
-and
-S4State.[timestamp] BETWEEN @StartDate AND @EndDate
-and
-@abbS4State = 1
 --*******************************************************************************************************--
 
 UNION

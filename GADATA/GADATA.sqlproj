@@ -1842,14 +1842,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="Volvo\Stored Procedures\sp_GADATAFront.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="Volvo\Stored Procedures\sp_GADATAFontPOSITIONS.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="Volvo\Stored Procedures\sp_Alog.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -1946,14 +1938,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="EqUi\Stored Procedures\UserWatch2.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="EqUi\Stored Procedures\UserWatch1.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="EqUi\Stored Procedures\sp_templateForEQplugin.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -1971,14 +1955,6 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="EqUi\Stored Procedures\sp_CountOfErrorsC3G.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="EqUi\Stored Procedures\JobWatch2.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="EqUi\Stored Procedures\JobWatch1.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
@@ -2099,30 +2075,6 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="C3G\Stored Procedures\GunCylinderSpcLimitCalc.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="ABB\Stored Procedures\sp_update_Lerror_classifcation.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="ABB\Stored Procedures\sp_update_L_S4.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="ABB\Stored Procedures\sp_update_L_IRC5.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="ABB\Stored Procedures\sp_Housekeeping.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="ABB\Stored Procedures\sp_Decode_AE_S4.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="ABB\Stored Procedures\sp_Decode_AE_IRC5.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>

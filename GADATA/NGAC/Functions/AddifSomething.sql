@@ -1,0 +1,11 @@
+﻿CREATE FUNCTION [NGAC].[AddifSomething](@str VARCHAR(MAX)) RETURNS VARCHAR(MAX)
+AS
+BEGIN
+BEGIN
+	if (len(@STR) > 1)
+	BEGIN
+		SET @STR = @STR + char(10) + char(13)
+	END
+END
+RETURN @str
+END
