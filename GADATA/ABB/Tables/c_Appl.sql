@@ -1,6 +1,0 @@
-﻿CREATE TABLE [ABB].[c_Appl] (
-    [id]   INT        IDENTITY (1, 1) NOT NULL,
-    [APPL] NCHAR (10) NULL,
-    CONSTRAINT [PK_C_Appl] PRIMARY KEY CLUSTERED ([id] ASC)
-);
-

@@ -1,47 +1,43 @@
 ﻿
 
+
+
+
 CREATE VIEW [NGAC].[variableLog]
 AS
 select 
-  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
-, a.CLassificationId     AS 'AssetID' 
+  c.controller_name	   AS 'Location' 
+, c.CLassificationId     AS 'AssetID' 
 , 'Varmonitor'	   AS 'Logtype'
 , rt._timestamp        AS 'timestamp'
 , NULL    AS 'Logcode'
 , NULL   AS 'Severity'
+, 'Var: <' +  c_v.variable +  '> Value: ' + rt.value AS 'Logtext'
 , 'Var: <' +  c_v.variable +  '> Value: ' 
 + ISNULL(CAST((lag(rt.value) OVER (PARTITION BY rt.c_controller_id, rt.c_variable_id ORDER BY rt._timestamp desc)) as varchar(max)),'N/A')
-+ ' -> ' + CAST(rt.value as varchar(max))  AS 'Logtext'
-, '' AS 'FullLogtext'
++ ' -> ' + CAST(rt.value as varchar(max)) 
++ '  (tis:' 
++ CAST(DATEDIFF(second,rt._timestamp, lag(rt._timestamp) OVER (PARTITION BY rt.c_controller_id, rt.c_variable_id ORDER BY rt._timestamp desc)) as varchar(max))
++ 's)' AS 'FullLogtext'
 , NULL     AS 'Response'
 , NULL     AS 'Downtime'
 , ''  AS 'Classification'
 , ''	 AS 'Subgroup'
 , '' AS 'Category'
 , rt.id				 AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
 , c.controller_name		AS 'controller_name'
 , 'NGAC'		As 'controller_type'
 
 from GADATA.NGAC.rt_value as rt 
 left join GADATA.NGAC.c_variable as c_v on c_v.id = rt.c_variable_id
 
-/*
-LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
-LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
-*/
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'NGAC' --join the right 'data controller type'
-AND
-A.controller_id = rt.c_controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%' + ISNULL(RTRIM(null),'UR') + '%' --join only the asset with the right classification. (if not classified data goes to robot)
-AND
-A.controller_ToolID = 1 --temp until we find a multi tool support sollution
---
 left join GADATA.NGAC.c_controller as c on c.id = rt.c_controller_id
+
+-- TEMP TEMP TEMP !!!!
+WHERE
+rt.c_variable_id <> 17
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'NGAC', @level1type = N'VIEW', @level1name = N'variableLog';
 

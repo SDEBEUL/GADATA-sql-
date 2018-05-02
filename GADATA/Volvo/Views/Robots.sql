@@ -7,6 +7,9 @@
 
 
 
+
+
+
 CREATE VIEW [Volvo].[Robots]
 AS
 SELECT distinct * FROM
@@ -22,6 +25,7 @@ select
 ,c4g.Area
 ,C4g.SubArea
 ,lop.Vcsc_name as 'server'
+,c4g.locationtree as 'locationtree'
 from GADATA.c4g.c_controller as c4g
 left join GADATA.C4G.L_operation as lop on lop.controller_id = c4g.id and lop.code = 3
 WHERE controller_name not like '%REC' --added this because elsde CBM controllers clones show in front end
@@ -38,23 +42,9 @@ select
 ,c3g.Area
 ,c3g.SubArea
 ,lop.Vcsc_name as 'server'
+,c3g.locationtree as 'locationtree'
 from GADATA.c3g.c_controller as c3g
 left join GADATA.C3G.L_operation as lop on lop.controller_id = c3g.id and lop.code = 3
-
-UNION
-select
- abb.Type as controller_type
-,'GADATA.ABB.c_controller' as 'table'
-,abb.id
-,abb.controller_name
-,abb.location
-,abb.ownership
-,NULL as 'Plant'
-,NULL as 'Area'
-,NULL as 'SubArea'
-,Null as 'server'
-from GADATA.ABB.c_controller as abb
-
 
 UNION
 select
@@ -68,7 +58,26 @@ select
 ,NULL as 'Area'
 ,NULL as 'SubArea'
 ,Null as 'server'
+,NGAC.locationtree as 'locationtree'
 from GADATA.NGAC.c_controller as NGAC
+where class_id <> 8 -- exclude S4C class
+
+UNION
+select
+ 'S4C' as controller_type
+,'GADATA.NGAC.c_controller' as 'table'
+,NGAC.id
+,NGAC.controller_name
+,null as 'location'
+,null as'ownership'
+,NULL as 'Plant'
+,NULL as 'Area'
+,NULL as 'SubArea'
+,Null as 'server'
+,NGAC.locationtree as 'locationtree'
+from GADATA.NGAC.c_controller as NGAC
+where class_id = 8 -- s4C only
+
 ) as x
 GO
 GRANT SELECT

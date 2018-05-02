@@ -1,13 +1,15 @@
 ﻿
 
+
+
 CREATE VIEW [C3G].[Breakdown]
 AS
 --*******************************************************************************************************--
 --c3g breakdown
 --*******************************************************************************************************--
 SELECT 
-  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
-, a.CLassificationId   AS 'AssetID'
+  c.controller_name		   AS 'Location' 
+, c.CLassificationId   AS 'AssetID'
 ,'BREAKDOWN'		   AS 'Logtype'
 , H.EndOfBreakdown     AS 'timestamp'
 , ISNULL(LR.[error_number],L.[error_number])	      AS 'Logcode'
@@ -18,8 +20,8 @@ SELECT
 , RTRIM(ISNULL(ISNULL(Rcc.Classification, cc.Classification),'Undefined*'))  AS 'Classification'
 , ISNULL(ISNULL(ISNULL(Rcs.Subgroup,cs.Subgroup),GADATA.[C3G].[fn_GetSubgroupFromSysstate2](H.Trig_state)),'Undefined*')  AS 'Subgroup'
 , H.id				 AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
 , c.controller_name		AS 'controller_name'
 , 'c3g'		As 'controller_type'
 
@@ -30,16 +32,6 @@ LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
 LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
 LEFT OUTER JOIN VOLVO.c_Classification as Rcc on Rcc.id = LR.c_ClassificationId
 LEFT OUTER JOIN VOLVO.c_Subgroup as Rcs on Rcs.id = LR.c_SubgroupId
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'c3g' --join the right 'data controller type'
-AND
-A.controller_id = h.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%' + RTRIM(ISNULL(ISNULL(Rcc.Classification, cc.Classification),'UR')) + '%' --join only the asset with the right classification. (if not classified data goes to robot)
-AND
-A.controller_ToolID = 1 --temp until we find a multi tool support sollution
---
 LEFT JOIN c3g.c_controller as c on c.id = h.controller_id
 --*******************************************************************************************************--
 GO

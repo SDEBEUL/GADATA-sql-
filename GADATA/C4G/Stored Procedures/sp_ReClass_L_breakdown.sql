@@ -31,8 +31,6 @@ if (OBJECT_ID('tempdb..#C4Gerror') is not null) drop table #C4Gerror
 	   ,L.[error_number]
 	   ,L.[error_severity]
 	   ,L.error_text
-	   ,L.Appl_id
-	   ,L.Subgroup_id
        into #C4Gerror
        FROM GADATA.C4G.h_alarm as H
 	   LEFT JOIN GADATA.c4G.L_error as L on L.id = H.error_id

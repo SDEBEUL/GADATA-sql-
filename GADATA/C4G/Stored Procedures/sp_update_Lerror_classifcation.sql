@@ -24,19 +24,19 @@ LEFT JOIN GADATA.[C4G].c_LogClassRules as Cr ON
 WHERE 
 --Clause to make update or Full reapply mode 
 (
-(Cr.c_ClassificationId is not null) --until old rules are out 
-AND 
-(cr.c_SubgroupId is not null) --until old rules are out 
-)
-AND
-(
-	(--only update new l_erros. (runs like this every minute)
+--*****************************************************************************************************--
+--only update new l_erros. (runs like this every minute) for job manager
+--*****************************************************************************************************--
+	(
 		(L.c_ClassificationId is null) 
 		AND 
 		(L.c_SubgroupId is null) 
 		AND 
 		(@Update = 0)
 	)
+--*****************************************************************************************************--
+--for Errormanger UI ! 
+--*****************************************************************************************************--
 --these modes only run one group at a time 
 OR--full reapply mode NO overide of manual set 
 	(
@@ -59,6 +59,32 @@ OR--full reapply mode OVERRIDE of manual set
 		(Cr.c_ClassificationId = @c_ClassificationId)
 		AND
 		(Cr.c_SubgroupId = @c_SubgroupId)
+	)
+--*****************************************************************************************************--
+--manual operations 
+--*****************************************************************************************************--
+--these modes only run ON EVERYTING ! 
+OR--full reapply mode NO overide of manual set 
+	(
+		(@Update = 1)
+		AND 
+		(@OverRideManualSet = 0)
+		AND
+		((l.c_RuleId <> -1) OR (l.c_RuleId is null))-- -1 signals that it was set manually
+		AND
+		(@c_ClassificationId is null)
+		AND
+		(@c_SubgroupId is null)
+	)
+OR--full reapply mode OVERRIDE of manual set 
+	(
+		(@Update = 1)
+		AND 
+		(@OverRideManualSet = 1)
+		AND
+		(@c_ClassificationId is null)
+		AND
+		(@c_SubgroupId is null)
 	)
 )
 

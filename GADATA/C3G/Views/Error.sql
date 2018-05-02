@@ -6,14 +6,15 @@
 
 
 
+
 CREATE VIEW [C3G].[Error]
 AS
 --*******************************************************************************************************--
 --c3g error
 --*******************************************************************************************************--
 SELECT 
-  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
- , a.CLassificationId     AS 'AssetID'
+  c.controller_name		   AS 'Location' 
+ ,c.CLassificationId     AS 'AssetID'
  ,CASE when l.error_severity = 2 
  THEN 'WARNING' 
  ELSE 'ERROR' 
@@ -27,8 +28,8 @@ SELECT
 , RTRIM(ISNULL(cc.Classification,'Undefined*'))  AS 'Classification'
 , ISNULL(cs.Subgroup,'Undefined*')		 AS 'Subgroup'
 , H.id				 AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
 , c.controller_name		AS 'controller_name'
 , 'c3g'		As 'controller_type'
 
@@ -36,16 +37,6 @@ FROM  C3G.h_alarm AS H
 LEFT OUTER JOIN C3G.L_error AS L ON L.id = H.error_id 
 LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
 LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'c3g' --join the right 'data controller type'
-AND
-A.controller_id = h.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%' + ISNULL(RTRIM(cc.Classification),'UR') + '%' --join only the asset with the right classification. (if not classified data goes to robot)
-AND
-A.controller_ToolID = 1 --temp until we find a multi tool support sollution
---
 LEFT JOIN c3g.c_controller as c on c.id = h.controller_id
 --*******************************************************************************************************--
 GO

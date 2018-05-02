@@ -15,7 +15,10 @@
     [Txt 11]         VARCHAR (MAX) NULL,
     [Txt 12]         VARCHAR (MAX) NULL,
     [Action]         VARCHAR (MAX) NULL,
+    [_timestamp]     DATETIME      NULL,
     CONSTRAINT [PK_rt_DispSysLogg] PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_rt_DispSysLogg_rt_csv_file] FOREIGN KEY ([rt_csv_file_id]) REFERENCES [NGAC].[rt_csv_file] ([id])
 );
+
+
 

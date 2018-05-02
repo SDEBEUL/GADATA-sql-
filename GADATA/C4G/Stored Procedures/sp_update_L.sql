@@ -25,8 +25,6 @@ SELECT  distinct
  R.[error_number]
 ,R.[error_severity]
 ,R.error_text as 'error_text'
-,NULL as 'Appl_id'
-,NULL as 'Subgroup_id'
 ,null
 ,null
 ,null

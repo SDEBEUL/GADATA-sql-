@@ -9,7 +9,10 @@
     [LoggTyp]        VARCHAR (MAX) NULL,
     [BeadID]         VARCHAR (MAX) NULL,
     [MTR_Cons]       VARCHAR (MAX) NULL,
+    [_timestamp]     DATETIME      NULL,
     CONSTRAINT [PK_rt_DispConsLogg] PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_rt_DispConsLogg_rt_csv_file] FOREIGN KEY ([rt_csv_file_id]) REFERENCES [NGAC].[rt_csv_file] ([id])
 );
+
+
 

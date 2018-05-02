@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [C4G].[mod]
 AS
 WITH modtemp as
@@ -23,8 +24,8 @@ SELECT
 ) 
 
 SELECT  
-  isnull(a.LOCATION,c.controller_name+'#')	     AS 'Location' 
-, A.CLassificationID AS 'AssetID'
+  c.controller_name	     AS 'Location' 
+, c.CLassificationID AS 'AssetID'
 ,'mod' AS 'Logtype'
 , modtemp.[file_timestamp] AS 'timestamp'
 , Null      AS 'Logcode'
@@ -50,8 +51,8 @@ SELECT
 , ''		AS 'Classification'
 , ''		AS 'Subgroup'
 , null		AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
 , c.controller_name			AS 'controller_name'
 , 'c4g'		As 'controller_type'
 
@@ -64,14 +65,6 @@ AND
 (modtemp.Pos = Lmodtemp.pos)
 AND
 ((modtemp.ModCount - 1) = Lmodtemp.ModCount)
-
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'c4g' --join the right 'data controller type'
-AND
-A.controller_id = Lmodtemp.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%URC%'
 --
 LEFT JOIN c4g.c_controller as c on c.id = Lmodtemp.controller_id
 --

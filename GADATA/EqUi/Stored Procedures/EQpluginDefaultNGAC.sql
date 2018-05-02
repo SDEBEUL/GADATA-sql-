@@ -3,6 +3,7 @@
 
 
 
+
 CREATE PROCEDURE [EqUi].[EQpluginDefaultNGAC]
 
 --default parameters
@@ -18,13 +19,17 @@ CREATE PROCEDURE [EqUi].[EQpluginDefaultNGAC]
 	   @timeline as bit = 1,
 	   @ControllerEventLog as bit = 1,
 	   @ErrDispLog as bit =1,
+	   @ErrDispLogS4C as bit = 0,
 	   @VariableLog as bit = 0,
 	   @DeviceProperty as bit = 0,
+	   @Breakdown as bit = 0,
+	   @BreakdownStart as bit = 0,
+	   @Jobs as bit = 0,
 
     --filters
 	@DisplayLevel as int = 2,
 	@DisplayFullLogtext as bit = 1,
-	@ExcludeOperational as bit = 0
+	@ExcludeOperational as bit = 1
 
 AS
 BEGIN
@@ -63,8 +68,10 @@ SELECT
 , output.Logtype		AS 'Logtype'
 , output.Logcode		AS 'Logcode'
 , output.Severity		AS 'Severity'
-, output.logtext		AS 'logtext'
-, NGAC.ifThenElse(@DisplayFullLogtext,output.FullLogtext,'<@DisplayFullLogtext = 0>')  as 'FullLogtext'
+, CASE @DisplayFullLogtext 
+	WHEN 1 THEN output.FullLogtext
+    ELSE output.logtext
+	END as 'logtext'
 , output.Response/60		AS 'Response(min)'
 , output.Downtime/60		AS 'Downtime(min)'
 --date time part
@@ -101,17 +108,17 @@ SELECT
 , Null      AS 'Logcode'
 , Null      AS 'Severity'
 , 'Begin of Shift: ' + T.[shift] + '  Ploeg:'+ T.PLOEG       AS 'logtext'
-, NULL      AS 'FullLogtext'
+, 'Begin of Shift: ' + T.[shift] + '  Ploeg:'+ T.PLOEG       AS 'FullLogtext'
 , NULL      AS 'Response'
 , NULL      AS 'Downtime'
 , 'TIMELINE'		AS 'Classification'
 , 'TIMELINE'		AS 'Subgroup'
-, NULL		AS 'Category'
+, ''		AS 'Category'
 , T.id		AS 'refId'
-, NULL		As 'LocationTree'
-, NULL		AS 'ClassTree'
-, NULL		AS 'controller_name'
-, NULL		As 'controller_type'
+, ''		As 'LocationTree'
+, ''		AS 'ClassTree'
+, ''		AS 'controller_name'
+, ''		As 'controller_type'
 
 FROM  Volvo.L_timeline as T 
 where 
@@ -144,7 +151,102 @@ and
 @ControllerEventLog = 1
 
 ---------------------------------------------------------------------------------------
+UNION
+-----------------------------------------------------------------------------------
+--ControllerEventLog rt_alarms
+---------------------------------------------------------------------------------------
+SELECT * 
+From gadata.NGAC.junk_alarms as e 
+where 
+--Asset Filters
+isnull(e.AssetID,'%') like @assets
+and 
+isnull(e.LOCATION,e.controller_name) like @locations
+and
+e.controller_name like @locations
+and
+isnull(e.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+e.[timestamp] BETWEEN @StartDate AND @EndDate
+--enable
+and
+@ControllerEventLog = 1
+and 
+@ExcludeOperational = 0
 
+---------------------------------------------------------------------------------------
+UNION
+-----------------------------------------------------------------------------------
+--Breakdown
+---------------------------------------------------------------------------------------
+SELECT * 
+From gadata.NGAC.Breakdown as e 
+where 
+--Asset Filters
+isnull(e.AssetID,'%') like @assets
+and 
+isnull(e.LOCATION,e.controller_name) like @locations
+and
+e.controller_name like @locations
+and
+isnull(e.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+e.[timestamp] BETWEEN @StartDate AND @EndDate
+--enable
+and
+@Breakdown = 1
+
+---------------------------------------------------------------------------------------
+UNION
+-----------------------------------------------------------------------------------
+--Breakdown s4C CONTROLLERS!!!!
+---------------------------------------------------------------------------------------
+SELECT * 
+From gadata.s4c.Breakdown as e 
+where 
+--Asset Filters
+isnull(e.AssetID,'%') like @assets
+and 
+isnull(e.LOCATION,e.controller_name) like @locations
+and
+e.controller_name like @locations
+and
+isnull(e.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+e.[timestamp] BETWEEN @StartDate AND @EndDate
+--enable
+and
+@Breakdown = 1
+
+---------------------------------------------------------------------------------------
+
+
+UNION
+-----------------------------------------------------------------------------------
+--Breakdown START
+---------------------------------------------------------------------------------------
+SELECT * 
+From gadata.NGAC.Breakdown_start as e 
+where 
+--Asset Filters
+isnull(e.AssetID,'%') like @assets
+and 
+isnull(e.LOCATION,e.controller_name) like @locations
+and
+e.controller_name like @locations
+and
+isnull(e.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+e.[timestamp] BETWEEN @StartDate AND @EndDate
+--enable
+and
+@BreakdownStart = 1
+
+---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 --ErrDispLog
 ---------------------------------------------------------------------------------------
@@ -171,7 +273,58 @@ d.Severity > @DisplayLevel
 and 
 @ErrDispLog =1
 ---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+--ErrDispLog S4C
+---------------------------------------------------------------------------------------
 
+UNION
+SELECT * 
+From gadata.S4C.ErrDispLog as d 
+
+where 
+--Asset Filters
+isnull(d.AssetID,'%') like @assets
+and 
+isnull(d.LOCATION,d.controller_name) like @locations
+and
+d.controller_name like @locations
+and
+isnull(d.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+d.[timestamp] BETWEEN @StartDate AND @EndDate
+--displaylevel
+and 
+d.Severity > @DisplayLevel
+--enable
+and 
+@ErrDispLogs4c =1
+
+---------------------------------------------------------------------------------------
+UNION
+-----------------------------------------------------------------------------------
+--Jobs
+---------------------------------------------------------------------------------------
+SELECT * 
+From gadata.NGAC.jobs as e 
+where 
+--Asset Filters
+isnull(e.AssetID,'%') like @assets
+and 
+isnull(e.LOCATION,e.controller_name) like @locations
+and
+e.controller_name like @locations
+and
+isnull(e.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+e.[timestamp] BETWEEN @StartDate AND @EndDate
+--enable
+and
+@Jobs = 1
+
+---------------------------------------------------------------------------------------
+/*
 ---------------------------------------------------------------------------------------
 --VariableLog
 ---------------------------------------------------------------------------------------
@@ -195,13 +348,14 @@ v.[timestamp] BETWEEN @StartDate AND @EndDate
 and 
 @VariableLog =1
 ---------------------------------------------------------------------------------------
-
+*/
 ---------------------------------------------------------------------------------------
 --DeivcePropertys
 ---------------------------------------------------------------------------------------
+
 UNION
 SELECT * 
-From gadata.NGAC.devicePropertyLog as v 
+From gadata.NGAC.device_info as v 
 
 where 
 --Asset Filters
@@ -218,6 +372,7 @@ v.[timestamp] BETWEEN @StartDate AND @EndDate
 --enable
 and 
 @DeviceProperty =1
+
 ---------------------------------------------------------------------------------------
 
 ) as output
@@ -225,7 +380,10 @@ left join gadata.volvo.l_timeline as timeline on output.timestamp between timeli
 where 
 --Exclude opeation logs 
 (
-(@ExcludeOperational = 1 AND (ISNULL(output.Subgroup,'') NOT LIKE '%Operational%')) 
+(@ExcludeOperational = 1 
+AND (ISNULL(output.Subgroup,'') NOT LIKE '%Operational%') 
+AND (ISNULL(output.Category,'') <> 'Operational') 
+)
 OR 
 @ExcludeOperational =0
 )

@@ -9,9 +9,10 @@
     [ClassStructureId]    VARCHAR (255) NULL,
     [CLassificationId]    VARCHAR (255) NULL,
     [ClassificationTree]  VARCHAR (MAX) NULL,
+    [Station]             VARCHAR (255) NULL,
     [Area]                VARCHAR (255) NULL,
-    [SubArea]             VARCHAR (255) NULL,
-    [Line]                VARCHAR (255) NULL,
-    [Station]             VARCHAR (255) NULL
+    [Team]                VARCHAR (255) NULL
 );
+
+
 

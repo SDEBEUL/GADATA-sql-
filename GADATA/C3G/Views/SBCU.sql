@@ -2,11 +2,12 @@
 
 
 
+
 CREATE VIEW [C3G].[SBCU]
 AS        
 SELECT  
-  isnull(a.LOCATION,c.controller_name+'#')	     AS 'Location' 
-, A.CLassificationID AS 'AssetID'
+  c.controller_name	     AS 'Location' 
+, c.CLassificationID AS 'AssetID'
 ,'SBCU' AS 'Logtype'
 , L.tool_timestamp AS 'timestamp'
 , Null      AS 'Logcode'
@@ -17,19 +18,12 @@ SELECT
 , ''		AS 'Classification'
 , ''		AS 'Subgroup'
 , l.ID		AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
 , c.controller_name			AS 'controller_name'
 , 'c3g'		As 'controller_type'
 
 FROM c3g.rt_toollog as L 
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'c3g' --join the right 'data controller type'
-AND
-A.controller_id = L.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%URC%'
 --
 LEFT JOIN c3g.c_controller as c on c.id = L.controller_id
 GO

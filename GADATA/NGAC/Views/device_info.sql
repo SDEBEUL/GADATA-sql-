@@ -1,7 +1,32 @@
-﻿/* where c.name like '%temp%'*/
-CREATE VIEW NGAC.device_info
+﻿
+/* where c.name like '%temp%'*/
+CREATE VIEW [NGAC].[device_info]
 AS
-SELECT        c.controller_name, cd.name, rt._timestamp, rt.value
+SELECT       
+
+  c.controller_name		   AS 'Location' 
+, c.CLassificationId     AS 'AssetID' 
+, 'DeviceInfo'	   AS 'Logtype'
+, rt._timestamp        AS 'timestamp'
+, NULL    AS 'Logcode'
+, NULL   AS 'Severity'
+, 'Prop: <' +  cd.name +  '> Value: <' 
++  ISNULL(CAST(rt.value as varchar(max)),'N/A') AS 'Logtext'
+, 'Prop: <' +  cd.name +  '> Value: <' 
++  ISNULL(CAST(rt.value as varchar(max)),'N/A')AS 'FullLogtext'
+, NULL     AS 'Response'
+, NULL     AS 'Downtime'
+, ''  AS 'Classification'
+, ''	 AS 'Subgroup'
+, '' AS 'Category'
+, rt.id				 AS 'refId'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
+, c.controller_name		AS 'controller_name'
+, 'NGAC'		As 'controller_type'
+
+
+
 FROM            NGAC.rt_device_info AS rt LEFT OUTER JOIN
                          NGAC.c_device_info AS cd ON cd.id = rt.c_device_info_id LEFT OUTER JOIN
                          NGAC.c_controller AS c ON c.id = rt.c_controller_id

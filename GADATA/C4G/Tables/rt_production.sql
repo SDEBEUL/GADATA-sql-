@@ -4,6 +4,9 @@
     [_timestamp]    DATETIME NULL,
     [model]         INT      NULL,
     [cycle_time]    INT      NULL,
+    [timer_index]   INT      NULL,
     CONSTRAINT [PK_rt_production] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 

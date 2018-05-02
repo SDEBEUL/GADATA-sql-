@@ -6,9 +6,9 @@
     [Dress_Num]                SMALLINT      NULL,
     [Weld_Counter]             SMALLINT      NULL,
     [Dress_Reason]             VARCHAR (30)  NULL,
-    [Weld_Result]              VARCHAR (10)  NULL,
-    [Length_Fixed_Result]      VARCHAR (10)  NULL,
-    [Length_Move_Result]       VARCHAR (10)  NULL,
+    [Weld_Result]              VARCHAR (30)  NULL,
+    [Length_Fixed_Result]      VARCHAR (30)  NULL,
+    [Length_Move_Result]       VARCHAR (30)  NULL,
     [Max_Wear_Fixed]           FLOAT (53)    NULL,
     [Wear_Fixed]               FLOAT (53)    NULL,
     [DiffFrLastWear_Fixed]     FLOAT (53)    NULL,
@@ -51,7 +51,22 @@
     [FxSens_FlPinPhysActVal]   FLOAT (53)    NULL,
     [FxSens_FlPinPhysSetupVal] FLOAT (53)    NULL,
     [Internal_Arg]             VARCHAR (MAX) NULL,
+    [_timestamp]               DATETIME      NULL,
     CONSTRAINT [PK_rt_TipDressLogFile] PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_rt_TipDressLogFile_rt_csv_file] FOREIGN KEY ([rt_csv_file_id]) REFERENCES [NGAC].[rt_csv_file] ([id])
 );
+
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_tipdressLogFile1]
+    ON [NGAC].[rt_TipDressLogFile]([rt_csv_file_id] ASC, [Date Time] ASC)
+    INCLUDE([Tool_Nr], [Weld_Counter]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_tipdresslogfile]
+    ON [NGAC].[rt_TipDressLogFile]([Max_Wear_Fixed] ASC, [Max_Wear_Move] ASC, [_timestamp] ASC)
+    INCLUDE([id], [rt_csv_file_id], [Date Time], [Tool_Nr], [Dress_Num], [Weld_Counter], [Wear_Fixed], [Wear_Move], [TipWearRatio], [Time_DressCycleTime]);
 

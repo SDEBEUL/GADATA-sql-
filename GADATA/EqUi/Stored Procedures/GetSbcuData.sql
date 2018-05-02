@@ -19,6 +19,8 @@ BEGIN
 SET @Robot = (SELECT TOP 1 '%' + rws.Robot + '%' from GADATA.volvo.RobotWeldGunRelation as rws where rws.WeldgunName LIKE RTRIM(@Toolname)+'%')
 SET @Tool = (SELECT TOP 1 '%Tool: ' + CAST(rws.ElectrodeNbr as varchar(2)) + '%' from GADATA.volvo.RobotWeldGunRelation as rws where rws.WeldgunName LIKE RTRIM(@Toolname)+'%')
 END
+print 'Robot:' + @Robot
+print 'Tool: ' + @Tool
 
 --get controller type
 DECLARE @ControllerType as varchar(max)

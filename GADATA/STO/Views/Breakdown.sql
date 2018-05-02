@@ -1,43 +1,60 @@
 ﻿
+
+
 CREATE VIEW [STO].[Breakdown]
 AS
-SELECT 
- isnull(A.location,x.[SOURCE] +'#') as 'location'
+
+SELECT top 1000 * FROM
+(
+SELECT
+ isnull(A.location,R.SUBZONENAME +'#') as 'location'
 ,A.CLassificationId as 'AssetID'
-,'STO'  as 'Logtype'
-,CAST(x.TIMESTAMP as datetime) as 'timestamp'
-,SUBSTRING( x.[Object],CHARINDEX('.',  x.[Object])+1,LEN(x.[Object])) as 'Logcode'
-,x.SEVERITY as 'Severity'
-,'<'
-+isnull(SUBSTRING( x.[Object],0,CHARINDEX('.',  x.[Object])),'NA')  
-+ '> <'
-+isnull(x.comment,'NA')
-+'>'			 as 'logtext'
+,CASE
+  WHEN R.RESETTIMESTAMP IS NULL THEN 'LIVE'
+  ELSE 'BREAKDOWN'
+END  as 'Logtype'
+,CAST(CASE 
+  WHEN R.RESETTIMESTAMP IS NULL THEN GETDATE()
+  ELSE R.ALARMTIMESTAMP
+END as datetime) as 'timestamp'
+,SUBSTRING( R.ALARMOBJECT,CHARINDEX('.',  R.ALARMOBJECT)+1,LEN(R.ALARMOBJECT)) as 'Logcode'
+,R.ALARMSEVERITY as 'Severity'
+,'<' +isnull(R.ALARMCOMMENT,'NA') +'>' as 'logtext'
+,'' as 'Fulllogtext'
 ,null as 'Response'
-,DATEDIFF(second, CAST(x.timestamp as datetime), x.EndOfError) as 'Downtime'
+,DATEDIFF(MINUTE,R.ALARMTIMESTAMP,ISNULL(R.RESETTIMESTAMP,GETDATE()))as 'Downtime'
 , RTRIM(ISNULL(null,'Undefined*'))  AS 'Classification'
 , ISNULL(null,'Undefined*')		 AS 'Subgroup'
 , null AS 'Category'
-, null	 AS 'refId'
-, a.LocationTree     As 'LocationTree'
+, R.NID_ALARM_DATA	 AS 'refId'
+, ISNULL(a.LocationTree,STZ.locationTree)     As 'LocationTree'
 , a.ClassificationTree as 'ClassTree'
-, x.[SOURCE]		AS 'controller_name'
+, R.ALARMSOURCE		AS 'controller_name'
 , 'STO'		As 'controller_type'
 
 FROM (
 SELECT 
- rt.*
- ,Lead(rt.STATUS) OVER (PARTITION BY rt.Object ORDER BY CAST(rt.timestamp as datetime)) as 'LeadStatus'
- ,Lead(CAST(rt.timestamp as datetime)) OVER (PARTITION BY rt.Object ORDER BY CAST(rt.timestamp as datetime)) as 'EndOfError'
+  rt.*
+ ,Lead(rt.ALARMSTATUS) OVER (PARTITION BY rt.ALARMOBJECT ORDER BY CAST(rt.ALARMTIMESTAMP as datetime)) as 'LeadStatus'
+ ,Lead(CAST(rt.ALARMTIMESTAMP as datetime)) OVER (PARTITION BY rt.ALARMOBJECT ORDER BY CAST(rt.ALARMTIMESTAMP as datetime)) as 'RESETTIMESTAMP'
 FROM GADATA.STO.rt_breakdown as rt
-)  X
---Join the asset from maximo 
+)  as R 
+
+--Join the asset from maximo (must have an asset linked on the location in mx)
 LEFT JOIN GADATA.EQUI.ASSETS as A on 
-SUBSTRING( x.[Object],0,CHARINDEX('.',  x.[Object]) ) LIKE A.LOCATION +'%'
+SUBSTRING( R.ALARMOBJECT,0,CHARINDEX('.',  R.ALARMOBJECT) ) LIKE A.LOCATION +'%'
+
+--join stuurzone from maximo. !taken from MX7 because STILL NO FUCKING ASSETS ARE JOINED
+LEFT JOIN GADATA.EqUi.ASSETS_fromMX7 as STZ on 
+REPLACE(STZ.LOCATION, 'AE','A') like '%' + R.ALARMSOURCE +'%'
+
 WHERE 
-X.STATUS = 1 --use tag where breakdown started
+R.ALARMSTATUS = 1 --use tag where breakdown started
 AND 
-(X.LEADSTATUS = 0 OR X.LEADSTATUS is null) --use tag where breakdown finshed OR breakdown still bussy 
+(R.LEADSTATUS = 0 OR R.LEADSTATUS is null) --use tag where breakdown finshed OR breakdown still bussy 
+---------------------------------------------------------------------------------------
+) as x 
+ORDER BY x.timestamp desc
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'STO', @level1type = N'VIEW', @level1name = N'Breakdown';
 

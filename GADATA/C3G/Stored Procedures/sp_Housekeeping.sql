@@ -63,7 +63,7 @@ Print'--Keep last 30 days of cycletime.. Dump the rest'; --
 ---------------------------------------------------------------------------------------
 DELETE GADATA.C3G.rt_CycleTime
 FROM GADATA.C3G.rt_CycleTime as L
-WHERE L._timestamp < GETDATE()-30
+WHERE L._timestamp < GETDATE()-100
 --****************************************************************************************************************--
 
 

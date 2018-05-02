@@ -1,0 +1,8 @@
+﻿CREATE TABLE [STO].[c_controller] (
+    [id]          INT          IDENTITY (1, 1) NOT NULL,
+    [ALAMRSOURCE] VARCHAR (50) NULL,
+    [SUBZONENAME] VARCHAR (50) NULL,
+    [ALARMOBJECT] VARCHAR (50) NULL,
+    CONSTRAINT [PK_c_controller_2] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+

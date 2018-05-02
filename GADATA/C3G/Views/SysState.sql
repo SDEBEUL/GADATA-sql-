@@ -1,9 +1,10 @@
 ﻿
+
 CREATE VIEW [C3G].[SysState]
 AS
 SELECT  
-  isnull(a.LOCATION,c.controller_name+'#')	     AS 'Location'
-, A.CLassificationID AS 'AssetID'
+  c.controller_name	     AS 'Location'
+, c.CLassificationID AS 'AssetID'
 ,'SYSSTATE' AS 'Logtype'
 , Y._timestamp AS 'timestamp'
 , Null      AS 'Logcode'
@@ -14,20 +15,12 @@ SELECT
 , ''		AS 'Classification'
 , ''		AS 'Subgroup'
 , y.id		AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
 , c.controller_name			AS 'controller_name'
 , 'c3g'		As 'controller_type'
 
 FROM  GADATA.C3G.rt_sys_event as Y
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'c3g' --join the right 'data controller type'
-AND
-A.controller_id = Y.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%URC%'--join c3g robot because state is owned by robot
---
 LEFT JOIN c3g.c_controller as c on c.id = y.controller_id
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]

@@ -157,3 +157,8 @@ END
 
 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[C3G].[SbcuSpcLimitCalc] TO [AASPOT_a]
+    AS [GADATA];
+

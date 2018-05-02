@@ -14,7 +14,10 @@
     [Txt9]           VARCHAR (MAX) NULL,
     [Txt10]          VARCHAR (MAX) NULL,
     [Txt11]          VARCHAR (MAX) NULL,
+    [_timestamp]     DATETIME      NULL,
     CONSTRAINT [PK_rt_DispMaterialConsv] PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_rt_DispMaterialConsv_rt_csv_file] FOREIGN KEY ([rt_csv_file_id]) REFERENCES [NGAC].[rt_csv_file] ([id])
 );
+
+
 

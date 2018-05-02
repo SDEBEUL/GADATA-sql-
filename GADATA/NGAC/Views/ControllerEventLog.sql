@@ -8,47 +8,45 @@ AS
 --NGAC error
 --*******************************************************************************************************--
 SELECT 
-  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
- , a.CLassificationId     AS 'AssetID'
- , 'ControllerEvent'	  AS 'Logtype'
+  c.controller_name		   AS 'Location' 
+, c.CLassificationId     AS 'AssetID'
+,'ControllerEvent'	  AS 'Logtype'
 , ISNULL(H._timestamp,h.error_timestamp)        AS 'timestamp'
-, Le.Number     AS 'Logcode'
-, Le.l_type_id    AS 'Severity'
-,isnull(ngac.TrimX(Le.[Title]),'#No Title available')  as 'Logtext'
-, isnull(ngac.TrimX(Le.[Title]),'#No Title available')
-  + CHAR(13)+CHAR(10)+  
- isnull(ngac.TrimX(ngac.TrimEmptylines(Ld.[Description])),'#No Description available')	   AS 'FullLogtext'
+, CAST(Le.Number as varchar(max))     AS 'Logcode'
+, CAST(Le.l_type_id as varchar(max))    AS 'Severity'
+
+--SDB 18w04D2 can not drop all titles with '%' because of GB ORG L
+,CASE when (Le.[Title] LIKE '%ErrDisplay 1 : %') OR (Le.[Title] LIKE '%External weld fault reported%')
+ THEN ISNULL(ld.CleanDescription,'#No Description available')
+ ELSE ISNULL(RTRIM(LTRIM(Le.[Title])),'#No Title available')
+ END AS 'Logtext'
+
+ ,CASE when (Le.[Title] LIKE '%ErrDisplay 1 : %') OR (Le.[Title] LIKE '%External weld fault reported%')
+ THEN ISNULL(ld.CleanDescription,'#No Description available')
+ ELSE isnull(RTRIM(LTRIM(Le.[Title])),'#No Title available') + CHAR(13)+CHAR(10) +  
+  isnull(ld.CleanDescription ,'#No Description available')
+ END AS 'FullLogtext'
 , NULL     AS 'Response'
 , NULL     AS 'Downtime'
-, RTRIM(ISNULL(null,'Undefined*'))  AS 'Classification'
-, ISNULL(null,'Undefined*')		 AS 'Subgroup'
-, [NGAC].[fn_GetCategory] (Le.CategoryId) AS 'Category'
+, RTRIM(ISNULL(cc.Classification,'Undefined*'))  AS 'Classification'
+, ISNULL(cs.Subgroup,'Undefined*')		 AS 'Subgroup'
+, ISNULL(lc.category,'Undefined*') AS 'Category'
 , H.id				 AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
 , c.controller_name		AS 'controller_name'
 , 'NGAC'		As 'controller_type'
 
-FROM  NGAC.h_alarm AS H 
-LEFT OUTER JOIN NGAC.L_error AS Le ON Le._id = H.L_error_id 
-LEFT OUTER JOIN NGAC.L_description AS ld ON ld.id = le.l_description_id
-LEFT OUTER JOIN NGAC.L_type AS lt on lt.id = le.l_type_id
-/*
-LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
-LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
-*/
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'NGAC' --join the right 'data controller type'
-AND
-A.controller_id = h.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%' + ISNULL(RTRIM(null),'UR') + '%' --join only the asset with the right classification. (if not classified data goes to robot)
-AND
-A.controller_ToolID = 1 --temp until we find a multi tool support sollution
---
-LEFT JOIN NGAC.c_controller as c on c.id = h.controller_id
---*******************************************************************************************************--
+FROM  NGAC.h_alarm AS H with (NOLOCK) 
+LEFT OUTER JOIN NGAC.L_error AS Le with (NOLOCK)  ON Le._id = H.L_error_id 
+LEFT OUTER JOIN NGAC.L_description AS ld with (NOLOCK)  ON ld.id = le.l_description_id
+LEFT OUTER JOIN NGAC.L_type AS lt with (NOLOCK)  ON lt.id  = le.l_type_id
+LEFT OUTER JOIN NGAC.L_category as lc with (NOLOCK)  on lc.id = h.CategoryId
+
+LEFT OUTER JOIN VOLVO.c_Classification as cc with (NOLOCK)  on cc.id = Le.c_ClassificationId
+LEFT OUTER JOIN VOLVO.c_Subgroup as cs with (NOLOCK)  on cs.id = Le.c_SubgroupId
+
+LEFT JOIN NGAC.c_controller as c with (NOLOCK) on c.id = h.controller_id
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'NGAC', @level1type = N'VIEW', @level1name = N'ControllerEventLog';
 

@@ -1,0 +1,3 @@
+﻿CREATE SCHEMA [Alerts]
+    AUTHORIZATION [GADATA];
+

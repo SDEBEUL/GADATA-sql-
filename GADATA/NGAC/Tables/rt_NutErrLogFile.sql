@@ -32,7 +32,10 @@
     [_Col_29]                   VARCHAR (MAX) NULL,
     [_Col_30]                   VARCHAR (MAX) NULL,
     [_Col_31]                   VARCHAR (MAX) NULL,
+    [_timestamp]                DATETIME      NULL,
     CONSTRAINT [PK_rt_NutErrLogFile] PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_rt_NutErrLogFile_rt_csv_file] FOREIGN KEY ([rt_csv_file_id]) REFERENCES [NGAC].[rt_csv_file] ([id])
 );
+
+
 

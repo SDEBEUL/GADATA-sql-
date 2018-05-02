@@ -5,11 +5,13 @@
 
 
 
+
+
 CREATE VIEW [NGAC].[ErrDispLog]
 AS
 select 
-  isnull(a.LOCATION,c.controller_name+'#')		   AS 'Location' 
-, a.CLassificationId     AS 'AssetID' 
+  c.controller_name		   AS 'Location' 
+, c.CLassificationId     AS 'AssetID' 
 , 'ErrDispLog'	   AS 'Logtype'
 , rt.[Date Time]        AS 'timestamp'
 , rt.[AlarmNo]     AS 'Logcode'
@@ -32,29 +34,15 @@ select
 , ISNULL(null,'Undefined*')		 AS 'Subgroup'
 , REPLACE(rt.[Txt 1],'-','') AS 'Category'
 , rt.id				 AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
 , c.controller_name		AS 'controller_name'
 , 'NGAC'		As 'controller_type'
 
 from GADATA.NGAC.rt_ErrDispLog as rt 
 left join GADATA.NGAC.rt_csv_file as rt_csv on rt.rt_csv_file_id = rt_csv.id
 
-/*
-LEFT OUTER JOIN VOLVO.c_Classification as cc on cc.id = L.c_ClassificationId
-LEFT OUTER JOIN VOLVO.c_Subgroup as cs on cs.id = L.c_SubgroupId
-*/
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'NGAC' --join the right 'data controller type'
-AND
-A.controller_id = rt_csv.c_controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%' + ISNULL(RTRIM(null),'UR') + '%' --join only the asset with the right classification. (if not classified data goes to robot)
-AND
-A.controller_ToolID = 1 --temp until we find a multi tool support sollution
---
-left join GADATA.NGAC.c_controller as c on c.id = rt_csv.c_controller_id
+LEFT JOIN NGAC.c_controller as c with (NOLOCK) on c.id = rt_csv.c_controller_id
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'NGAC', @level1type = N'VIEW', @level1name = N'ErrDispLog';
 

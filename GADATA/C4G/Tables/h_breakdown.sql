@@ -12,6 +12,8 @@
 );
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [_dta_index_h_breakdown_23_2039118455__K4D_1_2_8]
     ON [C4G].[h_breakdown]([StartOfBreakdown] DESC)
@@ -59,4 +61,10 @@ CREATE STATISTICS [_dta_stat_2039118455_8_3_2_9]
 GO
 CREATE STATISTICS [_dta_stat_2039118455_2_8_9]
     ON [C4G].[h_breakdown]([controller_id], [error_id], [RC_error_id]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nci_c4gbreakdown]
+    ON [C4G].[h_breakdown]([error_id] ASC)
+    INCLUDE([id], [controller_id], [EndOfBreakdown], [StartOfBreakdown], [Rt]);
 

@@ -262,3 +262,9 @@ GRANT EXECUTE
     ON OBJECT::[Volvo].[sp_GADATAWeldGunCockpit] TO [db_frontendUser]
     AS [GADATA];
 
+
+GO
+GRANT EXECUTE
+    ON OBJECT::[Volvo].[sp_GADATAWeldGunCockpit] TO [AASPOT_a]
+    AS [GADATA];
+

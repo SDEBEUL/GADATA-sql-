@@ -10,5 +10,3 @@ SET
 FROM GADATA.C3G.rt_CycleTime as rt
 where rt._timeMS is null
 END
-
-exec gadata.[C3G].[sp_normalize_CycleTime]

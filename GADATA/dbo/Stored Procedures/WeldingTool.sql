@@ -1,167 +1,527 @@
 ﻿
--- =============================================
--- Author:		<Coppejans,,jens>
--- Create date: <7/03/2017,,>
--- Description:	<OptimalisationTool,,>
--- =============================================
-CREATE PROCEDURE [dbo].[WeldingTool] 
+-- ============================================= 
+-- Author:     
+-- Create date: <7/03/2017,,> 
+-- Description:   
+-- ============================================= 
+CREATE PROCEDURE [dbo].[WeldingTool] @spot  AS VARCHAR(25), 
+                                    @Timer AS VARCHAR(25) 
+AS 
+  BEGIN 
+      SET nocount ON; 
 
-    @DateTime as DATETIME = null,
-    @spot as varchar(25) = '26185',
-	@Zone  as  varchar(25) = '27',
-	@Timer as varchar(25) = '34090WT01'
+      --- data from weldmeasurements--- 
+      SELECT [date], 
+             [name] 
+             AS Timer, 
+             number 
+             AS Spotnr, 
+             dbo.spot.program, 
+             NULL 
+             AS TimerFault, 
+             NULL 
+             AS ProductionLoss, 
+             zone, 
+             CONVERT(DECIMAL(5, 1), 100 * Cast(dbo.weldmeasurements.nbrsplash AS 
+                                               DECIMAL(10, 5)) / 
+                                    Cast(dbo.weldmeasurements.nbrweld AS 
+                                         DECIMAL(10, 5))) AS 
+             [Spatters%], 
+             CONVERT(DECIMAL(5, 1), 100 * Cast(dbo.weldmeasurements.nbrreweld AS 
+                                               DECIMAL(10, 5)) / 
+                                    Cast(dbo.weldmeasurements.nbrweld AS 
+                                         DECIMAL(10, 5))) AS 
+             PsfReweld, 
+             [nbrweld], 
+             [avgenergy], 
+             [avgpsf], 
+             [stdpsf] 
+             AS [%AfwijkingPSF], 
+             [avgweldtime], 
+             NULL 
+             AS UltralogTime, 
+             NULL 
+             AS [Losse spot?], 
+             NULL 
+             AS [OK spot?], 
+             NULL 
+             AS [SmallNugget?], 
+             NULL 
+             AS [StickWeld?], 
+             NULL 
+             AS [BadTroughWeld?], 
+             NULL 
+             AS [MeasuredThickness], 
+             NULL 
+             AS [TotalThickness], 
+             NULL 
+             AS [InspectorComment], 
+             NULL 
+             AS bodynummer, 
+             NULL 
+             AS ParameterChange, 
+             NULL 
+             AS before, 
+             NULL 
+             AS after, 
+             NULL 
+             AS CDSID, 
+             NULL 
+             AS NPT, 
+             NULL 
+             AS [Pressure], 
+             NULL 
+             Squeeze, 
+             NULL 
+             AS [KA_1], 
+             NULL 
+             AS [WELD1], 
+             NULL 
+             AS [COOL_1], 
+             NULL 
+             AS [KA_2], 
+             NULL 
+             AS [WELD2], 
+             NULL 
+             AS [COOL_2], 
+             NULL 
+             AS [KA_3], 
+             NULL 
+             AS [WELD3], 
+             NULL 
+             AS [HOLD], 
+             NULL 
+             AS [PRprofile ON ?], 
+             NULL 
+             AS [thickness1], 
+             NULL 
+             AS [Material1], 
+             NULL 
+             AS [Coating1], 
+             NULL 
+             AS [Thickness2], 
+             NULL 
+             AS [Material2], 
+             NULL 
+             AS [Coating2], 
+             NULL 
+             AS [thickness3], 
+             NULL 
+             AS [Material3], 
+             NULL 
+             AS [Coating3], 
+             NULL 
+             AS [thickness4], 
+             NULL 
+             AS [Material4], 
+             NULL 
+             AS [Coating4] 
+      FROM   [GADATA].[dbo].[weldmeasurements] 
+             INNER JOIN dbo.spot 
+                     ON dbo.weldmeasurements.spotid = dbo.spot.id 
+             INNER JOIN [GADATA].[dbo].[timer] 
+                     ON [GADATA].[dbo].[spot].timerid = 
+                        [GADATA].[dbo].[timer].id 
+      WHERE  [date] >= Getdate() - 365 
+             AND number = @spot 
+             AND NAME = @Timer 
+      UNION 
+      --- data from ultralog--- 
+      SELECT dbo.ultraloginspections.inspectiontime, 
+             dbo.timer.NAME                         AS timer, 
+             dbo.spot.number, 
+             dbo.spot.program, 
+             NULL                                   AS TimerFault, 
+             NULL                                   AS ProductionLoss, 
+             NULL                                   AS Loose, 
+             NULL                                   AS spot, 
+             NULL                                   AS Expr1, 
+             NULL                                   AS Expr2, 
+             NULL                                   AS Expr3, 
+             NULL                                   AS Expr4, 
+             NULL                                   AS Expr5, 
+             NULL                                   AS Expr6, 
+             dbo.ultraloginspections.inspectiontime AS Expr7, 
+             dbo.ultraloginspections.loose          AS Expr8, 
+             dbo.ultraloginspections.ok, 
+             dbo.ultraloginspections.smallnugget, 
+             dbo.ultraloginspections.stickweld, 
+             dbo.ultraloginspections.badtroughweld, 
+             dbo.ultraloginspections.measuredthickness, 
+             dbo.ultraloginspections.totalthickness, 
+             dbo.ultraloginspections.inspectorcomment, 
+             dbo.ultraloginspections.bodynbr, 
+             NULL                                   AS Expr9, 
+             NULL                                   AS Expr10, 
+             NULL                                   AS ParameterChange, 
+             NULL                                   AS before, 
+             NULL                                   AS NPT, 
+             NULL                                   AS Expr11, 
+             NULL                                   AS Expr12, 
+             NULL                                   AS Expr13, 
+             NULL                                   AS Expr14, 
+             NULL                                   AS Expr15, 
+             NULL                                   AS Expr16, 
+             NULL                                   AS Expr17, 
+             NULL                                   AS Expr18, 
+             NULL                                   AS Expr19, 
+             NULL                                   AS Expr20, 
+             NULL                                   AS Expr21, 
+             NULL                                   AS Expr22, 
+             NULL                                   AS Expr23, 
+             NULL                                   AS Expr24, 
+             NULL                                   AS Expr25, 
+             NULL                                   AS Expr26, 
+             NULL                                   AS Expr27, 
+             NULL                                   AS Expr28, 
+             NULL                                   AS Expr29, 
+             NULL                                   AS Expr30, 
+             NULL                                   AS Expr31, 
+             NULL                                   AS thickness4, 
+             NULL                                   AS Material4, 
+             NULL                                   AS Coating4 
+      FROM   dbo.ultraloginspections 
+             INNER JOIN dbo.spot 
+                     ON dbo.ultraloginspections.spotid = dbo.spot.id 
+             INNER JOIN dbo.timer 
+                     ON dbo.spot.timerid = dbo.timer.id 
+                        AND dbo.spot.timerid = dbo.timer.id 
+      WHERE  [inspectiontime] >= Getdate() - 365 
+             AND number = @spot 
+             AND dbo.timer.NAME = @Timer 
+      UNION 
+      --- data from dbo.datachange----data from schema Welding not possible => different data types used --- 
+      SELECT dbo.spotdatachange.datetime, 
+             dbo.timer.NAME, 
+             dbo.spot.number, 
+             dbo.spot.program, 
+             NULL                               AS Expr1, 
+             NULL                               AS spot, 
+             dbo.spot.zone, 
+             NULL                               AS spot1, 
+             NULL                               AS spot2, 
+             NULL                               AS spot3, 
+             NULL                               AS spot4, 
+             NULL                               AS spot5, 
+             NULL                               AS spot7, 
+             NULL                               AS spot8, 
+             NULL                               AS spot9, 
+             NULL                               AS spot10, 
+             NULL                               AS spot11, 
+             NULL                               AS spot13, 
+             NULL                               AS spot14, 
+             NULL                               AS spot15, 
+             NULL                               AS spot16, 
+             NULL                               AS spot17, 
+             NULL                               AS spot19, 
+             NULL                               AS spot100, 
+             dbo.timerparametername.description AS parmameter, 
+             dbo.spotdatachange.oldvalue, 
+             dbo.spotdatachange.newvalue, 
+             dbo.users.cdsid, 
+             dbo.npt.NAME                       AS NPT, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS Spot, 
+             NULL                               AS [thickness4], 
+             NULL                               AS [Material4], 
+             NULL                               AS [Coating4] 
+      FROM   dbo.spot 
+             INNER JOIN dbo.timer 
+                     ON dbo.spot.timerid = dbo.timer.id 
+                        AND dbo.spot.timerid = dbo.timer.id 
+                        AND dbo.spot.timerid = dbo.timer.id 
+             INNER JOIN dbo.spotdatachange 
+                     ON dbo.spot.id = dbo.spotdatachange.spotid 
+             INNER JOIN dbo.timerparametername 
+                     ON dbo.spotdatachange.parameterid = 
+                        dbo.timerparametername.id 
+             INNER JOIN dbo.users 
+                     ON dbo.spotdatachange.userid = dbo.users.id 
+             INNER JOIN dbo.npt 
+                     ON dbo.timer.nptid = dbo.npt.id 
+                        AND dbo.timer.nptid = dbo.npt.id 
+                        AND dbo.timer.nptid = dbo.npt.id 
+      WHERE  ( dbo.spotdatachange.datetime >= Getdate() - 365 ) 
+             AND dbo.spot.number = @spot 
+             AND dbo.timer.NAME = @Timer 
+      UNION 
+      --- data from datachange on timer level --only timer data--- 
+      SELECT dbo.timerdatachange.datetime AS Date, 
+             dbo.timer.NAME               AS Timer, 
+             @spot, 
+             NULL                         AS spot, 
+             NULL                         AS TimerFault, 
+             NULL                         AS ProductionLoss, 
+             NULL                         AS spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             dbo.timerparametername.description, 
+             dbo.timerdatachange.oldvalue, 
+             dbo.timerdatachange.newvalue, 
+             dbo.users.cdsid, 
+             dbo.npt.NAME                 AS NPT, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS Spot, 
+             NULL                         AS [thickness4], 
+             NULL                         AS [Material4], 
+             NULL                         AS [Coating4] 
+      FROM   dbo.timerparametername 
+             INNER JOIN dbo.timerdatachange 
+                     ON dbo.timerparametername.id = 
+                        dbo.timerdatachange.parameterid 
+             INNER JOIN dbo.users 
+                     ON dbo.timerdatachange.userid = dbo.users.id 
+             INNER JOIN dbo.timer 
+                     ON dbo.timerdatachange.timerid = dbo.timer.id 
+             INNER JOIN dbo.npt 
+                     ON dbo.timer.nptid = dbo.npt.id 
+      WHERE  datetime >= Getdate() - 365 
+             AND dbo.timer.NAME = @Timer 
+      UNION 
+      --- plate and parameter combination--- 
+      SELECT [date], 
+             [timer], 
+             number, 
+             [program], 
+             NULL AS TimerFault, 
+             NULL AS ProductionLoss, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             NULL AS Spot, 
+             [pressure], 
+             [squeeze], 
+             [ka_1], 
+             [weld1], 
+             [cool_1], 
+             [ka_2], 
+             [weld2], 
+             [cool_2], 
+             [ka_3], 
+             [weld3], 
+             [hold], 
+             [prprofile on ?], 
+             [thickness1], 
+             [material1], 
+             [coating1], 
+             [thickness2], 
+             [material2], 
+             [coating2], 
+             [thickness3], 
+             [material3], 
+             [coating3], 
+             [thickness4], 
+             [material4], 
+             [coating4] 
+      FROM   [GADATA].[LAUNCH].[joiningparameterplatesga] 
+      WHERE  number = @spot 
+             AND timer = @Timer 
+      UNION 
+      --- Show all TimerFaults ---- 
+      SELECT datetime, 
+             Name as timer, 
+             number, 
+             program , 
+             WeldFaultName, 
+             NULL    AS ProductionLoss, 
+             NULL    AS WeldmasterComment, 
+             NULL    AS spot, 
+             NULL    AS Loose, 
+             NULL    AS Expr1, 
+             NULL    AS Expr2, 
+             NULL    AS Expr3, 
+             NULL    AS Expr4, 
+             NULL    AS Expr5, 
+             NULL    AS Expr6, 
+             NULL    AS Expr9, 
+             NULL    AS Expr10, 
+             NULL    AS Expr12, 
+             NULL    AS Expr13, 
+             NULL    AS Expr14, 
+             NULL    AS Expr15, 
+             NULL    AS Expr16, 
+             NULL    AS Expr17, 
+             NULL    AS Expr18, 
+             NULL    AS Expr19, 
+             NULL    AS Expr20, 
+             NULL    AS Expr21, 
+             NULL    AS Expr22, 
+             NULL    AS Expr23, 
+             NULL    AS Expr24, 
+             NULL    AS Expr25, 
+             NULL    AS Expr26, 
+             NULL    AS Expr27, 
+             NULL    AS Expr28, 
+             NULL    AS Expr29, 
+             NULL    AS Expr30, 
+             NULL    AS Expr31, 
+             NULL    AS thickness4, 
+             NULL    AS Material4, 
+             NULL    AS Coating4, 
+             NULL    AS Expr7, 
+             NULL    AS Expr8, 
+             NULL    AS Expr32, 
+             NULL    AS Expr33, 
+             NULL    AS Expr34, 
+             NULL    AS Expr35, 
+             NULL    AS Expr11, 
+             NULL    AS Expr36, 
+             NULL    AS Expr37, 
+             NULL    AS Expr38, 
+             NULL    AS Expr39, 
+             NULL    AS Expr40, 
+             NULL    AS Expr41 
+     FROM            dbo.Timer INNER JOIN
+                     dbo.Spot ON dbo.Timer.ID = dbo.Spot.TimerID INNER JOIN
+                     dbo.WeldFaultLog ON dbo.Spot.ID = dbo.WeldFaultLog.SpotID INNER JOIN
+                     dbo.WeldFaultName ON dbo.WeldFaultLog.WeldFaultID = dbo.WeldFaultName.ID
+      WHERE  datetime >= Getdate() - 365 
+             AND number = @spot 
+             AND Name = @Timer 
+      UNION 
+      --- TDT --- 
+      ---From dbo.teardown----- 
+      SELECT launch.teardowntest.date, 
+             dbo.timer.NAME AS timer, 
+             dbo.spot.number, 
+             dbo.spot.program, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             launch.teardowntest.date, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             [nuggetdemand], 
+             [teardownnugget], 
+             NULL           AS TDTMTOComment, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             dbo.npt.NAME, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS Spot, 
+             NULL           AS spot, 
+             NULL           AS spot, 
+             NULL           AS spot, 
+             NULL           AS [thickness4], 
+             NULL           AS [Material4], 
+             NULL           AS [Coating4] 
+      FROM   dbo.timer 
+             INNER JOIN dbo.npt 
+                     ON dbo.timer.nptid = dbo.npt.id 
+             INNER JOIN dbo.spot 
+                     ON dbo.timer.id = dbo.spot.timerid 
+                        AND dbo.timer.id = dbo.spot.timerid 
+             INNER JOIN launch.teardowntest 
+                     ON dbo.spot.id = launch.teardowntest.spotid 
+                        AND dbo.spot.id = launch.teardowntest.spotid 
+                        AND dbo.spot.id = launch.teardowntest.spotid 
+      WHERE  launch.teardowntest.date >= Getdate() - 600 
+             AND number = @spot 
+             AND dbo.timer.NAME = @timer 
+  END
+GO
+GRANT EXECUTE
+    ON OBJECT::[dbo].[WeldingTool] TO [AASPOT_a]
+    AS [dbo];
 
-AS
-
-BEGIN
-	
-	SET NOCOUNT ON;
-
-
-
-
-	SELECT           [Date], [Name] AS Timer, dbo.spot.Number As Spotnr, dbo.spot.Program,Null As TimerFault,Null As ProductionLoss,
-	
-	                 Zone,
-	                 CONVERT(DECIMAL(5, 1), 100 * CAST(dbo.WeldMeasurements.NbrSplash AS decimal(10, 5))/ CAST(dbo.WeldMeasurements.NbrWeld AS decimal(10, 5))) AS [Spatters%], CONVERT(DECIMAL(5, 1), 100 * CAST(dbo.WeldMeasurements.NbrReweld AS decimal(10,  5)) / CAST(dbo.WeldMeasurements.NbrWeld AS decimal(10, 5))) AS PsfReweld, [NbrWeld], [AvgEnergy], [AvgPSF],
-					 [StdPSF] As [%AfwijkingPSF], [AvgWeldTIme], NULL AS UltralogTime, NULL AS [Losse spot?], NULL AS [OK spot?], 
-					 NULL AS [SmallNugget?], NULL AS [StickWeld?], NULL AS [BadTroughWeld?], NULL  AS [MeasuredThickness], NULL AS [TotalThickness],
-					 NULL AS [InspectorComment], NULL AS bodynummer, NULL AS ParameterChange, NULL AS before, NULL AS after,
-					 NULL AS CDSID, NULL AS NPT,
-
-			               NULL AS [Pressure], NULL Squeeze, NULL AS [KA_1], NULL AS [WELD1], NULL AS [COOL_1],
-		                   NULL AS [KA_2], NULL AS [WELD2], NULL AS [COOL_2], NULL AS [KA_3], NULL AS [WELD3],
-		                   NULL AS [HOLD], NULL AS [PRprofile ON ?], NULL AS [thickness1], NULL AS [Material1], NULL AS [Coating1],
-		                   NULL AS [Thickness2], NULL AS [Material2], NULL AS [Coating2], NULL AS [thickness3], NULL AS [Material3],
-		                   NULL AS [Coating3]
-
-FROM            [GADATA].[dbo].[WeldMeasurements] INNER JOIN
-                         dbo.Spot ON dbo.WeldMeasurements.SpotId = dbo.spot.id INNER JOIN
-                         [GADATA].[dbo].[Timer] ON [GADATA].[dbo].[Spot].TimerID = [GADATA].[dbo].[Timer].ID
-WHERE        [Date] >= GETDATE() - 31  AND dbo.spot.Number LIKE '3%' OR dbo.spot.Number LIKE '4%' OR  dbo.spot.Number LIKE '5%' 
-
-UNION
-
-SELECT             [InspectionTime], NULL AS Name, dbo.spot.Number, dbo.spot.Program,Null As TimerFault,Null As ProductionLoss,
-
-                         NULL AS [Loose], 
-						 null as spot,null as spot,null as spot,null as spot,null as spot,
-						 null as spot,null as spot, [InspectionTime], [Loose], [OK],
-						 [SmallNugget], [StickWeld], [BadTroughWeld],[MeasuredThickness], [TotalThickness],
-						 [InspectorComment], [BodyNbr], NULL AS spot, NULL AS spot, NULL AS ParameterChange,
-						 NULL AS before, NULL AS NPT,
-
-					
-			               NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot
-
-FROM            [GADATA].[dbo].[UltralogInspections] INNER JOIN
-                         dbo.spot ON [GADATA].[dbo].[UltralogInspections].spotID = dbo.spot.id
-WHERE        [InspectionTime] >= GETDATE() - 31  
-
-UNION
-
-SELECT        dbo.SpotDataChange.DateTime AS Date, dbo.Timer.Name AS TIMER, dbo.Spot.Number, dbo.Spot.Program,Null As TimerFault,Null As ProductionLoss,
-
-                         null as spot,
-                         NULL AS spot, NULL AS spot, NULL AS spot, NULL AS spot, NULL AS spot,
-						 NULL AS spot, NULL AS spot, NULL AS spot, NULL AS spot, NULL AS spot,
-						 NULL AS spot, NULL AS spot, NULL AS spot, NULL AS spot, NULL AS spot, 
-						 NULL AS ParameterChange, NULL AS spot, dbo.TimerParameterName.Description, dbo.SpotDataChange.OldValue AS [oude parameter], dbo.SpotDataChange.NewValue AS [nieuwe parameter],
-                         dbo.Users.CDSID, null as NPT,
-
-			               NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot
-
-FROM            dbo.Spot INNER JOIN
-                         dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID AND dbo.Spot.TimerID = dbo.Timer.ID INNER JOIN
-                         dbo.NPT ON dbo.Timer.NptId = dbo.NPT.ID INNER JOIN
-                         dbo.SpotDataChange ON dbo.Spot.ID = dbo.SpotDataChange.SpotID AND dbo.Spot.ID = dbo.SpotDataChange.SpotID INNER JOIN
-                         dbo.TimerParameterName ON dbo.SpotDataChange.ParameterID = dbo.TimerParameterName.ID AND 
-                         dbo.SpotDataChange.ParameterID = dbo.TimerParameterName.ID INNER JOIN
-                         dbo.Users ON dbo.SpotDataChange.UserID = dbo.Users.ID AND dbo.SpotDataChange.UserID = dbo.Users.ID
-WHERE        (dbo.SpotDataChange.DateTime >= GETDATE() - 31) AND dbo.spot.Number LIKE '3%' OR dbo.spot.Number LIKE '4%' OR  dbo.spot.Number LIKE '5%' 
-
-UNION
-
-SELECT        dbo.TimerDataChange.DateTime AS Date, dbo.Timer.Name AS Timer, NULL AS Spot, null as spot,Null As TimerFault,Null As ProductionLoss,
-
-                         
-						  null as spot,
-						  NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, 
-                          NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, 
-						  NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-                          NULL AS Spot, NULL AS Spot, dbo.TimerParameterName.Description, dbo.TimerDataChange.OldValue, dbo.TimerDataChange.NewValue,
-						  dbo.Users.CDSID,dbo.NPT.Name AS NPT,
-
-						 
-						   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot
-
-FROM            dbo.TimerParameterName INNER JOIN
-                         dbo.TimerDataChange ON dbo.TimerParameterName.ID = dbo.TimerDataChange.ParameterID INNER JOIN
-                         dbo.Users ON dbo.TimerDataChange.UserID = dbo.Users.ID INNER JOIN
-                         dbo.Timer ON dbo.TimerDataChange.TimerID = dbo.Timer.ID INNER JOIN
-                         dbo.NPT ON dbo.Timer.NptId = dbo.NPT.ID
-
-
-WHERE        datetime >= GETDATE() - 31 
-
-UNION
-
-SELECT        [Date],[Name],[Number],[Program] ,Null As TimerFault,Null As ProductionLoss,
-      
-	   NULL AS Spot, 
-	    NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		 NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		  NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		   NULL AS Spot, NULL AS Spot
-	 
-     
-                       
-		                ,[Pressure],[Squeeze],[KA_1],[WELD1],[COOL_1]
-						,[KA_2],[WELD2],[COOL_2],[KA_3],[WELD3]
-						,[HOLD] ,[PRprofile ON ?] ,[thickness1],[Material1],[Coating1]
-						,[Thickness2],[Material2],[Coating2],[thickness3],[Material3]
-						,[Coating3]
-						
-      
-     FROM [GADATA].[LAUNCH].[JoiningParameterPlatesGA]   
-    WHERE  Number LIKE '3%' OR Number LIKE '4%' OR  Number LIKE '5%' 
-	
-
-	UNION
-
-	SELECT [DateTime],[Name],[Spot],[Program] ,[TimerFault],[ProductionLoss],
-      
-     	   NULL AS Spot, 
-	    NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		 NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		  NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		   NULL AS Spot, NULL AS Spot,
-
-        NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot, NULL AS Spot,
-		                   NULL AS Spot
-      
-      
-    
-      FROM [GADATA].[LAUNCH].[WeldFaultProtocol]
-
-	  WHERE datetime >= GETDATE() - 31 AND  Spot LIKE '3%' OR Spot LIKE '4%' OR  Spot LIKE '5%' 
-
-
-   END

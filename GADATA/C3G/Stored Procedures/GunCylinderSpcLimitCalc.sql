@@ -160,3 +160,8 @@ END
 
 
 END
+GO
+GRANT EXECUTE
+    ON OBJECT::[C3G].[GunCylinderSpcLimitCalc] TO [AASPOT_a]
+    AS [GADATA];
+

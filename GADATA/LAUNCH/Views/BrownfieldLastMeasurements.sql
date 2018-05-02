@@ -1,17 +1,17 @@
 ﻿CREATE VIEW LAUNCH.BrownfieldLastMeasurements
 AS
-SELECT        TOP (100) PERCENT dbo.Timer.Name, dbo.Spot.Number, dbo.WeldMeasurements.Date, dbo.WeldMeasurements.Shift, dbo.WeldMeasurements.NbrSplash, 
-                         dbo.WeldMeasurements.NbrWeld, dbo.WeldMeasurements.NbrReweld, dbo.WeldMeasurements.AvgEnergy, dbo.WeldMeasurements.AvgPSF, 
-                         dbo.WeldMeasurements.AvgOhm, dbo.WeldMeasurements.AvgUIP, dbo.WeldMeasurements.AvgWeldTIme
-FROM            dbo.WeldMeasurements INNER JOIN
-                         dbo.Spot ON dbo.WeldMeasurements.SpotId = dbo.Spot.ID INNER JOIN
-                         dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID
-WHERE        (dbo.WeldMeasurements.ID IN
-                             (SELECT        TOP (100) PERCENT MAX(DISTINCT WeldMeasurements_1.ID) AS ID
-                               FROM            dbo.WeldMeasurements AS WeldMeasurements_1 INNER JOIN
-                                                         dbo.Spot AS Spot_1 ON WeldMeasurements_1.SpotId = Spot_1.ID
-                               GROUP BY Spot_1.Number
-                               HAVING         (Spot_1.Number > 29999) AND (Spot_1.Number < 50000)))
+SELECT TOP (100) PERCENT dbo.Timer.Name, dbo.Spot.Number, dbo.WeldMeasurements.Date, dbo.WeldMeasurements.Shift, dbo.WeldMeasurements.NbrSplash, 
+                  dbo.WeldMeasurements.NbrWeld, dbo.WeldMeasurements.NbrReweld, dbo.WeldMeasurements.AvgEnergy, dbo.WeldMeasurements.AvgPSF, 
+                  dbo.WeldMeasurements.AvgOhm, dbo.WeldMeasurements.AvgUIP, dbo.WeldMeasurements.AvgWeldTIme, dbo.Spot.Program
+FROM     dbo.WeldMeasurements INNER JOIN
+                  dbo.Spot ON dbo.WeldMeasurements.SpotId = dbo.Spot.ID INNER JOIN
+                  dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID
+WHERE  (dbo.WeldMeasurements.ID IN
+                      (SELECT TOP (100) PERCENT MAX(DISTINCT WeldMeasurements_1.ID) AS ID
+                       FROM      dbo.WeldMeasurements AS WeldMeasurements_1 INNER JOIN
+                                         dbo.Spot AS Spot_1 ON WeldMeasurements_1.SpotId = Spot_1.ID
+                       GROUP BY Spot_1.Number
+                       HAVING  (Spot_1.Number > 29999) AND (Spot_1.Number < 50000)))
 ORDER BY dbo.WeldMeasurements.Date, dbo.WeldMeasurements.Shift
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'LAUNCH', @level1type = N'VIEW', @level1name = N'BrownfieldLastMeasurements';
@@ -103,11 +103,11 @@ Begin DesignProperties =
             Begin Extent = 
                Top = 6
                Left = 246
-               Bottom = 135
+               Bottom = 197
                Right = 445
             End
             DisplayFlags = 280
-            TopColumn = 0
+            TopColumn = 3
          End
          Begin Table = "Timer"
             Begin Extent = 
@@ -142,12 +142,12 @@ Begin DesignProperties =
       Begin ColumnWidths = 11
          Column = 1440
          Alias = 900
-         Table = 1170
+         Table = 1176
          Output = 720
          Append = 1400
          NewValue = 1170
-         SortType = 1350
-         SortOrder = 1410
+         SortType = 1356
+         SortOrder = 1416
          GroupBy = 1350
          Filter = 12960
          Or = 1350
@@ -157,4 +157,6 @@ Begin DesignProperties =
    End
 End
 ', @level0type = N'SCHEMA', @level0name = N'LAUNCH', @level1type = N'VIEW', @level1name = N'BrownfieldLastMeasurements';
+
+
 

@@ -2,10 +2,10 @@
 AS
 BEGIN
 BEGIN
-	if (len(@STR) > 1)
+	if (len(ISNULL(@STR,'')) > 1)
 	BEGIN
-		SET @STR = @STR + char(10) + char(13)
+		SET @STR = ISNULL(@STR,'') + char(10) + char(13)
 	END
 END
-RETURN @str
+RETURN ISNULL(@str,'')
 END

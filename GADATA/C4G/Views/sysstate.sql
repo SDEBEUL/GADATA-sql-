@@ -1,11 +1,12 @@
 ﻿
 
+
 /*join c4g robot because state is owned by robot*/
 CREATE VIEW [C4G].[SysState]
 AS
 SELECT  
-  isnull(a.LOCATION,c.controller_name+'#')	     AS 'Location' 
-, A.CLassificationID AS 'AssetID'
+  c.controller_name	     AS 'Location' 
+, c.CLassificationID AS 'AssetID'
 ,'SYSSTATE' AS 'Logtype'
 , Y._timestamp AS 'timestamp'
 , Null      AS 'Logcode'
@@ -16,20 +17,12 @@ SELECT
 , ''		AS 'Classification'
 , ''		AS 'Subgroup'
 , y.id		AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
 , c.controller_name			AS 'controller_name'
 , 'c4g'		As 'controller_type'
 
 FROM  GADATA.C4G.rt_sys_event as Y
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A on 
-A.controller_type = 'c4g' --join the right 'data controller type'
-AND
-A.controller_id = Y.controller_id --join the right 'data controller id'
-AND 
-A.CLassificationId LIKE '%URC%'--join c4g robot because state is owned by robot
---
 LEFT JOIN c4g.c_controller as c on c.id = y.controller_id
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C4G', @level1type = N'VIEW', @level1name = N'SysState';

@@ -308,3 +308,71 @@ ALTER ROLE [db_accessadmin] ADD MEMBER [GMorris];
 GO
 ALTER ROLE [db_accessadmin] ADD MEMBER [VASC_a];
 
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [EqUiAdmin];
+
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [Hangfire];
+
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [VASC_a];
+
+
+GO
+ALTER ROLE [db_owner] ADD MEMBER [AASPOT_a];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [EqUiAdmin];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [Hangfire];
+
+
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [PJV];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [EqUiAdmin];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [Hangfire];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [VCCNET\e6308159];
+
+
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [PJV];
+
+
+GO
+ALTER ROLE [db_accessadmin] ADD MEMBER [EqUiAdmin];
+
+
+GO
+ALTER ROLE [db_accessadmin] ADD MEMBER [Hangfire];
+
+
+GO
+ALTER ROLE [db_accessadmin] ADD MEMBER [PJV];
+
+
+GO
+ALTER ROLE [db_accessadmin] ADD MEMBER [AASPOT_c];
+
+
+GO
+ALTER ROLE [db_accessadmin] ADD MEMBER [AASPOT_b];
+
+
+GO
+ALTER ROLE [db_accessadmin] ADD MEMBER [AASPOT_a];
+

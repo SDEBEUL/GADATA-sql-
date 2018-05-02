@@ -35,8 +35,19 @@
     [description]           VARCHAR (256) NULL,
     [swversion]             VARCHAR (50)  NULL,
     [keycode]               INT           NULL,
+    [ipcb_flags]            INT           NULL,
+    [LocationTree]          VARCHAR (MAX) NULL,
+    [Assetnum]              VARCHAR (MAX) NULL,
+    [ProductionTeam]        VARCHAR (MAX) NULL,
+    [ResponsiblePloeg]      VARCHAR (MAX) NULL,
+    [ClassificationTree]    VARCHAR (MAX) NULL,
+    [CLassificationId]      VARCHAR (MAX) NULL,
+    [pjv_action_mask]       INT           NULL,
+    [pjv_event_mask]        INT           NULL,
     CONSTRAINT [PK_c_controller1] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 GO

@@ -1,0 +1,27 @@
+﻿CREATE TABLE [Alerts].[h_alert] (
+    [id]                   INT           IDENTITY (1, 1) NOT NULL,
+    [c_tirgger_id]         INT           NOT NULL,
+    [_timestamp]           DATETIME      NOT NULL,
+    [info]                 VARCHAR (MAX) NULL,
+    [state]                INT           NOT NULL,
+    [location]             VARCHAR (MAX) NOT NULL,
+    [alarmobject]          VARCHAR (MAX) NOT NULL,
+    [comments]             VARCHAR (MAX) NULL,
+    [acceptUserID]         INT           NULL,
+    [acceptTimestamp]      DATETIME      NULL,
+    [closeUserID]          INT           NULL,
+    [closeTimestamp]       DATETIME      NULL,
+    [lastChangedUserID]    INT           NULL,
+    [lastChangedTimestamp] DATETIME      NULL,
+    [triggerCount]         INT           NOT NULL,
+    [lastTriggerd]         DATETIME      NOT NULL,
+    [Classification]       VARCHAR (MAX) NULL,
+    [locationTree]         VARCHAR (MAX) NULL,
+    CONSTRAINT [PK_h_alert] PRIMARY KEY CLUSTERED ([id] ASC),
+    CONSTRAINT [FK_h_alert_c_state] FOREIGN KEY ([state]) REFERENCES [Alerts].[c_state] ([id]),
+    CONSTRAINT [FK_h_alert_c_triggers] FOREIGN KEY ([c_tirgger_id]) REFERENCES [Alerts].[c_triggers] ([id]),
+    CONSTRAINT [FK_h_alert_L_users] FOREIGN KEY ([lastChangedUserID]) REFERENCES [Volvo].[L_users] ([id]),
+    CONSTRAINT [FK_h_alert_L_users1] FOREIGN KEY ([closeUserID]) REFERENCES [Volvo].[L_users] ([id]),
+    CONSTRAINT [FK_h_alert_L_users2] FOREIGN KEY ([acceptUserID]) REFERENCES [Volvo].[L_users] ([id])
+);
+

@@ -17,7 +17,10 @@
     [New TCP Y]      FLOAT (53)    NULL,
     [New TCP Z]      FLOAT (53)    NULL,
     [Action]         VARCHAR (MAX) NULL,
+    [_timestamp]     DATETIME      NULL,
     CONSTRAINT [PK_rt_TCP_LOG] PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_rt_TCP_LOG_rt_csv_file] FOREIGN KEY ([rt_csv_file_id]) REFERENCES [NGAC].[rt_csv_file] ([id])
 );
+
+
 

@@ -13,7 +13,8 @@ CREATE PROCEDURE [EqUi].[EQpluginDefaultSTO]
 	   @lochierarchy as varchar(20) = '%',
 	--optional
 	   @timeline as bit = 1,
-	   @StoData as bit = 1
+	   @StoBreakDown as bit = 0,
+	   @StoError as bit = 1
 
 AS
 BEGIN
@@ -63,10 +64,10 @@ SELECT
 , timeline.[shift]           AS 'Shift'
 , timeline.PLOEG		     As 'Ploeg'
 --classifcation part
-, null  AS 'Classification'
-, null  AS 'Subgroup'
-, null  AS 'Category'
-, null	AS 'refId'
+, output.Classification  AS 'Classification'
+, output.Subgroup  AS 'Subgroup'
+, output.Category  AS 'Category'
+, output.refId	AS 'refId'
 , output.LocationTree   As 'LocationTree'
 , output.ClassTree		As 'ClassTree'
 , output.controller_name AS 'controller_name'
@@ -84,16 +85,17 @@ SELECT
 , Null      AS 'Logcode'
 , Null      AS 'Severity'
 , 'Begin of Shift: ' + T.[shift] + '  Ploeg:'+ T.PLOEG       AS 'logtext'
-, NULL As 'Response'
-, Null As 'Downtime'
-, null  AS 'Classification'
-, null  AS 'Subgroup'
-, null  AS 'Category'
-, null	AS 'refId'
-, null  As 'LocationTree'
-, null  As 'ClassTree'
-, null  AS 'controller_name'
-, null  As 'controller_type'
+, 'Begin of Shift: ' + T.[shift] + '  Ploeg:'+ T.PLOEG       AS 'FullLogtext'
+, NULL      AS 'Response'
+, NULL      AS 'Downtime'
+, 'TIMELINE'		AS 'Classification'
+, 'TIMELINE'		AS 'Subgroup'
+, ''		AS 'Category'
+, T.id		AS 'refId'
+, ''		As 'LocationTree'
+, ''		AS 'ClassTree'
+, ''		AS 'controller_name'
+, ''		As 'controller_type'
 
 FROM  Volvo.L_timeline as T 
 where 
@@ -104,20 +106,19 @@ AND
 --*******************************************************************************************************--
 UNION
 -----------------------------------------------------------------------------------
---Sto Data 
+--Sto Error Data 
 ---------------------------------------------------------------------------------------
-SELECT * FROM GADATA.STO.BREAKDOWN as b
+SELECT * FROM GADATA.STO.Error as e
 WHERE
 --Asset Filters
-    isnull(b.AssetID,'%') like @assets
-and isnull(b.LOCATION,b.controller_name) like @locations
+    isnull(e.AssetID,'%') like @assets
+and isnull(e.LOCATION,e.controller_name) like @locations
 --and A.controller_name like @locations
-and isnull(b.LocationTree,'%') like @lochierarchy
+and isnull(e.LocationTree,'%') like @lochierarchy
 --Time Filter
-and CAST(b.[TIMESTAMP] as datetime) BETWEEN @StartDate AND @EndDate
+and CAST(e.[TIMESTAMP] as datetime) BETWEEN @StartDate AND @EndDate
 --enable
-and @StoData = 1
----------------------------------------------------------------------------------------
+and @StoError = 1
 
 ) as output
 left join gadata.volvo.l_timeline as timeline on output.timestamp between timeline.starttime and timeline.endtime

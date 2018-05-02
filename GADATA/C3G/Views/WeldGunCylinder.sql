@@ -1,5 +1,7 @@
 ﻿
 
+
+
 CREATE VIEW [C3G].[WeldGunCylinder]
 AS
 SELECT 
@@ -27,7 +29,7 @@ FROM GADATA.C3G.rt_GunCylinder as rt
 left join GADATA.C3G.c_controller as c on c.id = rt.controller_id
 --left join GADATA.volvo.L_timeline as lt on rt._timestamp between lt.starttime and lt.endtime
 left join GADATA.C3G.GunCylinderefernce as ref on ref.Controller_id = rt.controller_id and ref.tool_id = rt.Tool_id
-where (rt.value <> 0) and (variable_id = 5)
+where (rt.value <> 0) and (variable_id = 5) and (rt.Tool_id is not null)
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'WeldGunCylinder';
 

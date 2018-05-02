@@ -1,11 +1,6 @@
-﻿CREATE TABLE [C4G].[c_Appl] (
-    [id]   INT        IDENTITY (1, 1) NOT NULL,
-    [APPL] NCHAR (10) NULL,
-    CONSTRAINT [PK_C_Appl] PRIMARY KEY CLUSTERED ([id] ASC)
-);
+﻿
 
 
 GO
-CREATE UNIQUE NONCLUSTERED INDEX [NCI_C4G_C_Appl]
-    ON [C4G].[c_Appl]([id] ASC, [APPL] ASC);
+
 

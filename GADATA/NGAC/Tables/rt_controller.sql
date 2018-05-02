@@ -5,7 +5,7 @@
     [BaseDirectory]   VARCHAR (128) NULL,
     [ControllerName]  VARCHAR (30)  NULL,
     [HostName]        VARCHAR (230) NULL,
-    [Controller_Id]   VARCHAR (30)  NULL,
+    [Controller_Id]   VARCHAR (130) NULL,
     [IPaddress]       VARCHAR (30)  NULL,
     [IsVirtual]       INT           NULL,
     [MacAddress]      VARCHAR (50)  NULL,
@@ -17,6 +17,9 @@
     [VersionName]     VARCHAR (50)  NULL,
     [WebServicesPort] INT           NULL,
     [_timestamp]      DATETIME      NULL,
+    CONSTRAINT [PK_rt_controller] PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_rt_controller_c_controller] FOREIGN KEY ([c_controller_id]) REFERENCES [NGAC].[c_controller] ([id])
 );
+
+
 

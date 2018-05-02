@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [Volvo].[Shiftbook]
 AS
 SELECT 
@@ -7,7 +8,7 @@ SELECT
 , a.CLassificationId     AS 'AssetID'
 , 'SHIFTBOOK'			   AS 'Logtype'
 , sb.updateTimestamp      AS 'timestamp'
-, null       AS 'Logcode'
+, 0       AS 'Logcode' --0 for issue with parsing json in equiweb
 , null    AS 'Severity'
 , ISNULL(sb.acceptuser+'<= ' ,ISNULL(sb.ReportUser+'=> ','N/A'))  + sb.userDescription		   AS 'logtext'
 , NULL     AS 'Response'

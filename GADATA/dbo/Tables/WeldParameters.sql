@@ -8,3 +8,10 @@
     CONSTRAINT [FK_WeldParameters_TimerParameterName] FOREIGN KEY ([ParameterNameID]) REFERENCES [dbo].[TimerParameterName] ([ID])
 );
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [idx_WeldParameters_2]
+    ON [dbo].[WeldParameters]([SpotID] ASC, [ParameterNameID] ASC, [Value] ASC);
+

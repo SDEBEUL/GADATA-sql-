@@ -23,8 +23,8 @@ SET @StartDate = getdate()- @ndays
 SET @EndDate = getdate()
 
 
-SET @startdate = getdate()- 600
-SET @Enddate = getdate() + 1000
+SET @startdate = '2018-03-19 13:30:00.000'
+SET @Enddate = '2025-03-19 13:30:00.000' 
 
 --set start date to closest shift begin point
 SET @StartDate =  gadata.dbo.[fn_volvoCurrentShiftBegin](@StartDate,CAST(@StartDate AS time)) 
@@ -63,7 +63,7 @@ Begin
  set @Timespan = @Timespan +1
 
 --drop the temp object in a themp db 
-if (OBJECT_ID('GADATA.VOLVO.L_timeline') is not null) drop table GADATA.VOLVO.L_timeline
+if (OBJECT_ID('GADATA.VOLVO.L_timelineTemp') is not null) drop table GADATA.VOLVO.L_timelineTemp
  SELECT 
  * 
      ,CASE 
@@ -75,26 +75,9 @@ if (OBJECT_ID('GADATA.VOLVO.L_timeline') is not null) drop table GADATA.VOLVO.L_
 	  WHEN L.[shift] = 4 THEN 'WE'
 	  ELSE 'na' 
 	  END as [PLOEG]
- INTO GADATA.VOLVO.L_timeline FROM @Temp_L_WeekDayShift AS L
+INTO GADATA.VOLVO.L_timelineTemp 
+FROM @Temp_L_WeekDayShift AS L
 End
-
---SELECT *FROM @Temp_L_WeekDayShift
-/*
-Result
-starttime				shiftlength			week  day  shift
-2015-01-05 05:15:00.000	1900-01-01 08:15:00.000	2	1	1
-2015-01-05 13:30:00.000	1900-01-01 08:00:00.000	2	1	2
-2015-01-05 21:30:00.000	1900-01-01 07:45:00.000	2	1	3
-2015-01-06 05:15:00.000	1900-01-01 08:15:00.000	2	2	1
-2015-01-06 13:30:00.000	1900-01-01 08:00:00.000	2	2	2
-2015-01-06 21:30:00.000	1900-01-01 07:45:00.000	2	2	3
-2015-01-07 05:15:00.000	1900-01-01 08:15:00.000	2	3	1
-2015-01-07 13:30:00.000	1900-01-01 08:00:00.000	2	3	2
-2015-01-07 21:30:00.000	1900-01-01 07:45:00.000	2	3	3
-2015-01-08 05:15:00.000	1900-01-01 08:15:00.000	2	4	1
-*/
-
-
 
 
 end

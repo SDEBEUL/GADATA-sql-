@@ -36,6 +36,7 @@
     [action_data]             VARCHAR (256) NULL,
     [description]             VARCHAR (256) NULL,
     [keycode]                 INT           NULL,
+    [isDeleted]               INT           NULL,
     CONSTRAINT [PK_c_criteria_setup] PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_c_criteria_setup_c_rec_variable_if1] FOREIGN KEY ([c_rec_variable_id_if1]) REFERENCES [C4G].[c_rec_variable] ([id]),
     CONSTRAINT [FK_c_criteria_setup_c_rec_variable_if2] FOREIGN KEY ([c_rec_variable_id_if2]) REFERENCES [C4G].[c_rec_variable] ([id]),
@@ -44,4 +45,6 @@
     CONSTRAINT [FK_c_criteria_setup_c_rec_variable_when2] FOREIGN KEY ([c_rec_variable_id_when2]) REFERENCES [C4G].[c_rec_variable] ([id]),
     CONSTRAINT [FK_c_criteria_setup_c_rec_variable_when3] FOREIGN KEY ([c_rec_variable_id_when3]) REFERENCES [C4G].[c_rec_variable] ([id])
 );
+
+
 
