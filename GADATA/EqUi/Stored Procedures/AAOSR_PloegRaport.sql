@@ -65,6 +65,7 @@ SELECT
 , CONVERT(char(19),output.[timestamp], 120) AS 'timestamp' --cast to timeformat excel likes 
 , CONVERT(char(19),output.[timestamp], 108) AS 'time' 
 , output.Subgroup		AS 'Subgroup'
+, output.Classification as 'Classification'
 --extra 
 , output.refid		    AS 'refId'
 , output.LocationTree   AS 'LocationTree'
@@ -87,6 +88,7 @@ SELECT
 , SUM(c4g_breakdown.[Downtime(s)]) AS 'Downtime(s)'
 , count(c4g_breakdown.[Downtime(s)]) AS 'Count'
 , c4g_breakdown.Subgroup
+, c4g_breakdown.Classification 
 , min(c4g_breakdown.refId) as 'refid'
 , c4g_breakdown.LocationTree
 FROM gadata.c4g.breakdown as c4g_breakdown
@@ -115,6 +117,7 @@ GROUP BY
 ,timeline.Vday
 ,timeline.shift
 ,c4g_breakdown.Subgroup
+,c4g_breakdown.Classification 
 ,c4g_breakdown.LocationTree
 --************************************************************************************--
 ) as breakdowns
@@ -145,6 +148,7 @@ SELECT
 , SUM(c3g_breakdown.[Downtime(s)]) AS 'Downtime(s)'
 , count(c3g_breakdown.[Downtime(s)]) AS 'Count'
 , c3g_breakdown.Subgroup
+, c3g_breakdown.Classification 
 , min(c3g_breakdown.refId) as 'refid'
 , c3g_breakdown.LocationTree
 FROM GADATA.c3g.breakdown as c3g_breakdown
@@ -173,6 +177,7 @@ GROUP BY
 ,timeline.Vday
 ,timeline.shift
 ,c3g_breakdown.Subgroup
+,c3g_breakdown.Classification 
 ,c3g_breakdown.LocationTree
 --************************************************************************************--
 ) as breakdowns
@@ -203,6 +208,7 @@ SELECT
 , SUM(ngac_breakdown.Downtime) AS 'Downtime(s)'
 , count(ngac_breakdown.Downtime) AS 'Count'
 , ngac_breakdown.Subgroup
+, ngac_breakdown.Classification
 , min(ngac_breakdown.refId) as 'refid'
 , ngac_breakdown.LocationTree
 FROM GADATA.NGAC.Breakdown as ngac_breakdown
@@ -231,6 +237,7 @@ GROUP BY
 ,timeline.Vday
 ,timeline.shift
 ,ngac_breakdown.Subgroup
+,ngac_breakdown.Classification
 ,ngac_breakdown.LocationTree
 --group by logtekst for NGAC
 ,ngac_breakdown.Logtext
@@ -264,6 +271,7 @@ SELECT
 , SUM(s4c_breakdown.[Downtime(s)]) AS 'Downtime(s)'
 , count(s4c_breakdown.[Downtime(s)]) AS 'Count'
 , s4c_breakdown.Subgroup
+, s4c_breakdown.Classification
 , min(s4c_breakdown.refId) as 'refid'
 , s4c_breakdown.LocationTree
 FROM GADATA.s4c.breakdown as s4c_breakdown
@@ -292,6 +300,7 @@ GROUP BY
 ,timeline.Vday
 ,timeline.shift
 ,s4c_breakdown.Subgroup
+,s4c_breakdown.Classification
 ,s4c_breakdown.LocationTree
 --group by logtekst for s4c (there is no subgroup system)
 ,s4c_breakdown.Logtext
@@ -327,6 +336,7 @@ SELECT
 , NULL as 'Downtime(s)'
 , count(c4g_error.[timestamp]) AS 'Count'
 , c4g_error.Subgroup
+, c4g_error.Classification
 , min(c4g_error.refId) as 'refid'
 , c4g_error.LocationTree
 FROM GADATA.c4g.Error as c4g_error 
@@ -354,6 +364,7 @@ GROUP BY
 ,timeline.Vday
 ,timeline.shift
 ,c4g_error.Subgroup
+,c4g_error.Classification
 ,c4g_error.LocationTree
 --************************************************************************************--
 ) as warning 
@@ -378,6 +389,7 @@ SELECT
 , NULL as 'Downtime(s)'
 , count(c3g_error.[timestamp]) AS 'Count'
 , c3g_error.Subgroup
+, c3g_error.Classification
 , min(c3g_error.refId) as 'refid'
 , c3g_error.LocationTree
 FROM GADATA.c3g.error as c3g_error 
@@ -405,6 +417,7 @@ GROUP BY
 ,timeline.Vday
 ,timeline.shift
 ,c3g_error.Subgroup
+,c3g_error.Classification
 ,c3g_error.LocationTree
 --************************************************************************************--
 ) as warning 
@@ -431,8 +444,9 @@ select
  ELSE NULL 
  END as 'Downtime(s)' 
 , COUNT(h_alert.id) AS 'Count'
-, max(c_triggers.alertType)
-, max(h_alert.id) as 'refid'
+, MAX(c_triggers.alertType) AS 'Subgroup'
+, MAX(h_alert.[Classification]) AS 'Classification'
+, MAX(h_alert.id) as 'refid'
 ,h_alert.locationTree
 
 from GADATA.Alerts.h_alert
@@ -473,6 +487,7 @@ SELECT
 , null
 , null
 , null
+, null
 , ''
 FROM GADATA.volvo.Timeline as t where t.timestamp between @startdate and @endDate
 --************************************************************************************--
@@ -495,6 +510,7 @@ as 'Logtekst'
 , null
 , null
 , '<= refreshed' as 'subgroup'
+, null
 , null
 , ''
 --************************************************************************************--

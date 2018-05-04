@@ -2,6 +2,8 @@
 
 
 
+
+
 CREATE VIEW [Tableau].[Last100d_STW040andMAXIMO]
 AS
 SELECT 
@@ -20,7 +22,7 @@ SELECT
 ,t.Vday
 ,t.PLOEG
 ,t.shift
-FROM [GADATA].EqUi.stw040 as e 
+FROM [GADATA].STW040.STW040view as e 
 LEFT OUTER JOIN gadata.equi.GeoASSETS as A on a.LOCATION = e.Location
 LEFT OUTER JOIN GADATA.volvo.L_timeline as t on e.timestamp between t.starttime and t.endtime
 where  e.timestamp between GETDATE()-100 and GETDATE()

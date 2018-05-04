@@ -188,6 +188,9 @@
     <Folder Include="WELDING\Stored Procedures\" />
     <Folder Include="UL\Stored Procedures\" />
     <Folder Include="Tableau\Stored Procedures\" />
+    <Folder Include="STW040\" />
+    <Folder Include="STW040\Tables\" />
+    <Folder Include="STW040\Views\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Security\GADATA.sql" />
@@ -1318,10 +1321,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="GLUE\Views\vultijdspcviewer5.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="GLUE\Views\vultijd_gemiddelde_mediaan3.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -1335,10 +1334,6 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="GLUE\Views\vultijd.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="GLUE\Views\viewerToolDavid.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
@@ -2447,10 +2442,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="Tableau\Tables\BT_Last100d_STW040andMAXIMO.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="Tableau\Tables\BT_Last100d_STO-NGAC.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -2991,10 +2982,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="WELDING\Stored Procedures\QualityImprovementCheck.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="WELDING\Stored Procedures\WeldParameters.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -3019,10 +3006,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="Tableau\Stored Procedures\Updatebuffers.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="Security\WELDING.sql" />
     <Build Include="Security\UL.sql" />
     <Build Include="Security\Tableau.sql" />
@@ -3032,5 +3015,30 @@
     <Build Include="Security\MAXIMO.sql" />
     <Build Include="Security\HangFire_1.sql" />
     <Build Include="Security\Alerts.sql" />
+    <Build Include="WELDING\Tables\WeldTimerDATA.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="STW040\Tables\STW040.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="STW040\Views\stw040view.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Stored Procedures\QualityImprovmentCheck.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="EqUi\Stored Procedures\EQpluginNutsCellstest.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="EqUi\Stored Procedures\EQpluginNutsCells.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="Security\STW040.sql" />
   </ItemGroup>
 </Project>

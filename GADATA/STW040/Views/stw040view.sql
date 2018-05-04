@@ -1,34 +1,34 @@
 ﻿
 
-
-
-
-
-
-CREATE VIEW [MAXIMO].[CI_WO]
+/*the replace GH is because every gripper in STW040 is GH and in reality can be GH GP GD
+the replace WT is because every tucker in stw040 is WT and in reality should be WTA WTP .... (we put everything on WTA) 
+the +'%' is because almost nobody in stw040 defines the specific tool. */
+CREATE VIEW [STW040].[stw040view]
 AS
-SELECT DISTINCT
-  isnull(assets.location,wo.LOCATION+'#')		   AS 'Location' 
-, assets.CLassificationId   AS 'AssetID'
-,'MAXIMO'		   AS 'Logtype'
-, wo.REPORTDATE     AS 'timestamp'
-, wo.WORKTYPE	      AS 'Logcode'
-, null			AS 'Severity'
-, '[Omschrijving]: '+ isnull(wo.[DESCRIPTION],'N/A')   AS 'logtext'
-, null	AS 'Response(s)' 
-, 1  AS 'Downtime(s)' --SDB need to get the hours of the WO
-, 1  AS 'Count'
-, 'Undefined*'  AS 'Classification'
-, 'Undefined*' AS 'Subgroup'
-, cast(wo.WONUM as varchar(max))  AS 'refId'
-, assets.LocationTree     As 'LocationTree'
-, assets.ClassificationTree as 'ClassTree'
-, wo.LOCATION+'#'		AS 'controller_name'
-, 'MAXIMO'		As 'controller_type'
-FROM [GADATA].MAXIMO.WORKORDERS as WO
-left join gadata.equi.ASSETS on  wo.LOCATION = ASSETS.location
+SELECT  
+						 ISNULL(EqUi.ASSETS.LOCATION, RTRIM(STW040.STW040.IMACHINE) + '#') AS 'Location'
+						 , EqUi.ASSETS.CLassificationId AS 'AssetID'
+						 , 'STW040' AS 'Logtype'
+						 , STW040.STW040.DBSTASTO AS 'timestamp'
+						 , STW040.STW040.KEIG AS 'Logcode'
+						 , NULL AS 'Severity', '[Aktie]: ' + RTRIM(ISNULL(STW040.STW040.OAKTIE, 
+                         ISNULL(STW040.STW040.OOORZAAK, 'N/A')) )
+						 + CHAR(10) + CHAR(13) + '|[#]:' + ISNULL(CAST(STW040.STW040.HAMSTOR AS varchar(5)), 'N/A') 
+			             + CHAR(10) + CHAR(13) + '|[USER]:' + ISNULL(CAST(STW040.STW040.SurName AS varchar(5)), '') + ' ' + ISNULL(CAST(STW040.STW040.LastName AS varchar(5)), 'N/A')  AS 'logtext'
+						 , NULL AS 'Response(s)'
+					     , DATEDIFF(second, STW040.DBSTASTO, STW040.DBSTOSTIL)AS 'Downtime(s)'
+						 , STW040.STW040.HAMSTOR  AS 'Count'
+						 , ISNULL(STW040.STW040.KMTBF, 'Undefined*') AS 'Classification'
+						 ,  ISNULL(STW040.STW040.OOORZAAK, 'Undefined*') AS 'Subgroup'
+						 , CAST(STW040.STW040.id AS varchar(MAX)) AS 'refId'
+						 , EqUi.ASSETS.LocationTree
+						 , EqUi.ASSETS.ClassificationTree AS 'ClassTree'
+						 , LTRIM(STW040.STW040.IMACHINE) + '#' AS 'controller_name'
+						 , 'STW040' AS 'controller_type'
+FROM  STW040.STW040 
+LEFT OUTER JOIN EqUi.ASSETS ON UPPER(LTRIM(RTRIM(EqUi.ASSETS.LOCATION))) LIKE UPPER(LTRIM(RTRIM(REPLACE(REPLACE(STW040.STW040.IMACHINE, 'GH', 'G%'), 'WT', 'WT%')))) + '%'
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'MAXIMO', @level1type = N'VIEW', @level1name = N'CI_WO';
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'STW040', @level1type = N'VIEW', @level1name = N'stw040view';
 
 
 GO
@@ -103,7 +103,7 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "WO"
+         Begin Table = "STW040_1"
             Begin Extent = 
                Top = 6
                Left = 38
@@ -149,5 +149,5 @@ Begin DesignProperties =
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'MAXIMO', @level1type = N'VIEW', @level1name = N'CI_WO';
+', @level0type = N'SCHEMA', @level0name = N'STW040', @level1type = N'VIEW', @level1name = N'stw040view';
 

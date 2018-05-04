@@ -42,8 +42,12 @@
     [ResponsiblePloeg]      VARCHAR (MAX) NULL,
     [ClassificationTree]    VARCHAR (MAX) NULL,
     [CLassificationId]      VARCHAR (MAX) NULL,
+    [pjv_action_mask]       INT           NULL,
+    [pjv_event_mask]        INT           NULL,
     CONSTRAINT [PK_c_controller1] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 
 
 
