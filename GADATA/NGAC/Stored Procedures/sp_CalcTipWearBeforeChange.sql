@@ -28,8 +28,8 @@ SELECT
 ,x.DeltaNomBeforeChange
 ,ROUND((X.FixedWearBeforeChange  / X.Max_Wear_Fixed)*100,0)as '%FixedWearBeforeChange' --fixed dataType cast !!
 ,ROUND((X.MoveWearBeforeChange  / X.Max_Wear_Move)*100,0) as '%MoveWearBeforeChange' --fixed dataType cast !!
-,(x.MaxWeldsbetweenDresses * x.DressBeforeChange) * (100-ROUND(((CAST(x.Max_Wear_Fixed as float)/100) * x.FixedWearBeforeChange) *100, 1)) as 'ESTnSpotsFixedWearBefore100'
-,(x.MaxWeldsbetweenDresses * x.DressBeforeChange) * (100-ROUND(((CAST(x.Max_Wear_Move as float)/100) * x.MoveWearBeforeChange) *100, 1)) as 'ESTnSpotsMoveWearBefore100'
+,(x.MaxWeldsbetweenDresses * x.DressBeforeChange) * (((100-ROUND((X.FixedWearBeforeChange  / X.Max_Wear_Fixed)*100,0))/100)+1) as 'ESTnSpotsFixedWearBefore100'
+,(x.MaxWeldsbetweenDresses * x.DressBeforeChange) * (((100-ROUND((X.MoveWearBeforeChange  / X.Max_Wear_Move)*100,0))/100)+1)  as 'ESTnSpotsMoveWearBefore100'
 ,DATEDIFF(hour,x.PreviousTipchange,X.TipchangeTimestamp) as 'TipAge(h)'
 
 into #TipWearBeforeChange
@@ -97,7 +97,7 @@ AND Y.Dress_Reason = 'FullDress'
 )
 OR --stat guns
 (
-	Y.Dress_Num = 3
+	Y.Dress_Num in (0,1,2,3) --normaly guns are set to 3 dresses in init-dress but some are change to 2 this clause will handle all 
 AND Y.Dress_Reason = 'InitDress'
 )
 AND Y.DressBeforeChange is not null 

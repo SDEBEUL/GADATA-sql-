@@ -1,24 +1,14 @@
 ﻿
 
-
-
-
-
-
-
-
-
-
-
-
 CREATE VIEW [NGAC].[TipMonitor]
 AS
-SELECT DISTINCT top 10000		   rt.[controller_name] as 'Robot'
+SELECT DISTINCT top 10000  rt.[controller_name] as 'Robot'
                           ,rt.[Date Time]
                           ,rt.[Dress_Num] as 'nDress'
                           ,rt.[Weld_Counter] as 'nWelds'
 						  ,rt.TipWearRatio as 'WearRatio'
 	                      ,CASE 
+						      WHEN tipalert.refId is not null THEN 666
 		                      WHEN rt.[Wear_Fixed] > rt.[Wear_Move] THEN ROUND((rt.[Wear_Fixed]  / rt.[Max_Wear_Fixed])*100,0)
 		                      ELSE ROUND((rt.Wear_Move  / rt.Max_Wear_Move)*100,0)
 		                      END 'pWear'
@@ -36,8 +26,16 @@ SELECT DISTINCT top 10000		   rt.[controller_name] as 'Robot'
 						 ,rt.id
 						 ,rt.LocationTree
 						 ,ROUND(rt.DeltaNom-rt.[avgDeltaNomAfterchange],2) as 'MagicFiXedWear'
-						 
+						 ,CASE 
+						 WHEN tipalert.refId is not null THEN 'X'
+						 ELSE ''
+						 END as 'NoChangeDetected'
+
                       FROM [GADATA].[NGAC].[TipwearLast] as rt
+					  --join active tiplife alerts
+					  left join GADATA.Alerts.Alerts as tipalert on tipalert.LocationTree = rt.LocationTree 
+					  and tipalert.Subgroup like '%TIPLIFE%'
+					  and tipalert.Category = 'WGK'
                       where rt.[Date Time] < getdate()
 					  --
                       Order by [pWear] DESC

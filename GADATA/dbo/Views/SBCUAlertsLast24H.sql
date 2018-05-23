@@ -1,10 +1,15 @@
-﻿CREATE VIEW dbo.SBCUAlertsLast24H
+﻿
+CREATE VIEW [dbo].[SBCUAlertsLast24H]
 AS
+
+/* SDEBEUL -> @ Jens zie mail 
 SELECT        TOP (100) PERCENT Timestamp AS Date, Robotname AS Robot, Tool_id AS Tool, Logtekst AS [[SBCU ALERTS]] of uit dienst]
 FROM            C3G.SBCUoutOfLimit
 WHERE        (Timestamp BETWEEN GETDATE() - 2 AND GETDATE())
 UNION
-SELECT        NULL AS date, Location,null as tool, logtext AS [SBCY ALERT (warning MinUpdate betekend SBCU uit dienst - ]
+*/
+
+SELECT        NULL AS date, Location,null as tool, logtext AS [SBCU ALERT (warning MinUpdate betekend SBCU uit dienst - ]
 FROM            C3G.Error
 WHERE        (timestamp BETWEEN GETDATE() - 2 AND GETDATE())
 GROUP BY Location, logtext

@@ -7,6 +7,9 @@
 
 
 
+
+
+
 CREATE VIEW [NGAC].[TipwearLast]
 AS
 select 
@@ -16,11 +19,11 @@ select
 ,avgESTspots.maxWearInCalc
 ,avgESTspots.minWearInCalc
 ,avgESTspots.countWearInCalc
-,avgESTspots.avgESTnSpotsFixedWearBefore100 - y.Weld_Counter as 'ESTremainingspotsFixed'
-,avgESTspots.avgESTnSpotsMoveWearBefore100 - y.Weld_Counter as 'ESTremainingspotsMove'
-,ROUND(((avgESTspots.avgESTnSpotsFixedWearBefore100 - y.Weld_Counter) / nSpotsCar.nSpots44),0) as 'ESTremainingCarsFixed'
-,ROUND(((avgESTspots.avgESTnSpotsMoveWearBefore100 - y.Weld_Counter) / nSpotsCar.nSpots44),0) as 'ESTremainingsCarsMove'
-,nSpotsCar.nSpots44
+,avgESTspots.avgESTnSpotsFixedWearBefore100 - (y.Dress_Num*avgESTspots.avgWeldPerDress) as 'ESTremainingspotsFixed'
+,avgESTspots.avgESTnSpotsMoveWearBefore100 - (y.Dress_Num*avgESTspots.avgWeldPerDress) as 'ESTremainingspotsMove'
+,ROUND(((avgESTspots.avgESTnSpotsFixedWearBefore100 - (y.Dress_Num*avgESTspots.avgWeldPerDress)) / nSpotsCar.TotWearComponent),0) as 'ESTremainingCarsFixed'
+,ROUND(((avgESTspots.avgESTnSpotsMoveWearBefore100 - (y.Dress_Num*avgESTspots.avgWeldPerDress)) / nSpotsCar.TotWearComponent),0) as 'ESTremainingsCarsMove'
+,nSpotsCar.TotWearComponent
 ,avgESTspots.LastTipchange
 ,avgESTspots.avgDeltaNomAfterchange
 from(
@@ -50,6 +53,7 @@ SELECT
  ,twBc.Tool_Nr
  ,ROUND(AVG(twBc.ESTnSpotsFixedWearBefore100),0) as 'avgESTnSpotsFixedWearBefore100'
  ,ROUND(AVG(twBC.ESTnSpotsMoveWearBefore100),0) as 'avgESTnSpotsMoveWearBefore100'
+ ,ROUND(AVG(twBC.WeldsBeforeChange/twBc.DressBeforeChange),0) as 'avgWeldPerDress'
  --extra info 
  ,MAX(twBc.[WearBeforeChange]) as 'maxWearInCalc'
  ,MIN(twBc.[WearBeforeChange]) as 'minWearInCalc'
@@ -62,9 +66,11 @@ SELECT
    twBc.TipchangeTimestamp between getdate()-30 and getdate()
    AND 
   --The tipwear must be more than x% to include it in the calculation
-   twBc.[%FixedWearBeforeChange] >= 0
+   twBc.[%FixedWearBeforeChange] >= 10 --zeker 10% wear gehad hebben voor wissel
    AND 
-   twBc.[%MoveWearBeforeChange] >= 0
+   twBc.[%MoveWearBeforeChange] >= 10 --zeker 10% wear gehad hebben voor wissel
+   AND 
+   twBc.WeldsBeforeChange > 100 --moet minsten 100 spot gelast hebben voor wissel
   GROUP BY 
    twBc.controller_name
   , twBc.Tool_Nr
@@ -76,14 +82,11 @@ SELECT
 --join number of spots per car for this tip. 
 --**************************************************************************--
 left join (
-  select 
-  t.Robot
-  --Electrode nummer nog niet gekoppled !!
- ,count(s44.Number) as 'nSpots44'
-  from gadata.dbo.Timer as t
-  left join GADATA.dbo.Spot as s44 on t.ID = s44.TimerID
-  where s44.Number like '44%'
-  group by t.Robot
+SELECT TOP (1000) 
+       Sum([WearComponent]) as 'TotWearComponent' --this is wrong it just sums the variants 
+      ,[Robot]
+  FROM [GADATA].[WELDING].[ABBWearComponent]
+  group by Robot
   ) as nSpotsCar on nSpotsCar.Robot = y.controller_name
   --AND
   -- MUST JOIN ELECTRODE !! 

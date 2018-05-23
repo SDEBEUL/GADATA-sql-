@@ -74,14 +74,13 @@ SELECT tipdresslogfile.controller_name
       ,[GunTCP_X]
       ,[GunTCP_Y]
       ,[GunTCP_Z]
-	  ,a.LocationTree
+	  ,LocationTree
 
 FROM [GADATA].[NGAC].[TipDressLogFile]
-LEFT JOIN GADATA.EqUi.ASSETS a on a.LOCATION = TipDressLogFile.controller_name
 
 WHERE [Date Time] between @StartDate and @EndDate
-AND a.LocationTree like @lochierarchy
-AND a.LOCATION like @locations
+AND LocationTree like @lochierarchy
+AND controller_name like @locations
 
 
 END

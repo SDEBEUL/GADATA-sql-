@@ -9,6 +9,9 @@
 
 
 
+
+
+
 CREATE VIEW [EqUi].[Supervisie]
 AS
 
@@ -82,6 +85,7 @@ UNION
 --*******************************************************************************************************--
 --c3g breakdown
 --*******************************************************************************************************--
+
 select * from GADATA.c3g.breakdown as c3g_breakdown
 where 
 c3g_breakdown.[timestamp] BETWEEN getdate()-'1900-01-01 08:00:00' AND getdate()
@@ -171,7 +175,7 @@ L_liveView.logtext not in (
 --*******************************************************************************************************--
 UNION
 --*******************************************************************************************************--
---ACTIVE ALERTS (NGAC)
+--ALERTS (h_alert system)
 --*******************************************************************************************************--
 select 
        [Location]
@@ -190,7 +194,8 @@ select
       ,[ClassTree]
       ,[controller_name]
       ,[controller_type]
-FROM GADATA.NGAC.ActiveAlerts
+FROM GADATA.Alerts.alerts
+where alerts.[timestamp] BETWEEN getdate()-'1900-01-01 08:00:00' AND getdate()
 --*******************************************************************************************************--
 ) as output
 where 

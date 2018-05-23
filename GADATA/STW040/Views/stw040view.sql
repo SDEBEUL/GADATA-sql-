@@ -1,5 +1,7 @@
 ﻿
 
+
+
 /*the replace GH is because every gripper in STW040 is GH and in reality can be GH GP GD
 the replace WT is because every tucker in stw040 is WT and in reality should be WTA WTP .... (we put everything on WTA) 
 the +'%' is because almost nobody in stw040 defines the specific tool. */
@@ -8,7 +10,10 @@ AS
 SELECT  
 						 ISNULL(EqUi.ASSETS.LOCATION, RTRIM(STW040.STW040.IMACHINE) + '#') AS 'Location'
 						 , EqUi.ASSETS.CLassificationId AS 'AssetID'
-						 , 'STW040' AS 'Logtype'
+						 , CASE
+						 WHEN STW040.KMANUEEL = 'J' THEN 'STW040_M'
+						 ELSE 'STW040_A'
+						 END AS 'Logtype'
 						 , STW040.STW040.DBSTASTO AS 'timestamp'
 						 , STW040.STW040.KEIG AS 'Logcode'
 						 , NULL AS 'Severity', '[Aktie]: ' + RTRIM(ISNULL(STW040.STW040.OAKTIE, 
@@ -26,7 +31,8 @@ SELECT
 						 , LTRIM(STW040.STW040.IMACHINE) + '#' AS 'controller_name'
 						 , 'STW040' AS 'controller_type'
 FROM  STW040.STW040 
-LEFT OUTER JOIN EqUi.ASSETS ON UPPER(LTRIM(RTRIM(EqUi.ASSETS.LOCATION))) LIKE UPPER(LTRIM(RTRIM(REPLACE(REPLACE(STW040.STW040.IMACHINE, 'GH', 'G%'), 'WT', 'WT%')))) + '%'
+LEFT  JOIN EqUi.ASSETS ON UPPER(LTRIM(RTRIM(EqUi.ASSETS.LOCATION))) LIKE UPPER(LTRIM(RTRIM(REPLACE(REPLACE(STW040.STW040.IMACHINE, 'GH', 'G%'), 'WT', 'WT%')))) + '%'
+WHERE STW040.KMANUEEL = 'J'
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'STW040', @level1type = N'VIEW', @level1name = N'stw040view';
 

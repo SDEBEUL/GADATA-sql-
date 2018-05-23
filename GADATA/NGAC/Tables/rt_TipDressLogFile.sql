@@ -59,6 +59,8 @@
 
 
 
+
+
 GO
 CREATE NONCLUSTERED INDEX [nci_tipdressLogFile1]
     ON [NGAC].[rt_TipDressLogFile]([rt_csv_file_id] ASC, [Date Time] ASC)
@@ -69,4 +71,10 @@ GO
 CREATE NONCLUSTERED INDEX [nci_tipdresslogfile]
     ON [NGAC].[rt_TipDressLogFile]([Max_Wear_Fixed] ASC, [Max_Wear_Move] ASC, [_timestamp] ASC)
     INCLUDE([id], [rt_csv_file_id], [Date Time], [Tool_Nr], [Dress_Num], [Weld_Counter], [Wear_Fixed], [Wear_Move], [TipWearRatio], [Time_DressCycleTime]);
+
+
+GO
+CREATE NONCLUSTERED INDEX [nic_TipDressLogfile_maxWear]
+    ON [NGAC].[rt_TipDressLogFile]([Max_Wear_Fixed] ASC, [Max_Wear_Move] ASC, [_timestamp] ASC)
+    INCLUDE([id], [rt_csv_file_id], [Date Time], [Tool_Nr], [Dress_Num], [Weld_Counter], [Wear_Fixed], [Wear_Move], [TipWearRatio], [Time_DressCycleTime], [GunTCP_X], [GunTCP_Y], [GunTCP_Z], [NomTCP_X], [NomTCP_Y], [NomTCP_Z]);
 

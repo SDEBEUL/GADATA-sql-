@@ -4,6 +4,7 @@
 
 
 
+
 CREATE VIEW [Tableau].[Last100d_STW040andMAXIMO]
 AS
 SELECT 
@@ -25,7 +26,7 @@ SELECT
 FROM [GADATA].STW040.STW040view as e 
 LEFT OUTER JOIN gadata.equi.GeoASSETS as A on a.LOCATION = e.Location
 LEFT OUTER JOIN GADATA.volvo.L_timeline as t on e.timestamp between t.starttime and t.endtime
-where  e.timestamp between GETDATE()-100 and GETDATE()
+where  e.timestamp between GETDATE()-30 and GETDATE()
 
 UNION
 SELECT 
@@ -47,7 +48,7 @@ SELECT
 FROM [GADATA].MAXIMO.CI_WO as e 
 LEFT OUTER JOIN gadata.equi.GeoASSETS as A on a.LOCATION = e.Location
 LEFT OUTER JOIN GADATA.volvo.L_timeline as t on e.timestamp between t.starttime and t.endtime
-where  e.timestamp between GETDATE()-100 and GETDATE()
+where  e.timestamp between GETDATE()-30 and GETDATE()
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Tableau', @level1type = N'VIEW', @level1name = N'Last100d_STW040andMAXIMO';
 

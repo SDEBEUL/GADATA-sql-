@@ -207,6 +207,22 @@ LEFT OUTER JOIN dbo.spot
              ON tbl.spotname = dbo.spot.number 
 WHERE  ( ul.spotidentmeasurements.timestamp IS NULL ) 
 UNION 
+--
+--NPT52
+SELECT tbl.datetime, 
+       dbo.spot.id 
+FROM   (SELECT [datetime], 
+               [spotname] 
+        FROM 
+[10.249.225.198\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extweldmeasureprotddw_v] 
+ WHERE  spotname = '4402027')tbl 
+LEFT OUTER JOIN ul.spotidentmeasurements 
+             ON tbl.datetime = ul.spotidentmeasurements.timestamp 
+LEFT OUTER JOIN dbo.spot 
+             ON tbl.spotname = dbo.spot.number 
+WHERE  ( ul.spotidentmeasurements.timestamp IS NULL ) 
+UNION 
+--
 --NPT53 
 SELECT tbl.datetime, 
        dbo.spot.id 

@@ -12,10 +12,17 @@
     [AlternativeNumber]   NCHAR (25) NULL,
     [Model]               NCHAR (10) NULL,
     [Variant]             NCHAR (50) NULL,
+    [JobCode]             INT        NULL,
     CONSTRAINT [PK_Spot] PRIMARY KEY CLUSTERED ([ID] ASC),
     CONSTRAINT [FK_Spot_PlateCombinations] FOREIGN KEY ([PlateCombinationtId]) REFERENCES [dbo].[PlateCombinations] ([ID]),
     CONSTRAINT [FK_Spot_Timer] FOREIGN KEY ([TimerID]) REFERENCES [dbo].[Timer] ([ID])
 );
+
+
+GO
+ALTER TABLE [dbo].[Spot] NOCHECK CONSTRAINT [FK_Spot_PlateCombinations];
+
+
 
 
 GO

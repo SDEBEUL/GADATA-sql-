@@ -11,6 +11,7 @@
 
 
 
+
 CREATE VIEW [NGAC].[Breakdown]
 AS
 SELECT 
@@ -57,7 +58,7 @@ LEFT OUTER JOIN NGAC.L_category as lc with (NOLOCK)  on lc.id = h.CategoryId
 LEFT OUTER JOIN VOLVO.c_Classification as cc with (NOLOCK)  on cc.id = Le.c_ClassificationId
 LEFT OUTER JOIN VOLVO.c_Subgroup as cs with (NOLOCK)  on cs.id = Le.c_SubgroupId
 
-LEFT JOIN NGAC.c_controller as c with (NOLOCK) on c.id = h.controller_id
+LEFT JOIN NGAC.c_controller as c with (NOLOCK) on c.id = rtj.c_controller_id
 --must be a breakdown not just CT
 WHERE rtj.ts_breakDownStart is not null 
 AND rtj.ts_breakDownEnd is not null

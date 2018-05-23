@@ -1,4 +1,4 @@
-CREATE TABLE [EqUi].[ASSETS] (
+﻿CREATE TABLE [EqUi].[ASSETS] (
     [SYSTEMID]           VARCHAR (255) NULL,
     [LOCATION]           VARCHAR (255) NULL,
     [ASSETNUM]           VARCHAR (255) NULL,
@@ -22,12 +22,6 @@ CREATE TABLE [EqUi].[ASSETS] (
 
 
 
-GO
-
-
-
-GO
-
 
 
 GO
@@ -51,18 +45,21 @@ GO
 
 
 GO
-CREATE NONCLUSTERED INDEX [nci_asset, equi]
-    ON [EqUi].[ASSETS]([controller_type] ASC, [controller_id] ASC, [controller_ToolID] ASC)
-    INCLUDE([LOCATION], [LocationTree], [CLassificationId], [ClassificationTree]);
+
 
 
 GO
-CREATE NONCLUSTERED INDEX [<nci sto assets, sto,>]
-    ON [EqUi].[ASSETS]([LOCATION] ASC);
+
 
 
 GO
-CREATE NONCLUSTERED INDEX [<Name of Missing Index, sysname,>]
-    ON [EqUi].[ASSETS]([CLassificationId] ASC)
-    INCLUDE([LOCATION], [LocationTree], [ClassificationTree]);
+
+
+
+GO
+
+
+
+GO
+
 

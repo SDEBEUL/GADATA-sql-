@@ -16,3 +16,10 @@
     CONSTRAINT [FK_rt_alarm_c_controller] FOREIGN KEY ([controller_id]) REFERENCES [NGAC].[c_controller] ([id])
 );
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [NCI_FORVASC_rtAlarmSequence]
+    ON [NGAC].[rt_alarm]([controller_id] ASC, [sequenceNumber] ASC, [categoryId] ASC, [error_timestamp] ASC);
+

@@ -89,10 +89,9 @@ BEGIN
              
 
 
-
-			 --*******************************************************************************************************************--
-			 --new way 
-			 --NGAC
+--*******************************************************************************************************************--
+--new way Direct joining the location root in the c_controllers
+--NGAC
 UPDATE GADATA.NGAC.c_controller
 SET c_controller.LocationTree = mx.LocationTree 
    ,c_controller.Assetnum = mx.ASSETNUM

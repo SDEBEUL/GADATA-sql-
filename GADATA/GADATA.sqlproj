@@ -191,6 +191,11 @@
     <Folder Include="STW040\" />
     <Folder Include="STW040\Tables\" />
     <Folder Include="STW040\Views\" />
+    <Folder Include="BackupClient\" />
+    <Folder Include="BackupClient\Tables\" />
+    <Folder Include="Alerts\Views\" />
+    <Folder Include="ZEIS\" />
+    <Folder Include="ZEIS\Views\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Security\GADATA.sql" />
@@ -335,12 +340,18 @@
     <Build Include="C4G\Views\HandMonitor.sql" />
     <Build Include="C4G\Views\Gen_ovr.sql" />
     <Build Include="C4G\Views\ActiveState.sql" />
-    <Build Include="C3G\Views\WeldGunCylinderOutOfLimit.sql" />
+    <Build Include="C3G\Views\WeldGunCylinderOutOfLimit.sql">
+      <AnsiNulls>Off</AnsiNulls>
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
     <Build Include="C3G\Views\WeldGunCylinder.sql" />
     <Build Include="C3G\Views\WARNING.sql" />
     <Build Include="C3G\Views\Uptime.sql" />
     <Build Include="C3G\Views\SysState.sql" />
-    <Build Include="C3G\Views\SBCUoutOfLimit.sql" />
+    <Build Include="C3G\Views\SBCUoutOfLimit.sql">
+      <AnsiNulls>Off</AnsiNulls>
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
     <Build Include="C3G\Views\SBCUData.sql" />
     <Build Include="C3G\Views\mod.sql" />
     <Build Include="C3G\Views\Live.sql" />
@@ -381,10 +392,6 @@
     <Build Include="Security\VISIO.sql" />
     <Build Include="Security\NGAC.sql" />
     <Build Include="Security\LAUNCG.sql" />
-    <Build Include="Volvo\Tables\Users.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="Volvo\Tables\L_timeline.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -414,10 +421,6 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="Volvo\Tables\c_Classification.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="Volvo\Tables\APPLmap.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
@@ -1692,10 +1695,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="Volvo\Stored Procedures\sp_AlertCheck.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="Volvo\Stored Procedures\LiveView.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -2298,14 +2297,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\TimerDataChange_OLD.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="dbo\Tables\SpotDataChange_OLD.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="dbo\Tables\raw_Ultra_laptop7_ULOGVersion.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -2386,10 +2377,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="WELDING\Tables\TOP10TimerfaultsLast24H.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="WELDING\Tables\FactoryActualSpotList.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -2410,10 +2397,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="WELDING\Tables\breakdown1.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="WELDING\Tables\Breakdown_start.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -2427,10 +2410,6 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="WELDING\Tables\QisControlParameters.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="WELDING\Tables\LastUltralogplan.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
@@ -2930,10 +2909,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="EqUi\Stored Procedures\AAGRIP_PloegRaport.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="dbo\Stored Procedures\PSFTool.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -3015,10 +2990,6 @@
     <Build Include="Security\MAXIMO.sql" />
     <Build Include="Security\HangFire_1.sql" />
     <Build Include="Security\Alerts.sql" />
-    <Build Include="WELDING\Tables\WeldTimerDATA.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="STW040\Tables\STW040.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -3031,14 +3002,133 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="EqUi\Stored Procedures\EQpluginNutsCellstest.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="EqUi\Stored Procedures\EQpluginNutsCells.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="Security\STW040.sql" />
+    <Build Include="WELDING\Tables\RobotJob_spot.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Tables\ControleWelding_Stations.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Tables\ControleWelding_ratio.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="PJV\Tables\L_GIT.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="NGAC\Tables\rt_Track_LubeLow.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="EqUi\Tables\AreaFilters.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="BackupClient\Tables\crobot_users.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="BackupClient\Tables\crobot_logfiles.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="BackupClient\Tables\crobot_globallogging.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="BackupClient\Tables\crobot_globalconfig.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="BackupClient\Tables\crobot_filecheck.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="BackupClient\Tables\crobot_events.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="BackupClient\Tables\crobot_emails.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="BackupClient\Tables\crobot_backupsessie.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="BackupClient\Tables\crobot_autobackup.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="BackupClient\Tables\comaurobots.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Views\TEST_spCheckTimer.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Views\TEST_sp_checkrobot.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Views\TEST_RobotSpotorderNbr.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Views\TEST_jobsTimeline.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Views\TEST_AllJobsOnspot.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Views\TEST_AllJobMeasurements.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="Alerts\Views\Alerts.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="ZEIS\Views\NOK_measpoints.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="Security\BackupClient.sql" />
+    <Build Include="WELDING\Stored Procedures\timerparameters.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Stored Procedures\INSERTNewTimerParameters.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Stored Procedures\InsertNewParameters.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Stored Procedures\CheckWelding_stations.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="WELDING\Stored Procedures\CheckWelding_spots.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="EqUi\Stored Procedures\EQpluginNutsCellsjens.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="Security\ZEIS.sql" />
+    <Build Include="Security\BackupClient_1.sql" />
   </ItemGroup>
 </Project>
