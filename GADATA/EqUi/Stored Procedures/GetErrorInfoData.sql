@@ -3,7 +3,7 @@
 
 CREATE PROCEDURE [EqUi].[GetErrorInfoData]
   @Location as varchar(max) = '{0}'
- ,@ERRORNUM as int = null --{1} 
+ ,@ERRORNUM as varchar(max) =  '{1}' 
  ,@Refid as int = null --{2}
  ,@logtype as varchar(max) = '{3}'
 AS
@@ -80,6 +80,13 @@ from GADATA.NGAC.ErrDispLog as h
 WHERE h.refId = @Refid
 END
 
+--voor STO
+if  @logtype = 'STOerror' --@controllerTYPE = 'STO' and can not do this because not joined in assets 
+BEGIN
+SELECT
+'Wachten op meer info van plc' as 'Title'
+,'Louis zal wel zelf een info tabel maken' as 'Wishfull'
+END
 
 -- 
 END

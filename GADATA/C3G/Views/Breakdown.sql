@@ -2,6 +2,8 @@
 
 
 
+
+
 CREATE VIEW [C3G].[Breakdown]
 AS
 --*******************************************************************************************************--
@@ -12,8 +14,8 @@ SELECT
 , c.CLassificationId   AS 'AssetID'
 ,'BREAKDOWN'		   AS 'Logtype'
 , H.EndOfBreakdown     AS 'timestamp'
-, ISNULL(LR.[error_number],L.[error_number])	      AS 'Logcode'
-, ISNULL(LR.[error_severity],L.[error_severity])			AS 'Severity'
+, CAST(ISNULL(LR.[error_number],L.[error_number]) as varchar(max)) AS 'Logcode'
+, CAST(ISNULL(LR.[error_severity],L.[error_severity]) as varchar(max)) AS 'Severity'
 , ISNULL(('|R: ' + LR.error_text), Isnull(L.error_text,'Fail: ' + GADATA.C3G.[fn_ShortSysstate](H.Trig_state)))AS 'logtext'
 , DATEDIFF(second,'1900-01-01 00:00:00', H.Rt)		AS 'Response(s)' 
 , DATEDIFF(second, H.StartOfBreakdown, H.EndOfBreakdown)AS 'Downtime(s)'

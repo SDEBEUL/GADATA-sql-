@@ -1,7 +1,6 @@
 ﻿
 
 
-
 CREATE PROCEDURE [EqUi].[EQpluginNutsCells]
 
 --default parameters
@@ -48,7 +47,15 @@ BEGIN
 SET @StartDate = GETDATE() - @daysBack
 END 
 ---------------------------------------------------------------------------------------
+select tbl.timestamp, tbl.Location, welding.tbl_NutBoltWelding.MachineNumber,
+welding.tbl_NutBoltWelding.TimerName,welding.tbl_NutBoltWelding.NutID_BoltID_BOS6000,tbl.TRimSpotID,
+tbl.AssetID, tbl.Logtype,
+tbl.Logcode, tbl.Severity, tbl.Logtext, 
+L_timeline.Vyear,L_timeline.Vweek, L_timeline.Vday, L_timeline.shift,
+ tbl.refId, tbl.LocationTree, tbl.controller_type, tbl.[Txt 1], tbl.[Txt 2], tbl.[Txt 3], tbl.[Txt 4], tbl.[Txt 5], tbl.[Txt 6], tbl.[Txt 7], tbl.[Txt 8], tbl.[Txt 9]
+ , tbl.[TRimSpotID] as [Txt 10] ,tbl.[Txt 11]
 
+  from (
 select 
   c.controller_name		   AS 'Location' 
 , c.CLassificationId     AS 'AssetID' 
@@ -104,9 +111,10 @@ LEFT JOIN NGAC.c_controller as c with (NOLOCK) on c.id = rt_csv.c_controller_id
 
 where c.CLassificationId like 'UAWN+UAWB%' --only the nutcells
 AND rt.[Date Time] between @startdate and @enddate
-AND @ErrorDispLog = 1
+AND @ErrorDispLog = 1)tbl LEFT OUTER JOIN welding.tbl_NutBoltWelding ON tbl.TRimSpotID = welding.tbl_NutBoltWelding.NutID_BoltID_PII
+LEFT OUTER JOIN Volvo.L_timeline on tbl.timestamp BETWEEN Volvo.L_timeline.starttime and Volvo.L_timeline.endtime
 
-ORDER BY rt.[Date Time] desc 
+order by timestamp desc 
 
 
 

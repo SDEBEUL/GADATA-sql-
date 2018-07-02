@@ -9,8 +9,12 @@
     [WorkTime]     TIME (7)   NULL,
     [WorkGroup]    INT        NULL,
     [WorkLocation] NCHAR (50) NULL,
+    [SpotBefore]   INT        NULL,
+    [SpotAfter]    INT        NULL,
     CONSTRAINT [PK_Inspectionplan] PRIMARY KEY CLUSTERED ([ID] ASC)
 );
+
+
 
 
 

@@ -1,6 +1,6 @@
 ﻿
 -- ============================================= 
--- Author:     
+-- Author:     Coppejans Jens
 -- Create date:  
 -- Description:   
 -- ============================================= 
@@ -126,7 +126,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'raw_Ultra_IT16659'                         AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                       WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0 
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -139,7 +139,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'dbo_raw_Ultra_IT16660'                     AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                       WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0 
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -152,7 +152,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'dbo_raw_Ultra_IT16668'                     AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                       WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0 
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -165,7 +165,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'dbo_raw_Ultra_IT18161'                     AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                      WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0 
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -178,7 +178,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'dbo_raw_Ultra_laptop2'                     AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                       WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0 
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -191,7 +191,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'dbo_raw_Ultra_laptop3'                     AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                       WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0  
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -204,7 +204,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'dbo_raw_Ultra_laptop4'                     AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                       WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0 
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -217,7 +217,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'dbo_raw_Ultra_laptop5'                     AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                       WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0  
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -230,7 +230,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'dbo_raw_Ultra771'                          AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                       WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0 
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -256,7 +256,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'dbo_raw_Ultra_laptop6'                     AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                      WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0 
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -269,7 +269,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       FROM   (SELECT 'dbo_raw_Ultra_laptop7'                     AS StationID, 
                      *, 
                      CASE 
-                       WHEN partname = 'null' THEN 0 
+                       WHEN partname = 'null' or ISNUMERIC(partname) = 0 THEN 0 
                        ELSE partname 
                      END                                         AS 
                      PartnameConvert, 
@@ -277,7 +277,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
               FROM   [dbo].[raw_ultra_laptop7])tbl 		  	   
 
       INSERT INTO dbo.raw_tempuldata 
-      SELECT * 
+      SELECT distinct  * 
       FROM   #temptable999 
 
       ---insert new inspectionplan if found in laptops---- 
@@ -315,7 +315,7 @@ if (OBJECT_ID('tempdb..#temptable999 ') is not null) drop table #temptable999
       --ALTER Column BodyNbr int null  --- allow temp null values 
       --Convert and insert all data from temp table to dbo.ultraloginspections 
       INSERT INTO dbo.ultraloginspections 
-      SELECT dbo.inspectionplan.id                        AS InspectionplanID, 
+      SELECT  distinct dbo.inspectionplan.id                        AS InspectionplanID, 
              dbo.spot.id                                  AS SpotID, 
              #temptable999.inspectorcommentleft           AS inspectorcomment, 
              #temptable999.partnameconvert                AS bodynr, 
@@ -414,4 +414,8 @@ SELECT GETDATE()
 ---DELETE records older than 6 months---
       DELETE FROM welding.expulsiondata 
       WHERE  datetime < Dateadd(MONTH, -6, Getdate()) 
-  END
+
+
+
+
+ END

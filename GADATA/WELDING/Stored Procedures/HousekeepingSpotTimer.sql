@@ -12,12 +12,8 @@ AS
       DELETE FROM [WELDING].[factoryactualspotlist] 
 
       INSERT INTO [WELDING].[factoryactualspotlist] 
-      SELECT DISTINCT timername, 
-                      spotname, 
-                      weldprogno 
-      FROM 
-[19.148.189.9\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
+     
+     
       SELECT DISTINCT timername COLLATE database_default, 
                       spotname COLLATE database_default, 
                       weldprogno 
@@ -124,54 +120,6 @@ AS
                       spotname COLLATE database_default, 
                       weldprogno 
       FROM 
-  [136.20.175.212\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-  [136.20.175.213\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-  [136.20.175.254\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-  [19.148.170.103\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-  [19.148.170.244\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-[19.148.176.27\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-  [19.148.179.160\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-  [19.148.179.161\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
   [19.148.180.141\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
       UNION 
       SELECT DISTINCT timername COLLATE database_default, 
@@ -221,36 +169,7 @@ AS
                       weldprogno 
       FROM 
 [19.148.181.53\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-[19.148.182.11\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-[19.148.184.10\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-[19.148.185.36\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-[19.148.185.37\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
-      UNION 
-      SELECT DISTINCT timername COLLATE database_default, 
-                      spotname COLLATE database_default, 
-                      weldprogno 
-      FROM 
-[19.148.189.9\BOS_SQLSERV_2005].[BOS_6000_DB].[dbo].[extspottable_v] 
+     
       UNION 
       SELECT DISTINCT timername COLLATE database_default, 
                       spotname COLLATE database_default, 

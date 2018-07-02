@@ -25,7 +25,7 @@ CREATE PROCEDURE [EqUi].[EQpluginDefaultNGAC]
 	   @Breakdown as bit = 0,
 	   @BreakdownStart as bit = 0,
 	   @Jobs as bit = 0,
-
+	   @Events as bit = 0,
     --filters
 	@DisplayLevel as int = 2,
 	@DisplayFullLogtext as bit = 1,
@@ -266,9 +266,6 @@ isnull(d.LocationTree,'%') like @lochierarchy
 --Time Filter
 and
 d.[timestamp] BETWEEN @StartDate AND @EndDate
---displaylevel
-and 
-d.Severity > @DisplayLevel
 --enable
 and 
 @ErrDispLog =1
@@ -322,6 +319,28 @@ e.[timestamp] BETWEEN @StartDate AND @EndDate
 --enable
 and
 @Jobs = 1
+
+-----------------------------------------------------------------------------------
+--EVENTS
+---------------------------------------------------------------------------------------
+UNION
+SELECT * 
+From gadata.NGAC.Events as e 
+where 
+--Asset Filters
+isnull(e.AssetID,'%') like @assets
+and 
+isnull(e.LOCATION,e.controller_name) like @locations
+and
+e.controller_name like @locations
+and
+isnull(e.LocationTree,'%') like @lochierarchy
+--Time Filter
+and
+e.[timestamp] BETWEEN @StartDate AND @EndDate
+--enable
+and
+@Events = 1
 
 ---------------------------------------------------------------------------------------
 /*

@@ -7,26 +7,32 @@
 
 
 
+
+
+
+
+
 /*use tag where breakdown started*/
 CREATE VIEW [STO].[Error]
 AS
 SELECT 
- isnull(A.location,c.ALARMOBJECT +'#') as 'location'
-,A.CLassificationId as 'AssetID'
+ isnull(c.[location],c.ALARMOBJECT +'#') as 'location'
+,c.assetnum as 'AssetID'
 ,'STOerror'  as 'Logtype'
 ,CAST(h.ALARMTIMESTAMP as datetime) as 'timestamp'
-,L.SUBOBJECT as 'Logcode'
+,c.ALARMOBJECT as 'Alarmobject'
+,CAST(L.SUBOBJECT as varchar(max))  as 'Logcode'
 ,L.ALARMSEVERITY as 'Severity'
 ,isnull(l.ALARMCOMMENT,'NA')	as 'logtext'
-,isnull(l.ALARMCOMMENT,'NA') as 'Fulllogtext'
-,null  as 'Response'
-,null  as 'Downtime'
-, RTRIM(ISNULL(A.CLassificationId,'Undefined*'))  AS 'Classification' --for STO classification comes from ASSETID
+,L.SUBOBJECT + ' | ' + isnull(l.ALARMCOMMENT,'NA') as 'Fulllogtext'
+,null  as 'Response(s)'
+,DATEDIFF(second,Alarmtimestamp,resettimestamp)  as 'Downtime(s)'
+, RTRIM(ISNULL(c.CLassificationId,'Undefined*'))  AS 'Classification' --for STO classification comes from ASSETID
 , ISNULL(cs.Subgroup,'Undefined*')		 AS 'Subgroup'
 , 'Undefined*' AS 'Category' --only for abb
 , h.id	 AS 'refId'
-, a.LocationTree     As 'LocationTree'
-, a.ClassificationTree as 'ClassTree'
+, c.LocationTree     As 'LocationTree'
+, c.ClassificationTree as 'ClassTree'
 , c.ALAMRSOURCE 		AS 'controller_name'
 , 'STO'		As 'controller_type'
 
@@ -37,11 +43,6 @@ LEFT JOIN GADATA.STO.c_controller as c with (NOLOCK) on c.id = h.c_controller_id
 LEFT JOIN GADATA.STO.l_error as L with (NOLOCK) on L.id = h.l_error_id
 --join subgroup 
 LEFT JOIN GADATA.Volvo.c_Subgroup as cs with (NOLOCK) on cs.id = L.c_SubgroupId
---joining of the RIGHT ASSET
-LEFT OUTER JOIN equi.ASSETS as A with (NOLOCK) on 
-A.controller_type = 'STO' --join the right 'data controller type'
-AND A.controller_id = h.c_controller_id --join the right 'data controller id'
-AND c.ALARMOBJECT LIKE A.LOCATION +'%'
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'STO', @level1type = N'VIEW', @level1name = N'Error';
 

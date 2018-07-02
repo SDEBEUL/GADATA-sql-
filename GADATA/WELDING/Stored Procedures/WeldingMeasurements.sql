@@ -252,7 +252,7 @@ AS
       ORDER  BY derivedtbl_1.datetime 
 
       -------------------------------------------------------------------------------------------- 
-      --DELETE records older than 100 days 
+      --DELETE records older than 1 year
       DELETE FROM welding.nut_boltweldmeasurements 
       WHERE  timestamp < Dateadd(day, -365, Getdate()) 
   END

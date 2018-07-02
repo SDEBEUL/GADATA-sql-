@@ -53,6 +53,15 @@ AND h.error_timestamp < GETDATE()-30
 --******************************************************************--
 
 --******************************************************************--
+--remove all rt_events older than 30days.
+--******************************************************************--
+DELETE GADATA.NGAC.rt_event FROM GADATA.NGAC.rt_event as e
+WHERE  e._timestamp < GETDATE()-30
+--******************************************************************--
+
+
+
+--******************************************************************--
 --remove all user warning older than 30days. (not linked to a breakdown)
 --******************************************************************--
 DELETE GADATA.NGAC.h_alarm FROM GADATA.NGAC.h_alarm as h 

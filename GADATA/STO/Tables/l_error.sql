@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [STO].[l_error] (
     [id]                 INT           IDENTITY (1, 1) NOT NULL,
-    [SUBOBJECT]          VARCHAR (50)  NULL,
+    [SUBOBJECT]          VARCHAR (MAX) NULL,
     [ALARMSEVERITY]      CHAR (1)      NULL,
     [ALARMCOMMENT]       VARCHAR (MAX) NULL,
     [c_ClassificationID] INT           NULL,
@@ -10,4 +10,6 @@
     CONSTRAINT [FK_l_error_c_Classification] FOREIGN KEY ([c_ClassificationID]) REFERENCES [Volvo].[c_Classification] ([id]),
     CONSTRAINT [FK_l_error_c_Subgroup] FOREIGN KEY ([c_SubgroupId]) REFERENCES [Volvo].[c_Subgroup] ([id])
 );
+
+
 

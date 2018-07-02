@@ -1,9 +1,12 @@
 ﻿
+
+
+
 CREATE VIEW [C3G].[SBCUData]
 AS
 SELECT
        [tool_timestamp]
-	  ,R.controller_name as 'RobotName'
+	  ,c.controller_name as 'RobotName'
       ,'Tool: ' + CAST(tl.[tool_id] as varchar(15)) as 'tool_id'
       ,ROUND([Dmeas],2) as 'Dmeas'
       ,ROUND([Dsetup],2) as 'Dsetup'
@@ -18,26 +21,27 @@ SELECT
 	  ,T.Vyear
 	  ,T.Vweek
 	  ,T.Vday
-	  ,ROUND(ref.avg,2) as 'RefAVG'
-	  ,ROUND(ref.Stdev,2) as 'RefSTDEC'
-	  ,ROUND(ref.LCL,2) as 'LCL'
-	  ,ROUND(ref.UCL,2) as 'UCL'
-	  ,ref.nDataPoints as 'RefDp'
-	  ,ref.SampleStart as 'RefSS'
+	  ,NULL as 'RefAVG'
+	  ,NULL as 'RefSTDEC'
+	  ,limits.LowerLimit as 'LCL'
+	  ,limits.UpperLimit as 'UCL'
+	  ,NULL as 'RefDp'
+	  ,NULL as 'RefSS'
 	  ,tl.ID as 'ID'
+	  ,tl.tool_id as 'gunnum'
   FROM [GADATA].c3g.[rt_toollog] AS TL
-  left join GADATA.c3g.c_controller AS R on R.ID = TL.controller_id
-  left join GADATA.Volvo.L_timeline as T on TL.tool_timestamp BETWEEN T.starttime AND T.endtime
+--join controller
+left join GADATA.C3G.c_controller as c on c.id = TL.controller_id
+--join controlLimits
+left join GADATA.Alerts.l_controlLimits as limits on 
+limits.c_trigger_id = 4 --Get correct set.
+AND
+limits.alarmobject = (c.controller_name +'_gun' + CAST(TL.tool_id as varchar(2))) --correct object
+AND 
+TL.tool_timestamp BETWEEN limits.CreateDate and ISNULL(limits.ChangeDate,getdate())
+AND TL.Longcheck = 1
+left join GADATA.Volvo.L_timeline as T on TL.tool_timestamp BETWEEN T.starttime AND T.endtime
   --join the SPC data if available.
-  left join GADATA.c3g.SBCUrefernce as ref 
-  on 
-  (
-  (ref.Controller_id = tl.controller_id)
-  AND
-  (ref.tool_id = Tl.tool_id)
-  AND
-  (tl.Longcheck = ref.Longcheck)
-  )
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'C3G', @level1type = N'VIEW', @level1name = N'SBCUData';
 

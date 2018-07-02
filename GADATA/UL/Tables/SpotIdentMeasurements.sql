@@ -3,3 +3,10 @@
     [SpotID]    INT      NOT NULL
 );
 
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_NPTtime]
+    ON [UL].[SpotIdentMeasurements]([timestamp] ASC);
+

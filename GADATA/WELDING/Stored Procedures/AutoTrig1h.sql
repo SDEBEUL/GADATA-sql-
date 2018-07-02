@@ -9,7 +9,7 @@ exec GADATA.WELDING.TimerFaults -- all timerfaults
 ---exec GADATA.WELDING.SpatterDATA
 exec GADATA.WELDING.QControlSystem -- adaptive controle check
 exec GADATA.WELDING.WeldingMeasurements ---import all nut/bolt data greenfield
-exec GADATA.UL.SpotIdentImport -- to calculate bodys between ultralogplans
+--exec GADATA.UL.SpotIdentImport -- to calculate bodys between ultralogplans
 
 
 

@@ -1,15 +1,15 @@
 ﻿CREATE VIEW dbo.UltralogMeasurements
 AS
-SELECT        dbo.UltralogInspections.InspectionTime, dbo.UltralogStations.Name AS laptop, dbo.Inspectionplan.Name, dbo.Users.CDSID, dbo.Spot.Number, dbo.Timer.Robot, 
-                         dbo.UltralogInspections.BodyNbr, dbo.UltralogInspections.InspectorComment, dbo.UltralogInspections.OK, dbo.UltralogInspections.Loose, 
-                         dbo.UltralogInspections.SmallNugget, dbo.UltralogInspections.StickWeld, dbo.UltralogInspections.BadTroughWeld, dbo.UltralogInspections.MeasuredThickness, 
-                         dbo.UltralogInspections.MinIdentation, dbo.UltralogInspections.TotalThickness
-FROM            dbo.Spot INNER JOIN
-                         dbo.Inspectionplan INNER JOIN
-                         dbo.UltralogInspections ON dbo.Inspectionplan.ID = dbo.UltralogInspections.InspectionPlanID ON dbo.Spot.ID = dbo.UltralogInspections.SpotID INNER JOIN
-                         dbo.UltralogStations ON dbo.UltralogInspections.StationID = dbo.UltralogStations.ID INNER JOIN
-                         dbo.Users ON dbo.UltralogInspections.InspectorID = dbo.Users.ID INNER JOIN
-                         dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID
+SELECT dbo.UltralogInspections.InspectionTime, dbo.UltralogStations.Name AS laptop, dbo.Inspectionplan.Name, dbo.Users.CDSID, dbo.Spot.Number, dbo.Timer.Robot, 
+                  dbo.UltralogInspections.BodyNbr, dbo.UltralogInspections.InspectorComment, dbo.UltralogInspections.OK, dbo.UltralogInspections.Loose, 
+                  dbo.UltralogInspections.SmallNugget, dbo.UltralogInspections.StickWeld, dbo.UltralogInspections.BadTroughWeld, dbo.UltralogInspections.MeasuredThickness, 
+                  dbo.UltralogInspections.MinIdentation, dbo.UltralogInspections.TotalThickness, dbo.UltralogInspections.IndexOfTestSeq, dbo.UltralogInspections.PlanLenght
+FROM     dbo.Spot INNER JOIN
+                  dbo.Inspectionplan INNER JOIN
+                  dbo.UltralogInspections ON dbo.Inspectionplan.ID = dbo.UltralogInspections.InspectionPlanID ON dbo.Spot.ID = dbo.UltralogInspections.SpotID INNER JOIN
+                  dbo.UltralogStations ON dbo.UltralogInspections.StationID = dbo.UltralogStations.ID INNER JOIN
+                  dbo.Users ON dbo.UltralogInspections.InspectorID = dbo.Users.ID INNER JOIN
+                  dbo.Timer ON dbo.Spot.TimerID = dbo.Timer.ID
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'     Width = 3900
          Width = 1200
@@ -28,9 +28,9 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'     Width
          Width = 1200
          Width = 1200
          Width = 1200
-         Width = 2130
-         Width = 1470
-         Width = 1035
+         Width = 2136
+         Width = 1476
+         Width = 1032
          Width = 1200
          Width = 1200
          Width = 1200
@@ -46,16 +46,16 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'     Width
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
-         Column = 3510
-         Alias = 1515
-         Table = 1875
+         Column = 3516
+         Alias = 1512
+         Table = 1872
          Output = 720
          Append = 1400
          NewValue = 1170
-         SortType = 1350
-         SortOrder = 1410
+         SortType = 1356
+         SortOrder = 1416
          GroupBy = 1350
-         Filter = 1350
+         Filter = 1356
          Or = 1350
          Or = 1350
          Or = 1350
@@ -63,6 +63,8 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'     Width
    End
 End
 ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'UltralogMeasurements';
+
+
 
 
 
@@ -135,7 +137,7 @@ Begin DesignProperties =
    End
    Begin DiagramPane = 
       Begin Origin = 
-         Top = -281
+         Top = -240
          Left = 0
       End
       Begin Tables = 
@@ -167,7 +169,7 @@ Begin DesignProperties =
                Right = 492
             End
             DisplayFlags = 280
-            TopColumn = 0
+            TopColumn = 1
          End
          Begin Table = "UltralogStations"
             Begin Extent = 
@@ -208,8 +210,10 @@ Begin DesignProperties =
       End
       Begin ColumnWidths = 33
          Width = 284
-         Width = 2715
+         Width = 2712
     ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'UltralogMeasurements';
+
+
 
 
 

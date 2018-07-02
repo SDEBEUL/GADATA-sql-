@@ -5,8 +5,13 @@
 
 
 
+
+
+
 CREATE VIEW [Tableau].[Last100d_Breakdown]
 AS
+
+--c3g
 SELECT 
  x.logtype
 ,x.timestamp
@@ -18,7 +23,7 @@ SELECT
 ,x.[Downtime(s)]
 ,x.classification
 ,x.subgroup
-,null as 'Category'
+,'C3G_' + x.Subgroup as 'Category'
 ,x.refid
 ,x.locationtree
 ,A.[LOCATION]
@@ -41,12 +46,13 @@ FROM
 SELECT * 
 FROM [GADATA].C3G.Breakdown as b
 WHERE b.Subgroup not in('EO Maint','Operational**','Operational')
-AND b.timestamp between GETDATE()-30 and GETDATE()
+AND b.timestamp between GETDATE()-100 and GETDATE()
 )as x 
 LEFT OUTER JOIN gadata.equi.GeoASSETS as A on a.LOCATION = x.Location and A.controller_ToolID = 1
 LEFT OUTER JOIN GADATA.volvo.L_timeline as t on x.[timestamp] between t.starttime and t.endtime
 WHERE A.Asset_png is not null
 
+--c4g
 UNION
 SELECT 
  x.logtype
@@ -59,7 +65,7 @@ SELECT
 ,x.[Downtime(s)]
 ,x.classification
 ,x.subgroup
-,null as 'Category'
+,'C4G_' + x.Subgroup as 'Category'
 ,x.refid
 ,x.locationtree
 ,A.[LOCATION]
@@ -82,12 +88,14 @@ FROM
 SELECT * 
 FROM [GADATA].C4G.Breakdown as b
 WHERE b.Subgroup not in('EO Maint','Operational**','Operational')
-AND b.timestamp between GETDATE()-30 and GETDATE()
+AND b.timestamp between GETDATE()-100 and GETDATE()
 )as x 
 LEFT OUTER JOIN gadata.equi.GeoASSETS as A on a.LOCATION = x.Location and A.controller_ToolID = 1
 LEFT OUTER JOIN GADATA.volvo.L_timeline as t on x.[timestamp] between t.starttime and t.endtime
 WHERE A.Asset_png is not null
 
+
+--NGAC
 UNION
 SELECT 
  x.logtype
@@ -100,7 +108,7 @@ SELECT
 ,x.downtime
 ,x.classification
 ,x.subgroup
-,x.Category
+,'NGAC_' + ISNULL(x.Category,'undefined') as 'Category'
 ,x.refid
 ,x.locationtree
 ,A.[LOCATION]
@@ -123,7 +131,7 @@ FROM
 SELECT * 
 FROM [GADATA].NGAC.Breakdown as b
 WHERE b.Subgroup not in('EO Maint','Operational**','Operational')
-AND b.timestamp between GETDATE()-30 and GETDATE()
+AND b.timestamp between GETDATE()-100 and GETDATE()
 )as x 
 LEFT OUTER JOIN gadata.equi.GeoASSETS as A on a.LOCATION = x.Location and A.controller_ToolID = 1
 LEFT OUTER JOIN GADATA.volvo.L_timeline as t on x.[timestamp] between t.starttime and t.endtime

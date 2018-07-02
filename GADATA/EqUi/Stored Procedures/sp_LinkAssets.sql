@@ -27,13 +27,14 @@ BEGIN
                       ,assets.[Area]
                       ,assets.[Team]
                       ,ISNULL(r.controller_name,ra.controller_name) as 'controller_name'
-                      ,ISNULL(ISNULL(r.controller_type,ra.controller_type),plc.controller_type) as 'controller_type'
-                      ,ISNULL(ISNULL(r.id,ra.id),plc.id) as 'controller_id'
+                      ,ISNULL(r.controller_type,ra.controller_type) as 'controller_type'
+                      ,ISNULL(r.id,ra.id) as 'controller_id'
                       ,ROW_NUMBER() OVER (PARTITION BY 
                           ISNULL(r.controller_type,ra.controller_type)
                         , ISNULL(r.id,ra.id), assets.classificationid 
                         ORDER BY assets.location ASC) AS 'controller_ToolID'
-
+					  ,null as 'ResponsibleTechnicianTeam'
+					  ,null as 'ResponsibleProductionTeam'
                   FROM [GADATA].[Equi].[ASSETS_fromMX7] as assets
 --***********************************************ROBOT CONTROLLER JOIN BLOCK***********************************************--
                   --join robot assets with there controller
@@ -68,21 +69,8 @@ BEGIN
                   (
                   REPLACE(assets.LOCATION,'JB','R') LIKE ra.controller_name+'%'
                   )
---***********************************************PLC CONTROLLER JOIN BLOCK***********************************************--
-				--join the plc asset with there controller
-				left join 
-				(
-				SELECT 
-				'STO' as 'controller_type'
-				,c_controller.*
-				FROM GADATA.STO.c_controller 
-				)
-				as plc on plc.ALARMOBJECT LIKE assets.[LOCATION] +'%'
-			
 --**********************************************only join for GA GB********************************************************--
                 where 
-               --changed because some assets still not linked 
-			   -- (assets.LocationTree like 'VCG -> A%' AND assets.ASSETNUM like 'U%')
 			    (assets.LocationTree like 'VCG -> A%')
                 OR
                 (assets.LocationTree like 'VCG -> B%' AND assets.ASSETNUM like 'U%')
@@ -91,12 +79,12 @@ BEGIN
 
 --*******************************************************************************************************************--
 --new way Direct joining the location root in the c_controllers
+--*******************************************************************************************************************--
 --NGAC
 UPDATE GADATA.NGAC.c_controller
 SET c_controller.LocationTree = mx.LocationTree 
    ,c_controller.Assetnum = mx.ASSETNUM
    ,c_controller.ProductionTeam = mx.Team
-   ,c_controller.ResponsiblePloeg = null --tbd
    ,c_controller.ClassificationTree = mx.ClassificationTree
    ,c_controller.CLassificationId = mx.CLassificationId
 FROM GADATA.NGAC.c_controller as C 
@@ -107,7 +95,6 @@ UPDATE GADATA.C3G.c_controller
 SET c_controller.LocationTree = mx.LocationTree 
    ,c_controller.Assetnum = mx.ASSETNUM
    ,c_controller.ProductionTeam = mx.Team
-   ,c_controller.ResponsiblePloeg = null --tbd
   -- ,c_controller.ClassificationTree = mx.ClassificationTree
   -- ,c_controller.CLassificationId = mx.CLassificationId
 FROM GADATA.C3G.c_controller as C 
@@ -118,10 +105,130 @@ UPDATE GADATA.C4G.c_controller
 SET c_controller.LocationTree = mx.LocationTree 
    ,c_controller.Assetnum = mx.ASSETNUM
    ,c_controller.ProductionTeam = mx.Team
-   ,c_controller.ResponsiblePloeg = null --tbd
   -- ,c_controller.ClassificationTree = mx.ClassificationTree
   -- ,c_controller.CLassificationId = mx.CLassificationId
 FROM GADATA.C4G.c_controller as C 
 LEFT JOIN GADATA.EqUi.ASSETS_fromMX7 as mx on mx.LOCATION = C.controller_name AND mx.SYSTEMID = 'PRODMID'
+
+--STO
+--run 1 direct match 
+UPDATE GADATA.STO.c_controller
+SET c_controller.[LOCATION] = mx.[LOCATION]
+   ,c_controller.LocationTree = mx.LocationTree 
+   ,c_controller.Assetnum = mx.ASSETNUM
+   ,c_controller.ProductionTeam = mx.Team
+   ,c_controller.ClassificationTree = mx.ClassificationTree
+   ,c_controller.CLassificationId = mx.CLassificationId
+FROM GADATA.STO.c_controller as C 
+LEFT JOIN GADATA.EqUi.ASSETS as mx on 
+mx.SYSTEMID = 'PRODMID'
+and c.ALARMOBJECT  not like '%ZM%' and c.ALARMOBJECT  not like '%Mode%' --not of this type 
+and c.ALARMOBJECT like mx.[LOCATION] + '%'
+
+--run 2 for ZM and Mode where still null
+UPDATE GADATA.STO.c_controller
+SET c_controller.[LOCATION] = mx.[LOCATION]
+   ,c_controller.LocationTree = mx.LocationTree 
+   ,c_controller.Assetnum = mx.ASSETNUM
+   ,c_controller.ProductionTeam = mx.Team
+   ,c_controller.ClassificationTree = mx.ClassificationTree
+   ,c_controller.CLassificationId = mx.CLassificationId
+FROM GADATA.STO.c_controller as C 
+LEFT JOIN GADATA.EqUi.ASSETS as mx on 
+mx.SYSTEMID = 'PRODMID'
+and (c.ALARMOBJECT  like '%ZM%' or c.ALARMOBJECT  like '%Mode%') --if the alarm object from type
+and mx.[LOCATION] like '%STN%' --join only Station assets
+and mx.[LOCATION] like '%' + SUBSTRING(c.SUBZONENAME,0,CHARINDEX('ZMS',  c.SUBZONENAME)) + '%' --make to match
+where c.[location] is null
+
+--*******************************************************************************************************************--
+
+
+--*******************************************************************************************************************--
+--calc production responsible and technican responsible for c_controllers
+--*******************************************************************************************************************--
+--NGAC
+UPDATE GADATA.NGAC.c_controller
+set ResponsibleTechnicianTeam = c_ownership.[Ownership]
+from GADATA.NGAC.c_controller as c
+left join GADATA.EqUi.c_ownership on c_ownership.optgroup = 'TechnicianTeams'
+and c.LocationTree like c_ownership.LocationTree 
+
+UPDATE GADATA.NGAC.c_controller
+set  ResponsibleProductionTeam = c_ownership.[Ownership]
+from GADATA.NGAC.c_controller as c
+left join GADATA.EqUi.c_ownership on c_ownership.optgroup = 'ProductionTeams'
+and c.LocationTree like c_ownership.LocationTree 
+
+--C3G
+UPDATE GADATA.C3G.c_controller
+set ResponsibleTechnicianTeam = c_ownership.[Ownership]
+from GADATA.C3G.c_controller as c
+left join GADATA.EqUi.c_ownership on c_ownership.optgroup = 'TechnicianTeams'
+and c.LocationTree like c_ownership.LocationTree 
+
+UPDATE GADATA.C3G.c_controller
+set  ResponsibleProductionTeam = c_ownership.[Ownership]
+from GADATA.C3G.c_controller as c
+left join GADATA.EqUi.c_ownership on c_ownership.optgroup = 'ProductionTeams'
+and c.LocationTree like c_ownership.LocationTree 
+
+--C4G
+UPDATE GADATA.C4G.c_controller
+set ResponsibleTechnicianTeam = c_ownership.[Ownership]
+from GADATA.NGAC.c_controller as c
+left join GADATA.EqUi.c_ownership on c_ownership.optgroup = 'TechnicianTeams'
+and c.LocationTree like c_ownership.LocationTree 
+
+UPDATE GADATA.C4G.c_controller
+set  ResponsibleProductionTeam = c_ownership.[Ownership]
+from GADATA.NGAC.c_controller as c
+left join GADATA.EqUi.c_ownership on c_ownership.optgroup = 'ProductionTeams'
+and c.LocationTree like c_ownership.LocationTree 
+
+--Asset table
+UPDATE GADATA.EqUi.ASSETS
+set ResponsibleTechnicianTeam = c_ownership.[Ownership]
+from GADATA.EQUI.ASSETS as c
+left join GADATA.EqUi.c_ownership on c_ownership.optgroup = 'TechnicianTeams'
+and c.LocationTree like c_ownership.LocationTree 
+
+UPDATE GADATA.EqUi.ASSETS
+set  ResponsibleProductionTeam = c_ownership.[Ownership]
+from GADATA.EQUI.ASSETS as c
+left join GADATA.EqUi.c_ownership on c_ownership.optgroup = 'ProductionTeams'
+and c.LocationTree like c_ownership.LocationTree 
+
+--*******************************************************************************************************************--
+--update hasspotweld bit for ngac
+--*******************************************************************************************************************--
+update GADATA.NGAC.c_controller
+ set hasspotweld = case
+                  when x.controller_id is not null  then 1
+                  else 0
+                 end
+from GADATA.NGAC.c_controller
+left join (select distinct controller_id from GADATA.NGAC.h_TipWearBeforeChange) as x on x.controller_id = c_controller.id 
+--*******************************************************************************************************************--
+
+
+--*******************************************************************************************************************--
+--Shit area !! 
+--*******************************************************************************************************************--
+--temp for AASPOT
+update GADATA.NGAC.c_controller
+set CLassificationId = 'UAWN+UAWB'
+  FROM [GADATA].[NGAC].[c_controller]
+  where controller_name in
+  (
+'325010R01',
+'325020R01',
+'325030R01',
+'325040R01',
+'326100R01',
+'326060R01',
+'321010R03'
+  )
+
 
 end

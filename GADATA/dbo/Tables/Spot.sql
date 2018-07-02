@@ -36,3 +36,15 @@ ALTER TABLE [dbo].[Spot] NOCHECK CONSTRAINT [FK_Spot_PlateCombinations];
 
 
 
+
+GO
+ALTER TABLE [dbo].[Spot] NOCHECK CONSTRAINT [FK_Spot_PlateCombinations];
+
+
+
+
+GO
+CREATE NONCLUSTERED INDEX [IUX_spotid]
+    ON [dbo].[Spot]([Number] ASC)
+    INCLUDE([ID]);
+

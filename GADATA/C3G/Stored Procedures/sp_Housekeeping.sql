@@ -59,10 +59,17 @@ FROM GADATA.C3G.L_operation as L
 WHERE L._timestamp < GETDATE()-30
 --****************************************************************************************************************--
 
-Print'--Keep last 30 days of cycletime.. Dump the rest'; --
+Print'--Keep last 100 days of cycletime.. Dump the rest'; --
 ---------------------------------------------------------------------------------------
 DELETE GADATA.C3G.rt_CycleTime
 FROM GADATA.C3G.rt_CycleTime as L
+WHERE L._timestamp < GETDATE()-100
+--****************************************************************************************************************--
+
+Print'--Keep last 300 days of cilindermeasurement.. Dump the rest'; --
+---------------------------------------------------------------------------------------
+DELETE GADATA.C3G.rt_GunCylinder
+FROM GADATA.C3G.rt_GunCylinder as L
 WHERE L._timestamp < GETDATE()-100
 --****************************************************************************************************************--
 

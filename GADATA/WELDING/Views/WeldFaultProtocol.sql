@@ -10,7 +10,7 @@ FROM            dbo.NPT INNER JOIN
                          dbo.WeldFaultName ON dbo.WeldFaultLog.WeldFaultID = dbo.WeldFaultName.ID AND dbo.WeldFaultLog.WeldFaultID = dbo.WeldFaultName.ID INNER JOIN
                          dbo.Users ON dbo.NPT.OwnerId = dbo.Users.ID LEFT OUTER JOIN
                          Volvo.L_timeline ON dbo.WeldFaultLog.DateTime BETWEEN Volvo.L_timeline.starttime AND Volvo.L_timeline.endtime
-WHERE        (dbo.WeldFaultLog.DateTime > GETDATE() - 62)
+WHERE        (dbo.WeldFaultLog.DateTime >= GETDATE() - 365)
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'WELDING', @level1type = N'VIEW', @level1name = N'WeldFaultProtocol';
 

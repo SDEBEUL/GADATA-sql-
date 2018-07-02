@@ -7,6 +7,8 @@
 
 
 
+
+
 CREATE VIEW [C3G].[Error]
 AS
 --*******************************************************************************************************--
@@ -20,8 +22,8 @@ SELECT
  ELSE 'ERROR' 
  END				   AS 'Logtype'
 , H.c_timestamp        AS 'timestamp'
-, L.[error_number]       AS 'Logcode'
-, L.[error_severity]     AS 'Severity'
+, CAST(L.[error_number] as varchar(max)) AS 'Logcode'
+, CAST(L.[error_severity] as varchar(max)) AS 'Severity'
 , L.error_text		   AS 'logtext'
 , NULL     AS 'Response'
 , NULL     AS 'Downtime'

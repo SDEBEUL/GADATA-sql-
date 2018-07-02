@@ -16,12 +16,24 @@ BEGIN
 print '--*****************************************************************************--'
 Print '--Running STO.sp_update_L'
 print '--*****************************************************************************--'
----------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------
+--****************************************************************************************************************--
+---------------------------------------------------------------------------------------
+Print'--Update c_stotable with all NEW Unique tables'
+---------------------------------------------------------------------------------------
+INSERT INTO GADATA.STO.c_stotable
+SELECT  distinct  
+ R.StoTable
+From GADATA.STO.rt_error as R 
+Left join GADATA.STO.c_stotable as c on
+(R.StoTable = c.StoTable)
+where 
+(c.id IS NULL) 
 --****************************************************************************************************************--
 ---------------------------------------------------------------------------------------
 Print'--Update c_controller with all NEW Unique controllers'
 ---------------------------------------------------------------------------------------
-INSERT INTO GADATA.STO.c_controller
+INSERT INTO GADATA.STO.c_controller(ALAMRSOURCE,SUBZONENAME,ALARMOBJECT)
 SELECT  distinct  
  R.ALARMSOURCE
 ,R.SUBZONENAME
@@ -41,14 +53,11 @@ where
 ---------------------------------------------------------------------------------------
 Print'--Update L_error with all NEW Unique text, error number and error serv'
 ---------------------------------------------------------------------------------------
-INSERT INTO GADATA.STO.L_error
+INSERT INTO GADATA.STO.L_error(SUBOBJECT,ALARMSEVERITY,ALARMCOMMENT)
 SELECT  distinct  
  REPLACE(R.ALARMOBJECT, SUBSTRING( R.ALARMOBJECT,0,CHARINDEX('.',  R.ALARMOBJECT)),'') as 'SUBOBJECT'
 ,R.ALARMSEVERITY
 ,R.ALARMCOMMENT
-,null
-,null
-,null
 From GADATA.STO.rt_error as R 
 
 Left join GADATA.STO.L_error as L on
@@ -68,14 +77,30 @@ Print'--step to normalize the rt_alarm dataset. gets the normalized id. and put 
 ---------------------------------------------------------------------------------------
 if (OBJECT_ID('tempdb..#STO_rt_alarm_normalized') is not null) drop table #STO_rt_alarm_normalized
 SELECT 
- R.ALARMTIMESTAMP
-,R.CHANGETS as '_timestamp'
+ R.inALARMTIMESTAMP
+,R.inALARMTIMESTAMP as '_timestamp'
 ,C.id as 'C_controller_id'
 ,L.id as 'L_error_id'
-,null as 'RESETTIMESTAMP'
+,R.outALARMTIMESTAMP as 'RESETTIMESTAMP'
+,t.id as 'c_stotable_id'
 INTO #STO_rt_alarm_normalized
-FROM GADATA.STO.rt_error as r
-
+FROM 
+(
+SELECT [NID_ALARM_DATA]
+      ,[ALARMSOURCE]
+      ,[ALARMOBJECT]
+      ,[ALARMCOMMENT]
+      ,[ALARMSEVERITY]
+      ,[GEOLOACTION]
+      ,[ALARMSTATUS] as 'outALARMSTATUS'
+      ,[ALARMTIMESTAMP] as 'outALARMTIMESTAMP'
+      ,[SUBZONENAME]
+      ,[StoTable]
+      ,[id]
+	  ,lead([ALARMTIMESTAMP]) OVER (PARTITION BY [ALARMOBJECT] ORDER BY [NID_ALARM_DATA] desc) as 'inALARMTIMESTAMP'
+	  ,lead([ALARMSTATUS]) OVER (PARTITION BY [ALARMOBJECT] ORDER BY [NID_ALARM_DATA] desc) as 'inALARMSTATUS'
+  FROM [GADATA].[STO].[rt_error]
+) as R
 --join error_id
 join gadata.STO.L_error as L on 
 (
@@ -85,7 +110,6 @@ AND
 AND
 (L.ALARMCOMMENT = R.ALARMCOMMENT)
 )
-
 --join controller
 join GADATA.STO.c_controller as C on
 (
@@ -95,8 +119,11 @@ AND
 AND
 (SUBSTRING( R.ALARMOBJECT,0,CHARINDEX('.',  R.ALARMOBJECT)) = c.ALARMOBJECT)
 )
-WHERE 
-R.ALARMSTATUS = 1 --use tag where breakdown started
+--join table 
+left join GADATA.STO.c_stotable as t on t.StoTable = R.StoTable
+-- 
+WHERE  R.inALARMSTATUS = 1 --alarm must start with status 1
+  AND  R.outALARMSTATUS = 0 --end with status 0 
 ---------------------------------------------------------------------------------------
 
 
@@ -110,13 +137,14 @@ R.ALARMSTATUS = 1 --use tag where breakdown started
 ---------------------------------------------------------------------------------------
 Print'--Cross compare and put into Hystorian if needed'
 ---------------------------------------------------------------------------------------
-INSERT INTO GADATA.STO.h_breakdown
+INSERT INTO GADATA.STO.h_breakdown(ALARMTIMESTAMP,_timestamp,c_controller_id,l_error_id,RESETTIMESTAMP,c_stotable_id)
 SELECT 
- R.ALARMTIMESTAMP
+ R.inALARMTIMESTAMP
 ,R._timestamp
 ,R.C_controller_id
 ,R.L_error_id
 ,R.RESETTIMESTAMP 
+,R.c_stotable_id
 FROM #STO_rt_alarm_normalized as R 
 --this will filter out unique results
 LEFT join GADATA.STO.h_breakdown AS H on  
@@ -130,13 +158,6 @@ AND
 where (H.id IS NULL) 
 
 --****************************************************************************************************************--
-
---****************************************************************************************************************--
----------------------------------------------------------------------------------------
-Print'--clear rt_error'
----------------------------------------------------------------------------------------
-DELETE GADATA.STO.rt_error FROM GADATA.STO.rt_error
---****************************************************************************************************************--
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 --Activity log (logs the execution of the Query to a table)
@@ -149,5 +170,8 @@ DECLARE @RequestString as varchar(255)
 SET @RequestString = 'Running: [STO].[sp_update_L]'
 EXEC GADATA.volvo.sp_Alog  @rowcount = @rowcountmen, @Request = @RequestString
 ---------------------------------------------------------------------------------------
-
+Print'--clear rt_error'
+---------------------------------------------------------------------------------------
+DELETE GADATA.STO.rt_error FROM GADATA.STO.rt_error
+--****************************************************************************************************************--
 END

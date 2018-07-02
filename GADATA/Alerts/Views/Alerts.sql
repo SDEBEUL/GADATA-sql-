@@ -1,4 +1,7 @@
 ﻿
+
+
+
 /*only show alert when this is set*/
 CREATE VIEW [Alerts].[Alerts]
 AS
@@ -13,8 +16,8 @@ END  AS 'Logtype'
 WHEN h_alert.[state] = 1 THEN GETDATE()
 ELSE h_alert.lastTriggerd
 END   AS 'timestamp'
-, c_triggers.id    AS 'Logcode'
-, h_alert.[state]  AS 'Severity'
+, ''    AS 'Logcode'
+, CAST(h_alert.[state] as varchar(max)) AS 'Severity'
 , h_alert.info AS 'Logtext'
 , h_alert.info  AS 'FullLogtext'
 , NULL     AS 'Response'
@@ -37,6 +40,7 @@ left join GADATA.Alerts.c_triggers on c_triggers.id = h_alert.c_tirgger_id
 left join GADATA.Alerts.c_state  on h_alert.[state] = c_state.id
 
 where c_triggers.isInReport = 1 --only show alert when this is set
+and c_triggers.[enabled] = 1 --only show alert when enabled
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Alerts', @level1type = N'VIEW', @level1name = N'Alerts';
 

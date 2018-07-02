@@ -1,0 +1,3 @@
+﻿CREATE SCHEMA [QIS]
+    AUTHORIZATION [VCCNET\jcoppej1];
+

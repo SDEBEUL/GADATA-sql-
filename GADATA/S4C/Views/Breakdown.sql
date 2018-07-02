@@ -3,6 +3,7 @@
 
 
 
+
 CREATE VIEW [S4C].[Breakdown]
 AS
 select 
@@ -10,7 +11,7 @@ select
 , c.CLassificationId     AS 'AssetID' 
 , 'BREAKDOWN'	   AS 'Logtype'
 , rt.[Date Time]        AS 'timestamp'
-, rt.[AlarmNo]     AS 'Logcode'
+, CAST(rt.[AlarmNo] as varchar(max))    AS 'Logcode'
 , [NGAC].[fn_GetSeverity](rt.[Txt 1])   AS 'Severity'
 , [Txt 2]  AS 'Logtext'
 ,       NGAC.[AddifSomething]([Txt 2]) + 

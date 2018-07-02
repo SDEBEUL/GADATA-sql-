@@ -3,12 +3,14 @@
 
 
 
+
 CREATE VIEW [NGAC].[TipDressLogFile]
 AS
 select 
  c.controller_name
  ,c.LocationTree
-	   ,rt.[id]
+ ,c.id as 'c_controller_id'
+	  ,rt.[id]
       ,rt.[rt_csv_file_id]
       ,rt.[Date Time]
       ,isnull(rt.[Tool_Nr],1) as 'Tool_Nr' --stat gun not passing tool_nr? what happens in case of 2 statguns ?

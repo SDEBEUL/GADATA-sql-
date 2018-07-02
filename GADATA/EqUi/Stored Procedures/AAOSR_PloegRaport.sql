@@ -225,9 +225,10 @@ isnull(ngac_breakdown.LocationTree,'%') like @lochierarchy
 --Time Filter
 and
 ngac_breakdown.[timestamp] BETWEEN @StartDate AND @EndDate
-AND
+and
 ngac_breakdown.Downtime < (8*60*60) -- just filter out bullshit more than 8 hours
-
+and
+ngac_breakdown.Category not like '%Operational%' 
 GROUP BY 
  ngac_breakdown.location 
 ,ngac_breakdown.AssetID 
@@ -318,6 +319,69 @@ AND
 breakdowns.Subgroup not in('EO Maint','Operational**','Operational')
 --************************************************************************************--
 
+--************************************************************************************--
+--STO breakdown
+--************************************************************************************--
+
+UNION 
+SELECT * FROM (
+SELECT        
+  STO_breakdown.location 
+, STO_breakdown.AssetID 
+, STO_breakdown.Logtype
+, min(STO_breakdown.[timestamp]) AS 'timestamp'
+, min(STO_breakdown.Logcode) as 'Logcode'
+, min(STO_breakdown.Fulllogtext) as 'logtext'
+, SUM(STO_breakdown.[Response(s)]) as 'Response(s)'
+, SUM(STO_breakdown.[Downtime(s)]) AS 'Downtime(s)'
+, count(STO_breakdown.[Downtime(s)]) AS 'Count'
+, STO_breakdown.Subgroup
+, STO_breakdown.Classification
+, min(STO_breakdown.refId) as 'refid'
+, STO_breakdown.LocationTree
+FROM GADATA.STO.Error as STO_breakdown
+left join GADATA.volvo.L_timeline as timeline on STO_breakdown.[timestamp] between timeline.starttime and timeline.endtime
+WHERE 
+--Asset Filters
+isnull(STO_breakdown.AssetID,'%') like @assets
+and 
+isnull(STO_breakdown.LOCATION,STO_breakdown.controller_name) like @locations
+and
+STO_breakdown.controller_name like @locations
+and
+isnull(STO_breakdown.LocationTree,'%') like @lochierarchy
+--Time Filter
+AND
+STO_breakdown.[timestamp] BETWEEN @StartDate AND @EndDate
+AND
+STO_breakdown.[Downtime(s)] < (8*60*60) -- just filter out bullshit more than 8 hours
+AND
+STO_breakdown.[Downtime(s)] > 30 --filter out bs lower than 30 sec 
+
+GROUP BY 
+ STO_breakdown.location 
+,STO_breakdown.AssetID 
+,STO_breakdown.Logtype
+,STO_breakdown.logcode
+,timeline.Vyear
+,timeline.Vweek
+,timeline.Vday
+,timeline.shift
+,STO_breakdown.Subgroup
+,STO_breakdown.Classification
+,STO_breakdown.LocationTree
+--************************************************************************************--
+) as breakdowns
+--set report filter
+where 
+(
+breakdowns.Count > @minCountOfDowtime
+OR
+breakdowns.[Downtime(s)] > (@minDowntime*60)
+)
+AND 
+breakdowns.Subgroup not in('Operational**','Operational','Undefined*')
+--************************************************************************************--
 
 --************************************************************************************--
 UNION
@@ -436,7 +500,7 @@ select
 , '' 
 , 'ALERT'
 , max(h_alert._timestamp) AS 'timestamp'
-, max(c_triggers.id) as 'Logcode'
+, '' as 'Logcode'
 , max(h_alert.info) as 'logtext'
 , NULL as 'Response(s)'
 ,CASE 
@@ -480,7 +544,7 @@ SELECT
 , null 
 , 'TIMELINE' as 'LogType'
 , t.timestamp
-, null
+, ''
 , 'ShiftRap for:  ' + cast(t.Year as varchar(4)) + 'W' + cast(t.Week as varchar(2)) + 'D' + cast(t.day as varchar(1)) + '   | above here starts the ' + t.Ploeg + ' shift' as 'Logtekst'
 , null 
 , null
@@ -491,30 +555,6 @@ SELECT
 , ''
 FROM GADATA.volvo.Timeline as t where t.timestamp between @startdate and @endDate
 --************************************************************************************--
-
---************************************************************************************--
---Info
---************************************************************************************--
-UNION
-SELECT 
-  null 
-, null 
-, 'Ruleinfo' as 'LogType'
-, @StartDate as  'timestamp'
-, null
-, '   |@minDowntime = ' + CAST(@minDowntime as varchar(5)) +
-  '   |@minCountOfDowtime = ' + CAST(@minCountOfDowtime as varchar(5)) + 
-  '   |@minCountofWarning = ' + CAST(@minCountofWarning as varchar(5)) 
-as 'Logtekst'
-, null 
-, null
-, null
-, '<= refreshed' as 'subgroup'
-, null
-, null
-, ''
---************************************************************************************--
-
 ) as output 
 
 --set sort

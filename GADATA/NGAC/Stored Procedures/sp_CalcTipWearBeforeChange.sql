@@ -1,6 +1,6 @@
 ﻿
 CREATE PROCEDURE [NGAC].[sp_CalcTipWearBeforeChange]
-  @daysBack as int = 10 --must be this high because some tips are on the robot a LONG time
+  @daysBack as int = 40 --must be this high because some tips are on the robot a LONG time
 AS
 BEGIN
 ---------------------------------------------------------------------------------------------------------------------
@@ -68,6 +68,7 @@ SELECT
 ,rt.Max_Wear_Fixed
 ,rt.Max_Wear_Move
 ,rt.Dress_Reason
+,rt.ErrorType
 ,[NGAC].[DistanceBetweenPoints]([GunTCP_X],[GunTCP_Y],[GunTCP_Z],[NomTCP_X],[NomTCP_Y],[NomTCP_Z]) as 'DeltaNom'
 ,lead([NGAC].[DistanceBetweenPoints]([GunTCP_X],[GunTCP_Y],[GunTCP_Z],[NomTCP_X],[NomTCP_Y],[NomTCP_Z])) OVER (PARTITION BY c.controller_name, rt.Tool_nr  ORDER BY rt.[Date Time] desc) as 'DeltaNomBeforeChange'
 ,lead(rt.Wear_Fixed) OVER (PARTITION BY c.controller_name, rt.Tool_nr  ORDER BY rt.[Date Time] desc) as 'FixedWearBeforeChange'
@@ -85,6 +86,7 @@ controller_name	id	rt_csv_file_id	Date Time	Tool_Nr	Dress_Num	Weld_Counter	Dress
 This must be excluded. Can be detected by Dress_reason = "" o
 */
 WHERE len(rt.Dress_Reason) > 1
+
 --limit date range for Query performance
 AND rt._timestamp between GETDATE()-@daysBack and GETDATE()
 ) AS Y
@@ -94,17 +96,27 @@ WHERE
 (
 	Y.Dress_Num = 0 
 AND Y.Dress_Reason = 'FullDress'
+--SDEBEUL bugfix 18w20d4
+/*
+Also possible to have fault when dress_reson is filled in.
+controller_name	LocationTree	id	rt_csv_file_id	Date Time	Tool_Nr	Dress_Num	Weld_Counter	Dress_Reason	Weld_Result	Length_Fixed_Result	Length_Move_Result	Max_Wear_Fixed	Wear_Fixed	DiffFrLastWear_Fixed	Max_Wear_Move	Wear_Move	DiffFrLastWear_Move	MaxDiffFrLastMeas	Current_TipWear	TipWearRatio	Dress_Time1	Dress_Pressure1	Dress_Time2	Dress_Pressure2	CleanDress_Time	CleanDress_Pressure	Time_DressCycleTime	ErrorType	ExtraInfo	GunTCP_X	GunTCP_Y	GunTCP_Z	GunRefTCP_X	GunRefTCP_Y	GunRefTCP_Z	NomTCP_X	NomTCP_Y	NomTCP_Z	Tool_NrHs	ChkDrWear_Fixed_Result	ChkDrWear_Move_Result	FxSens_SetupVal	FxSens_StartVal	FxSens_PrevVal	FxSens_PrevWare	FxSens_DiffValue	FxSens_MaxSensZComp	FxSens_WarmSensZComp	FxSens_FlPinPrevVal	FxSens_FlPinSetupVal	FxSens_FlPinPhysActVal	FxSens_FlPinPhysSetupVal	Internal_Arg	DeltaRef	DeltaNom	_timestamp
+336040R03	VCG -> A -> A GA1.0 -> A LIJN 336 -> A STN336040 -> 336040R03	766849	4032	2018-05-23 23:18:33.000	1	1	15	FullDress	NOK	NOK	OK	6	-2,04	-2,04	6	-2,55	-2,55	1	-4,59	44,5	3	1176,5	1,5	1176,5	0,5	100	15,2	OverMill		-881,07	814,13	251,72	-881,07	814,13	251,72	-881,58	813,42	251,04	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	0	1,11	2018-05-23 23:18:32.737
+336040R03	VCG -> A -> A GA1.0 -> A LIJN 336 -> A STN336040 -> 336040R03	766688	4032	2018-05-23 22:41:13.000	1	0	0	FullDress	OK	OK	OK	6	0	0	6	0	0	1	0,02	44,5	3	1176,5	1,5	1176,5	0,5	100	47,9			-881,07	814,13	251,72	-881,07	814,13	251,72	-881,58	813,42	251,04	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	0	1,11	2018-05-23 22:41:17.310
+In this case there was en error in ErrorType (these records must be excluded)
+--bugfix 18W23 when you apply this to statguns nothing is returnd.
+*/
+AND len(Y.ErrorType) < 1
 )
 OR --stat guns
 (
-	Y.Dress_Num in (0,1,2,3) --normaly guns are set to 3 dresses in init-dress but some are change to 2 this clause will handle all 
-AND Y.Dress_Reason = 'InitDress'
+Y.Dress_Num in (0,1,2,3) --normaly guns are set to 3 dresses in init-dress but some are change to 2 this clause will handle all 
+AND 
+Y.Dress_Reason = 'InitDress'
 )
 AND Y.DressBeforeChange is not null 
 --*********************************************************************************************************************************--
 ) AS Z
 ) AS X
-
 
 --select * from #TipWearBeforeChange
 

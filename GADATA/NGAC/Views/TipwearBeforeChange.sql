@@ -14,6 +14,8 @@
 
 
 
+
+
 CREATE VIEW [NGAC].[TipwearBeforeChange]
 AS
 --SDEBEUL 18w10d3 moved this to a precalulated table. see PROCEDURE [NGAC].[sp_CalcTipWearBeforeChange]
@@ -36,6 +38,8 @@ SELECT
       ,[TipAge(h)]
       ,[DeltaNom]
       ,[DeltaNomBeforeChange]
+	  ,id as 'refid'
+	  ,ROW_NUMBER() OVER (PARTITION BY [controller_id],[Tool_Nr] ORDER BY [TipchangeTimestamp] DESC) AS 'tipchangeindex'
 	   FROM [GADATA].[NGAC].[h_TipWearBeforeChange]
 	  left join GADATA.NGAC.c_controller as c on c.id = h_TipWearBeforeChange.controller_id
 GO

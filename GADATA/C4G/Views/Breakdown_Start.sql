@@ -1,5 +1,6 @@
 ﻿
 
+
 /********************************************************************************************************--
 c4g breakdown
 *******************************************************************************************************--
@@ -14,8 +15,8 @@ SELECT
 , c.CLassificationId   AS 'AssetID'
 ,'BREAKDOWN_start'		   AS 'Logtype'
 , H.StartOfBreakdown     AS 'timestamp'
-, L.[error_number]      AS 'Logcode'
-, L.[error_severity]			AS 'Severity'
+, CAST(L.[error_number] as varchar(max)) AS 'Logcode'
+, CAST(L.[error_severity] as varchar(max)) AS 'Severity'
 , L.error_text 		AS 'logtext'
 , null	AS 'Response(s)' 
 , null AS 'Downtime(s)'

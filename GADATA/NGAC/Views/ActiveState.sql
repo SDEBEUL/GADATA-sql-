@@ -6,6 +6,7 @@
 
 
 
+
 CREATE VIEW [NGAC].[ActiveState]
 AS
 SELECT 
@@ -71,6 +72,9 @@ rtai.vasc_state <> 1 --1 vasc fully connected
 )
 and c.enable_bit <> -1 --robot must be in use 
 --and rtai.program_number <> 0 --must be running a job
+
+--temp for mute testing 
+and rtai.vasc_session not like '%8%'
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'NGAC', @level1type = N'VIEW', @level1name = N'ActiveState';
 

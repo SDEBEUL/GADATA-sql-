@@ -1,5 +1,6 @@
 ﻿
 
+
 CREATE VIEW [NGAC].[Jobs]
 AS
 SELECT 
@@ -11,7 +12,7 @@ SELECT
 , ''   AS 'Severity'
 
 ,'Job:' + CAST(rtj.id as varchar(max)) + ' order:' + CAST(rtj.jobNo as varchar(max)) + ' CT:' + CAST(DATEDIFF(SECOND,rtj.ts_Start,rtj.ts_End) as varchar(max)) AS 'Logtext'
-,'Job:' + CAST(rtj.id as varchar(max)) + ' order:' + CAST(rtj.jobNo as varchar(max)) + ' CT:' + CAST(DATEDIFF(SECOND,rtj.ts_Start,rtj.ts_End) as varchar(max)) AS 'FullLogtext'
+,'Job:' + CAST(rtj.id as varchar(max)) + ' order:' + CAST(rtj.jobNo as varchar(max)) + ' CT:' + CAST(DATEDIFF(SECOND,rtj.ts_Start,rtj.ts_End) as varchar(max)) + ' Bodynum:' + + CAST(rtj.bodyNo as varchar(max)) AS 'FullLogtext'
 ,null as 'Response'
 ,null as 'Downtime'
 , 'Undefined*'  AS 'Classification'

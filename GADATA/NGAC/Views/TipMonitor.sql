@@ -1,42 +1,69 @@
 ﻿
 
+
+
+
+
+
+
+
+
 CREATE VIEW [NGAC].[TipMonitor]
 AS
-SELECT DISTINCT top 10000  rt.[controller_name] as 'Robot'
-                          ,rt.[Date Time]
+SELECT DISTINCT top 10000  c.controller_name as 'Robot'
+					      ,rt.Tool_Nr 
+                          ,isnull(rt.[Date Time],getdate()) as 'Date time'
                           ,rt.[Dress_Num] as 'nDress'
                           ,rt.[Weld_Counter] as 'nWelds'
 						  ,rt.TipWearRatio as 'WearRatio'
 	                      ,CASE 
-						      WHEN tipalert.refId is not null THEN 666
-		                      WHEN rt.[Wear_Fixed] > rt.[Wear_Move] THEN ROUND((rt.[Wear_Fixed]  / rt.[Max_Wear_Fixed])*100,0)
-		                      ELSE ROUND((rt.Wear_Move  / rt.Max_Wear_Move)*100,0)
-		                      END 'pWear'
+						     --tipalert and fixed dominant
+						      WHEN (tipalert.refId is not null) AND rt.[Wear_Fixed] >= rt.[Wear_Move]  THEN ROUND((rt.[Wear_Fixed]  / rt.[Max_Wear_Fixed])*100,0) + isnull(rt.[Last%FixedWearBeforeChange],0)
+			                  --tipalert and mov dominant
+							  WHEN (tipalert.refId is not null) AND rt.[Wear_Fixed] <= rt.[Wear_Move]  THEN ROUND((rt.Wear_Move  / rt.Max_Wear_Move)*100,0) + isnull(rt.[Last%MovWearBeforeChange],0)
+							  --NO tipalert and fixed dominant
+						      WHEN (tipalert.refId is null) AND rt.[Wear_Fixed] >= rt.[Wear_Move]  THEN ROUND((rt.[Wear_Fixed]  / rt.[Max_Wear_Fixed])*100,0)
+			                  --NO tipalert and mov dominant
+							  WHEN (tipalert.refId is null) AND rt.[Wear_Fixed] <= rt.[Wear_Move]  THEN ROUND((rt.Wear_Move  / rt.Max_Wear_Move)*100,0) 
+		                      ELSE -1
+		                   END 'pWear' --in case of an alert we combine the previous wear and the current wear
                           ,CASE 
-	                          WHEN rt.[ESTremainingspotsFixed] > rt.[ESTremainingspotsMove] THEN rt.[ESTremainingspotsFixed]
-		                      ELSE rt.[ESTremainingspotsMove]
-		                      END 'nRspots'
+						     --if tipalert return error on remaining spots
+						      WHEN (tipalert.refId is not null) THEN -1
+							--if not tipalert
+	                          WHEN (tipalert.refId is null) AND rt.[ESTremainingspotsFixed] >= rt.[ESTremainingspotsMove] THEN rt.[ESTremainingspotsFixed]
+		                      WHEN (tipalert.refId is null) AND rt.[ESTremainingspotsFixed] <= rt.[ESTremainingspotsMove] THEN rt.[ESTremainingspotsMove]
+							  ELSE null
+		                   END 'nRspots'
                           ,CASE 
-	                          WHEN rt.[ESTremainingCarsFixed] > rt.[ESTremainingsCarsMove] THEN rt.[ESTremainingCarsFixed]
-		                      ELSE rt.[ESTremainingsCarsMove]
-		                      END 'nRcars'
+						     --if tipalert return error on remaining spots
+						      WHEN (tipalert.refId is not null) THEN -1
+							  --if not tipalert
+	                          WHEN  (tipalert.refId is null) AND rt.[ESTremainingCarsFixed] >= rt.[ESTremainingsCarsMove] THEN rt.ESTremainingCarsFixed
+							  WHEN  (tipalert.refId is null) AND rt.[ESTremainingCarsFixed] <= rt.[ESTremainingsCarsMove] THEN rt.ESTremainingsCarsMove
+		                      ELSE null
+		                   END 'nRcars'
 						 ,DATEDIFF(hour,rt.LastTipchange,getdate()) as 'TipAge(h)'
 						 ,rt.LastTipchange
 						 ,rt.Time_DressCycleTime
-						 ,rt.id
-						 ,rt.LocationTree
+						 ,c.id
+						 ,c.LocationTree
 						 ,ROUND(rt.DeltaNom-rt.[avgDeltaNomAfterchange],2) as 'MagicFiXedWear'
 						 ,CASE 
-						 WHEN tipalert.refId is not null THEN 'X'
-						 ELSE ''
-						 END as 'NoChangeDetected'
+						     WHEN rt._timestamp is null THEN 'ND' --no data!
+							 WHEN tipalert.refId is not null THEN 'NTCD' --no tipchange deteced
+							 WHEN rt.countWearInCalc is null THEN 'NWIC' --no wear in calc
+							 ELSE ''
+						  END as 'Status'
+						 ,ROUND(rt.Wear_Fixed+rt.Wear_Move,2) as 'RobotWear'
 
-                      FROM [GADATA].[NGAC].[TipwearLast] as rt
+                      FROM GADATA.NGAC.c_controller as c
+					  left join [GADATA].[NGAC].[TipwearLast] as rt on rt.controller_name = c.controller_name
 					  --join active tiplife alerts
 					  left join GADATA.Alerts.Alerts as tipalert on tipalert.LocationTree = rt.LocationTree 
 					  and tipalert.Subgroup like '%TIPLIFE%'
 					  and tipalert.Category = 'WGK'
-                      where rt.[Date Time] < getdate()
+                      where ((rt.[Date Time] < getdate()) or rt.[Date Time] is null) AND (c.hasspotweld = 1) --only robots with the bit set will be handed!
 					  --
                       Order by [pWear] DESC
 GO

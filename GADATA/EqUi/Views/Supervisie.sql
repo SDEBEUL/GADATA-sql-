@@ -1,17 +1,5 @@
 ﻿
 
-
-
-
-
-
-
-
-
-
-
-
-
 CREATE VIEW [EqUi].[Supervisie]
 AS
 
@@ -128,6 +116,37 @@ where
 breakdown.[timestamp] BETWEEN getdate()-'1900-01-01 08:00:00' AND getdate()
 and 
 1*60 <= breakdown.Downtime
+and  
+breakdown.Category NOT LIKE '%Operational%' 
+--*******************************************************************************************************--
+UNION
+--*******************************************************************************************************--
+--STO breakdown
+--*******************************************************************************************************--
+select 
+       [Location]
+      ,[AssetID]
+      ,[Logtype]
+      ,[timestamp]
+      ,[Logcode]
+      ,[Severity]
+      ,[Fulllogtext]
+      ,[Response(s)]
+      ,[Downtime(s)]
+      ,[Classification]
+      ,[Subgroup]
+      ,[refId]
+      ,[LocationTree]
+      ,[ClassTree]
+      ,[controller_name]
+      ,[controller_type]
+FROM GADATA.sto.error as breakdown
+where 
+breakdown.[timestamp] BETWEEN getdate()-'1900-01-01 08:00:00' AND getdate()
+and 
+1*60 <= breakdown.[Downtime(s)] --filter out false events lower than 1 minute
+and  
+breakdown.Subgroup not in('Operational**','Operational','Undefined*')
 --*******************************************************************************************************--
 UNION
 --*******************************************************************************************************--

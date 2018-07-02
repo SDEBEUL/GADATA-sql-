@@ -12,9 +12,10 @@ CREATE PROCEDURE [EqUi].[EQpluginDefaultSTO]
 	   @locations as varchar(20) = '%',
 	   @lochierarchy as varchar(20) = '%',
 	--optional
+	   @Alarmobject as varchar(50) = '%',
 	   @timeline as bit = 1,
-	   @StoBreakDown as bit = 0,
-	   @StoError as bit = 1
+	   @StoError as bit = 1,
+	   @Exclude_E as bit = 1 --E WIWO Model OperatorOvertime
 
 AS
 BEGIN
@@ -51,6 +52,7 @@ SELECT
 , output.AssetID		as 'AssetID'
 --log part
 , output.Logtype		AS 'Logtype'
+, output.Alarmobject    As 'Alarmobject'
 , output.Logcode		AS 'Logcode'
 , output.Severity		AS 'Severity'
 , output.logtext		AS 'logtext'
@@ -82,6 +84,7 @@ SELECT
 ,'TIMELINE'	AS 'AssetID'
 ,'TIMELINE' AS 'Logtype'
 , T.starttime + '1900-01-01 00:00:01' AS 'timestamp' --add 1s because else dubble match on join with weeknumbers
+, Null      As 'Alarmobject'
 , Null      AS 'Logcode'
 , Null      AS 'Severity'
 , 'Begin of Shift: ' + T.[shift] + '  Ploeg:'+ T.PLOEG       AS 'logtext'
@@ -112,16 +115,27 @@ SELECT * FROM GADATA.STO.Error as e
 WHERE
 --Asset Filters
     isnull(e.AssetID,'%') like @assets
-and isnull(e.LOCATION,e.controller_name) like @locations
+and isnull(e.[LOCATION],e.controller_name) like @locations
 --and A.controller_name like @locations
 and isnull(e.LocationTree,'%') like @lochierarchy
---Time Filter
-and CAST(e.[TIMESTAMP] as datetime) BETWEEN @StartDate AND @EndDate
---enable
-and @StoError = 1
+--alarmobject
+and isnull(e.alarmobject,'%') like @Alarmobject
 
+--Time Filter
+and e.[TIMESTAMP]  BETWEEN @StartDate AND @EndDate
+--enable
+and @StoError = 1 
 ) as output
 left join gadata.volvo.l_timeline as timeline on output.timestamp between timeline.starttime and timeline.endtime
+
+WHERE
+(
+(@Exclude_E = 1 
+AND (ISNULL(output.Severity,'') NOT in('E')) 
+)
+OR 
+@Exclude_E = 0
+)
 order by output.timestamp desc 
 
 END

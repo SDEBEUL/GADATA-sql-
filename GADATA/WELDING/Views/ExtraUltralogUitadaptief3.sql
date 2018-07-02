@@ -9,14 +9,14 @@ FROM            WELDING.Qcontrol INNER JOIN
                          dbo.NPT ON dbo.Timer.NptId = dbo.NPT.ID AND dbo.Timer.NptId = dbo.NPT.ID INNER JOIN
                          dbo.Users ON dbo.NPT.OwnerId = dbo.Users.ID
 GROUP BY dbo.Spot.Number, dbo.Timer.Name, WELDING.Qcontrol.[uit adaptief], dbo.NPT.Name, dbo.Users.CDSID
-HAVING        (MAX(dbo.WeldMeasurements.Date) >= GETDATE() - 7) AND (WELDING.Qcontrol.[uit adaptief] = 1) AND (dbo.Spot.Number BETWEEN 30000 AND 49999) OR
+HAVING        (MAX(dbo.WeldMeasurements.Date) >= GETDATE() - 7) AND (WELDING.Qcontrol.[uit adaptief] = 1) AND (dbo.Spot.Number BETWEEN 20000 AND 49999) OR
                          (MAX(dbo.WeldMeasurements.Date) >= GETDATE() - 7) AND (WELDING.Qcontrol.[uit adaptief] = 1) AND (dbo.Spot.Number BETWEEN 4400000 AND 4419999)
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'WELDING', @level1type = N'VIEW', @level1name = N'ExtraUltralogUitadaptief3';
 
 
 GO
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'00
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'500
          Width = 1500
          Width = 1500
          Width = 1500
@@ -48,13 +48,15 @@ End
 
 
 
+
+
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
 Begin DesignProperties = 
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[36] 4[22] 2[8] 3) )"
+         Configuration = "(H (1[36] 4[22] 2[22] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -190,7 +192,9 @@ Begin DesignProperties =
       Begin ColumnWidths = 9
          Width = 284
          Width = 1500
-         Width = 15', @level0type = N'SCHEMA', @level0name = N'WELDING', @level1type = N'VIEW', @level1name = N'ExtraUltralogUitadaptief3';
+         Width = 1', @level0type = N'SCHEMA', @level0name = N'WELDING', @level1type = N'VIEW', @level1name = N'ExtraUltralogUitadaptief3';
+
+
 
 
 

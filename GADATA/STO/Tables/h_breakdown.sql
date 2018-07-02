@@ -5,10 +5,13 @@
     [c_controller_id] INT      NOT NULL,
     [l_error_id]      INT      NOT NULL,
     [RESETTIMESTAMP]  DATETIME NULL,
+    [c_stotable_id]   INT      NULL,
     CONSTRAINT [PK_h_breakdown] PRIMARY KEY CLUSTERED ([id] ASC),
     CONSTRAINT [FK_h_breakdown_c_controller] FOREIGN KEY ([c_controller_id]) REFERENCES [STO].[c_controller] ([id]),
     CONSTRAINT [FK_h_breakdown_l_error] FOREIGN KEY ([l_error_id]) REFERENCES [STO].[l_error] ([id])
 );
+
+
 
 
 GO

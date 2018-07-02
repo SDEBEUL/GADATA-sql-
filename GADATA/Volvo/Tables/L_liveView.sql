@@ -3,8 +3,8 @@
     [AssetID]         VARCHAR (255)  NULL,
     [Logtype]         VARCHAR (9)    NOT NULL,
     [timestamp]       DATETIME       NULL,
-    [Logcode]         INT            NULL,
-    [Severity]        INT            NULL,
+    [Logcode]         VARCHAR (MAX)  NULL,
+    [Severity]        VARCHAR (MAX)  NULL,
     [logtext]         VARCHAR (2106) NULL,
     [Response(s)]     INT            NULL,
     [Downtime(s)]     INT            NULL,
@@ -16,4 +16,6 @@
     [controller_name] VARCHAR (50)   NULL,
     [controller_type] VARCHAR (3)    NOT NULL
 );
+
+
 

@@ -12,6 +12,10 @@
 
 
 
+
+
+
+
 CREATE VIEW [NGAC].[Breakdown]
 AS
 SELECT 
@@ -19,27 +23,35 @@ SELECT
 , c.CLassificationId     AS 'AssetID'
 , 'BREAKDOWN'	  AS 'Logtype'
 , rtj.ts_breakDownEnd        AS 'timestamp'
-, CAST(Le.Number as varchar(max))     AS 'Logcode'
-, CAST(Le.l_type_id as varchar(max))    AS 'Severity'
 
-,CASE when (Le.[Title] LIKE '%:%') OR (Le.[Title] LIKE '%External weld fault reported%')
- THEN ISNULL(ld.CleanDescription,'#No Description available')
- ELSE ISNULL(RTRIM(LTRIM(Le.[Title])),'#No Title available')
+,CASE when rtjb.h_alarm_id is not null
+ THEN CAST(h.Logcode as varchar(max)) 
+ ELSE CAST(rt.Logcode as varchar(max)) 
+ END AS 'Logcode'
+,CASE when rtjb.h_alarm_id is not null
+ THEN CAST(h.Severity as varchar(max))
+ ELSE CAST(rt.Severity as varchar(max))
+ END AS 'Severity'
+
+,CASE when rtjb.h_alarm_id is not null
+ THEN h.logtext
+ ELSE rt.logtext
  END AS 'Logtext'
-
-,CASE when (Le.[Title] LIKE '%:%') OR (Le.[Title] LIKE '%External weld fault reported%')
- THEN ISNULL(ld.CleanDescription,'#No Description available')
- ELSE isnull(RTRIM(LTRIM(Le.[Title])),'#No Title available') + CHAR(13)+CHAR(10) +  
-  isnull(ld.CleanDescription ,'#No Description available') + CHAR(13)+CHAR(10) +  
-  isnull(rtjb.phase1,'') --added this phase tempory only works on 338052 now 
+,CASE when rtjb.h_alarm_id is not null
+ THEN h.FullLogtext
+ ELSE rt.FullLogtext
  END AS 'FullLogtext'
 
 ,DATEDIFF(SECOND,rtj.ts_breakDownStart,rtj.ts_breakDownAck ) as 'Response'
 ,DATEDIFF(SECOND,rtj.ts_breakDownStart,rtj.ts_breakDownEnd ) as 'Downtime'
 
-, RTRIM(ISNULL(cc.Classification,'Undefined*'))  AS 'Classification'
-, ISNULL(cs.Subgroup,'Undefined*')		 AS 'Subgroup'
-, ISNULL(lc.category,'Undefined*') AS 'Category'
+, ISNULL(h.Classification,'Undefined*')  AS 'Classification'
+, ISNULL(h.Subgroup,'Undefined*')		 AS 'Subgroup'
+
+,CASE when rtjb.h_alarm_id is not null
+ THEN h.category
+ ELSE rt.category
+ END AS 'Category'
 , rtj.id				 AS 'refId'
 , c.LocationTree     As 'LocationTree'
 , c.ClassificationTree as 'ClassTree'
@@ -48,20 +60,15 @@ SELECT
 
 FROM  NGAC.rt_job AS rtj 
 LEFT JOIN GADATA.NGAC.rt_job_breakdown as rtjb on rtjb.rt_job_active_id = rtj.id AND rtjb.[index] = 1
-LEFT JOIN GADATA.NGAC.h_alarm as h on h.id = rtjb.h_alarm_id
-LEFT JOIN GADATA.NGAC.L_error as Le on Le._id = h.L_error_id
-LEFT OUTER JOIN NGAC.L_description AS ld  ON ld.id = le.l_description_id
+LEFT JOIN GADATA.NGAC.ControllerEventLog as h on h.refid = rtjb.h_alarm_id
+LEFT JOIN GADATA.NGAC.junk_alarms as rt on rt.refid = rtjb.rt_alarm_id
 
-LEFT OUTER JOIN NGAC.L_type AS lt with (NOLOCK)  ON lt.id  = le.l_type_id
-LEFT OUTER JOIN NGAC.L_category as lc with (NOLOCK)  on lc.id = h.CategoryId
-
-LEFT OUTER JOIN VOLVO.c_Classification as cc with (NOLOCK)  on cc.id = Le.c_ClassificationId
-LEFT OUTER JOIN VOLVO.c_Subgroup as cs with (NOLOCK)  on cs.id = Le.c_SubgroupId
 
 LEFT JOIN NGAC.c_controller as c with (NOLOCK) on c.id = rtj.c_controller_id
 --must be a breakdown not just CT
 WHERE rtj.ts_breakDownStart is not null 
 AND rtj.ts_breakDownEnd is not null
+--AND rtjb.h_alarm_id is not null --WARNING this cause us ONLY to show the alarms joined with H_ALARM! this filters out a SHITLOAD 
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'NGAC', @level1type = N'VIEW', @level1name = N'Breakdown';
 

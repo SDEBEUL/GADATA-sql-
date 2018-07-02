@@ -10,6 +10,10 @@
     [SUBZONENAME]    VARCHAR (MAX) NULL,
     [FCOMPLETE]      NCHAR (1)     NULL,
     [CHANGETS]       DATETIME      NULL,
-    [StoTable]       VARCHAR (50)  NULL
+    [StoTable]       VARCHAR (50)  NULL,
+    [id]             INT           IDENTITY (1, 1) NOT NULL,
+    CONSTRAINT [PK_rt_error] PRIMARY KEY CLUSTERED ([id] ASC)
 );
+
+
 

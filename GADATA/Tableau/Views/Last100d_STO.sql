@@ -5,6 +5,7 @@
 
 
 
+
 CREATE VIEW [Tableau].[Last100d_STO]
 AS
 
@@ -32,7 +33,7 @@ WHERE
     e.Classification not like '%Undefined*%'
 AND e.Subgroup not like '%Operational%'
 AND e.AssetID not in('URA') --robot faults come in using VASC
-AND e.timestamp between GETDATE()-1 and GETDATE()
+AND e.timestamp between GETDATE()-10 and GETDATE()
 AND e.LocationTree is not null
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'Tableau', @level1type = N'VIEW', @level1name = N'Last100d_STO';

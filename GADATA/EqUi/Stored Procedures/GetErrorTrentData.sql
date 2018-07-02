@@ -3,7 +3,7 @@
 
 CREATE PROCEDURE [EqUi].[GetErrorTrentData]
   @Location as varchar(max) = null
- ,@ERRORNUM as int = null -- why not use the index of the l_error ? might be smarter 
+ ,@ERRORNUM as varchar(max) = null -- why not use the index of the l_error ? might be smarter 
  ,@Logtext as varchar(max) = null
  ,@logType as varchar(max) = null
  ,@refId as int = null
@@ -118,6 +118,22 @@ BEGIN
 	h.Logcode = @ERRORNUM
 	AND
 	@Logtext like h.logtext+'%' --because can be logtext or fulllogtext
+	AND 
+	h.[timestamp] < getdate()
+	order by h.[timestamp] ASC
+END
+
+
+--SIEMENS STO***************************************************************************************--
+if  @logtype = 'STOerror' --@controllerTYPE = 'STO' and can not do this because not joined in assets 
+BEGIN
+	SELECT
+	  h.[timestamp]  as 'starttime'
+	FROM gadata.STO.Error as h 
+	WHERE 
+	h.[location] = @Location
+	AND
+	h.Logcode = @ERRORNUM
 	AND 
 	h.[timestamp] < getdate()
 	order by h.[timestamp] ASC

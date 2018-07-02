@@ -1,4 +1,5 @@
 ﻿
+
 CREATE VIEW [C4G].[ActiveState]
 AS
 SELECT * FROM
@@ -18,6 +19,8 @@ SELECT
 FROM   GADATA.c4g.c_controller as C
 --join the controller name
 LEFT JOIN GADATA.C4G.rt_sys_event as Y  ON (Y.controller_id = C.id) 
+--only active controllers
+where C.enable_bit <> -1
 ) as x 
 where x.rn = 1
 GO
